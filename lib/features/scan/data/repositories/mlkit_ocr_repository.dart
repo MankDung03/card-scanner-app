@@ -6,15 +6,20 @@ import '../../domain/entities/card_ocr_result.dart';
 import '../../domain/repositories/ocr_repository.dart';
 
 class MlKitOcrRepository implements OcrRepository {
-  TextRecognizer? _recognizer;
+  final Map<TextRecognitionScript, TextRecognizer> _recognizers = {};
 
-  TextRecognizer get recognizer {
-    _recognizer ??= TextRecognizer(script: TextRecognitionScript.japanese);
-    return _recognizer!;
+  TextRecognizer _getRecognizer(TextRecognitionScript script) {
+    return _recognizers.putIfAbsent(
+      script,
+      () => TextRecognizer(script: script),
+    );
   }
 
   @override
-  Future<CardOcrResult> recognizeText(String imagePath) async {
+  Future<CardOcrResult> recognizeText(
+    String imagePath, {
+    TextRecognitionScript script = TextRecognitionScript.japanese,
+  }) async {
     final file = File(imagePath);
     if (!await file.exists()) {
       throw Exception('Tệp ảnh không tồn tại: $imagePath');
@@ -36,6 +41,7 @@ class MlKitOcrRepository implements OcrRepository {
 
     // 2. Chạy Google ML Kit Text Recognition On-Device
     final inputImage = InputImage.fromFilePath(imagePath);
+    final recognizer = _getRecognizer(script);
     final RecognizedText recognizedText = await recognizer.processImage(inputImage);
 
     // 3. Map sang Domain Entity CardOcrResult
@@ -93,7 +99,9 @@ class MlKitOcrRepository implements OcrRepository {
 
   @override
   Future<void> dispose() async {
-    await _recognizer?.close();
-    _recognizer = null;
+    for (final recognizer in _recognizers.values) {
+      await recognizer.close();
+    }
+    _recognizers.clear();
   }
 }

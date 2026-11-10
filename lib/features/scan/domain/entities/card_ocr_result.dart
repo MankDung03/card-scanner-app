@@ -21,14 +21,55 @@ class CardOcrResult {
   int get totalLines => blocks.fold(0, (sum, b) => sum + b.lines.length);
   int get totalElements => blocks.fold(0, (sum, b) => sum + b.totalElements);
 
+  /// Danh sách tất cả các dòng chữ trong thẻ
+  List<CardTextLine> get allLines {
+    final list = <CardTextLine>[];
+    for (final block in blocks) {
+      list.addAll(block.lines);
+    }
+    return list;
+  }
+
+  /// Danh sách tất cả các từ / ký tự đơn lẻ
+  List<CardTextElement> get allElements {
+    final list = <CardTextElement>[];
+    for (final block in blocks) {
+      for (final line in block.lines) {
+        list.addAll(line.elements);
+      }
+    }
+    return list;
+  }
+
   /// Trích xuất danh sách tất cả các dòng chữ theo thứ tự từ trên xuống dưới
   List<CardTextLine> get sortedLines {
-    final allLines = <CardTextLine>[];
+    final list = List<CardTextLine>.from(allLines);
+    list.sort((a, b) => a.boundingBox.top.compareTo(b.boundingBox.top));
+    return list;
+  }
+
+  /// Tìm dòng chữ chứa điểm tọa độ chuẩn hóa [normalizedPoint] ([0.0 -> 1.0])
+  CardTextLine? hitTestLine(Offset normalizedPoint) {
+    final size = Size(imageWidth.toDouble(), imageHeight.toDouble());
     for (final block in blocks) {
-      allLines.addAll(block.lines);
+      for (final line in block.lines) {
+        if (line.normalizedRect(size).contains(normalizedPoint)) {
+          return line;
+        }
+      }
     }
-    allLines.sort((a, b) => a.boundingBox.top.compareTo(b.boundingBox.top));
-    return allLines;
+    return null;
+  }
+
+  /// Tìm khối chữ chứa điểm tọa độ chuẩn hóa [normalizedPoint] ([0.0 -> 1.0])
+  CardTextBlock? hitTestBlock(Offset normalizedPoint) {
+    final size = Size(imageWidth.toDouble(), imageHeight.toDouble());
+    for (final block in blocks) {
+      if (block.normalizedRect(size).contains(normalizedPoint)) {
+        return block;
+      }
+    }
+    return null;
   }
 
   /// Tóm tắt cấu trúc để debug / logging

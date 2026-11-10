@@ -151,6 +151,9 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get visualTab => 'Trực quan';
+
+  @override
   String get rawTextTab => 'Văn bản thô';
 
   @override

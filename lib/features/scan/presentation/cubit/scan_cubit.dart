@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -247,7 +248,9 @@ class ScanCubit extends Cubit<ScanState> {
   }
 
   /// Thực hiện OCR On-Device bằng Google ML Kit (Model Bundled tiếng Nhật + Latin)
-  Future<CardOcrResult?> processOcr() async {
+  Future<CardOcrResult?> processOcr({
+    TextRecognitionScript script = TextRecognitionScript.japanese,
+  }) async {
     final currentPath = state.currentImagePath;
     if (currentPath == null) {
       emit(state.copyWith(
@@ -274,7 +277,7 @@ class ScanCubit extends Cubit<ScanState> {
         }
       }
 
-      final result = await _ocrRepository.recognizeText(pathToProcess);
+      final result = await _ocrRepository.recognizeText(pathToProcess, script: script);
 
       if (state.currentSide == CardSide.front) {
         emit(state.copyWith(

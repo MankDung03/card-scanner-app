@@ -45,4 +45,6 @@ flutter {
 dependencies {
     // Bundled Japanese Text Recognition model (100% On-device offline, không tải qua mạng)
     implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+    // Bundled Latin Text Recognition model (100% On-device offline, tiếng Việt & Latin)
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 }

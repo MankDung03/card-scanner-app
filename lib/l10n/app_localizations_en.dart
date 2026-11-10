@@ -150,6 +150,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get visualTab => 'Visual';
+
+  @override
   String get rawTextTab => 'Raw text';
 
   @override

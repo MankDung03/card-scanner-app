@@ -53,6 +53,7 @@
   "ocrBlocksCount": "{count} テキストブロック",
   "ocrLinesCount": "{count} 行",
   "offlineBadge": "100% オンデバイス・完全オフライン",
+  "visualTab": "視覚的オーバーレイ",
   "rawTextTab": "抽出テキスト",
   "blocksTab": "ブロックと座標",
   "copyRawText": "テキストを全コピー",

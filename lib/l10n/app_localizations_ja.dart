@@ -147,6 +147,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get visualTab => '視覚的オーバーレイ';
+
+  @override
   String get rawTextTab => '抽出テキスト';
 
   @override

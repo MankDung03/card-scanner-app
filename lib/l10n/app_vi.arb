@@ -53,6 +53,7 @@
   "ocrBlocksCount": "{count} khối chữ",
   "ocrLinesCount": "{count} dòng chữ",
   "offlineBadge": "100% On-device · Offline",
+  "visualTab": "Trực quan",
   "rawTextTab": "Văn bản thô",
   "blocksTab": "Khối chữ & Tọa độ",
   "copyRawText": "Sao chép toàn bộ text",

@@ -364,6 +364,12 @@ abstract class AppLocalizations {
   /// **'{count} dòng chữ'**
   String ocrLinesCount(Object count);
 
+  /// No description provided for @visualTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trực quan'**
+  String get visualTab;
+
   /// No description provided for @rawTextTab.
   ///
   /// In vi, this message translates to:

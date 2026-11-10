@@ -106,7 +106,11 @@ class CardCropPage extends StatelessWidget {
       Navigator.of(context, rootNavigator: true).pop(); // Đóng loading dialog
 
       if (result != null) {
-        await OcrPreviewSheet.show(context, result);
+        await OcrPreviewSheet.show(
+          context,
+          result,
+          imagePath: scanCubit.state.currentImagePath,
+        );
       } else {
         final error = scanCubit.state.ocrErrorMessage ?? 'Lỗi nhận dạng';
         ScaffoldMessenger.of(context).showSnackBar(
