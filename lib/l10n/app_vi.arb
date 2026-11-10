@@ -27,5 +27,25 @@
   "languageTitle": "Ngôn ngữ",
   "langVi": "Tiếng Việt 🇻🇳",
   "langJa": "日本語 🇯🇵",
-  "langEn": "English 🇬🇧"
+  "langEn": "English 🇬🇧",
+
+  "frontSide": "Mặt trước",
+  "backSide": "Mặt sau",
+  "alignCardTitle": "Đặt danh thiếp vừa khung",
+  "alignCardSubtitle": "Khung tỉ lệ 91 × 55 mm · giữ máy song song với thẻ",
+  "stepFront": "1 - Mặt trước",
+  "stepBackOptional": "2 - Mặt sau (tuỳ chọn)",
+  "gallery": "Thư viện",
+  "cropAction": "Cắt ảnh",
+  "cropTitle": "Căn chỉnh ảnh",
+  "changePhoto": "Đổi ảnh",
+  "autoDetectedSuccess": "Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp",
+  "rotate": "Xoay",
+  "autoAlign": "Tự động",
+  "addBackSide": "Thêm mặt sau",
+  "recognizeText": "Nhận dạng chữ",
+  "cameraPermissionRequired": "Cần cấp quyền truy cập máy ảnh để chụp danh thiếp",
+  "grantPermission": "Cấp quyền",
+  "cameraInitError": "Không thể khởi động camera",
+  "processing": "Đang xử lý ảnh..."
 }

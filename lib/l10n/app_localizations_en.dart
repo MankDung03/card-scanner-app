@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
-  String get featureComingSoon => 'Feature will be enabled in the next step';
+  String get featureComingSoon => 'Feature will be enabled in next step';
 
   @override
   String get settingsTitle => 'Settings & Preferences';
@@ -72,4 +72,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get langEn => 'English 🇬🇧';
+
+  @override
+  String get frontSide => 'Front side';
+
+  @override
+  String get backSide => 'Back side';
+
+  @override
+  String get alignCardTitle => 'Fit business card in frame';
+
+  @override
+  String get alignCardSubtitle =>
+      'Ratio 91 × 55 mm · keep phone parallel to card';
+
+  @override
+  String get stepFront => '1 - Front';
+
+  @override
+  String get stepBackOptional => '2 - Back (optional)';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get cropAction => 'Crop';
+
+  @override
+  String get cropTitle => 'Adjust Card';
+
+  @override
+  String get changePhoto => 'Change';
+
+  @override
+  String get autoDetectedSuccess =>
+      'Auto-fit applied · drag 4 corners if needed';
+
+  @override
+  String get rotate => 'Rotate';
+
+  @override
+  String get autoAlign => 'Auto';
+
+  @override
+  String get addBackSide => 'Add back';
+
+  @override
+  String get recognizeText => 'Recognize text';
+
+  @override
+  String get cameraPermissionRequired =>
+      'Camera permission is required to scan cards';
+
+  @override
+  String get grantPermission => 'Grant permission';
+
+  @override
+  String get cameraInitError => 'Could not initialize camera';
+
+  @override
+  String get processing => 'Processing image...';
 }

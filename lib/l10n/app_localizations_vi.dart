@@ -73,4 +73,64 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get langEn => 'English 🇬🇧';
+
+  @override
+  String get frontSide => 'Mặt trước';
+
+  @override
+  String get backSide => 'Mặt sau';
+
+  @override
+  String get alignCardTitle => 'Đặt danh thiếp vừa khung';
+
+  @override
+  String get alignCardSubtitle =>
+      'Khung tỉ lệ 91 × 55 mm · giữ máy song song với thẻ';
+
+  @override
+  String get stepFront => '1 - Mặt trước';
+
+  @override
+  String get stepBackOptional => '2 - Mặt sau (tuỳ chọn)';
+
+  @override
+  String get gallery => 'Thư viện';
+
+  @override
+  String get cropAction => 'Cắt ảnh';
+
+  @override
+  String get cropTitle => 'Căn chỉnh ảnh';
+
+  @override
+  String get changePhoto => 'Đổi ảnh';
+
+  @override
+  String get autoDetectedSuccess =>
+      'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp';
+
+  @override
+  String get rotate => 'Xoay';
+
+  @override
+  String get autoAlign => 'Tự động';
+
+  @override
+  String get addBackSide => 'Thêm mặt sau';
+
+  @override
+  String get recognizeText => 'Nhận dạng chữ';
+
+  @override
+  String get cameraPermissionRequired =>
+      'Cần cấp quyền truy cập máy ảnh để chụp danh thiếp';
+
+  @override
+  String get grantPermission => 'Cấp quyền';
+
+  @override
+  String get cameraInitError => 'Không thể khởi động camera';
+
+  @override
+  String get processing => 'Đang xử lý ảnh...';
 }

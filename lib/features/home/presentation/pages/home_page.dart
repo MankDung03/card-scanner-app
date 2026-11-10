@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/widgets/trust_badge.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../scan/presentation/cubit/scan_cubit.dart';
 import '../../data/models/recent_card_model.dart';
 import '../widgets/camera_action_card.dart';
 import '../widgets/gallery_action_card.dart';
@@ -21,23 +25,15 @@ class _HomePageState extends State<HomePage> {
   final List<RecentCardModel> _recentCards = RecentCardModel.sampleData;
 
   void _onCaptureCard(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n?.featureComingSoon ?? 'Chức năng sẽ được kích hoạt ở bước tiếp theo'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    context.push(AppRoutes.scanCamera);
   }
 
-  void _onPickFromGallery(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n?.featureComingSoon ?? 'Chức năng sẽ được kích hoạt ở bước tiếp theo'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  Future<void> _onPickFromGallery(BuildContext context) async {
+    final scanCubit = context.read<ScanCubit>();
+    final picked = await scanCubit.pickFromGallery();
+    if (picked != null && context.mounted) {
+      context.push(AppRoutes.scanCrop);
+    }
   }
 
   void _onViewAllCards(BuildContext context) {

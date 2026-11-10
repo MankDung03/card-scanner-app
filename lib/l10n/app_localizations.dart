@@ -225,6 +225,120 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'English 🇬🇧'**
   String get langEn;
+
+  /// No description provided for @frontSide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mặt trước'**
+  String get frontSide;
+
+  /// No description provided for @backSide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mặt sau'**
+  String get backSide;
+
+  /// No description provided for @alignCardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đặt danh thiếp vừa khung'**
+  String get alignCardTitle;
+
+  /// No description provided for @alignCardSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khung tỉ lệ 91 × 55 mm · giữ máy song song với thẻ'**
+  String get alignCardSubtitle;
+
+  /// No description provided for @stepFront.
+  ///
+  /// In vi, this message translates to:
+  /// **'1 - Mặt trước'**
+  String get stepFront;
+
+  /// No description provided for @stepBackOptional.
+  ///
+  /// In vi, this message translates to:
+  /// **'2 - Mặt sau (tuỳ chọn)'**
+  String get stepBackOptional;
+
+  /// No description provided for @gallery.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thư viện'**
+  String get gallery;
+
+  /// No description provided for @cropAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cắt ảnh'**
+  String get cropAction;
+
+  /// No description provided for @cropTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Căn chỉnh ảnh'**
+  String get cropTitle;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đổi ảnh'**
+  String get changePhoto;
+
+  /// No description provided for @autoDetectedSuccess.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp'**
+  String get autoDetectedSuccess;
+
+  /// No description provided for @rotate.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoay'**
+  String get rotate;
+
+  /// No description provided for @autoAlign.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động'**
+  String get autoAlign;
+
+  /// No description provided for @addBackSide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm mặt sau'**
+  String get addBackSide;
+
+  /// No description provided for @recognizeText.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhận dạng chữ'**
+  String get recognizeText;
+
+  /// No description provided for @cameraPermissionRequired.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cần cấp quyền truy cập máy ảnh để chụp danh thiếp'**
+  String get cameraPermissionRequired;
+
+  /// No description provided for @grantPermission.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cấp quyền'**
+  String get grantPermission;
+
+  /// No description provided for @cameraInitError.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không thể khởi động camera'**
+  String get cameraInitError;
+
+  /// No description provided for @processing.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang xử lý ảnh...'**
+  String get processing;
 }
 
 class _AppLocalizationsDelegate

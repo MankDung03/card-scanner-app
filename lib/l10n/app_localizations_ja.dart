@@ -38,19 +38,19 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get offlineBadge => '端末内で安全に処理 · ネット不要';
+  String get offlineBadge => '端末内で安全に処理・ネット不要';
 
   @override
   String get today => '今日';
 
   @override
-  String get featureComingSoon => 'この機能は次のステップで有効化されます';
+  String get featureComingSoon => '次のステップで機能が有効化されます';
 
   @override
-  String get settingsTitle => '設定と環境設定';
+  String get settingsTitle => '設定＆オプション';
 
   @override
-  String get themeTitle => 'テーマ';
+  String get themeTitle => '外観テーマ';
 
   @override
   String get themeLight => 'ライト';
@@ -59,7 +59,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get themeDark => 'ダーク';
 
   @override
-  String get themeSystem => 'システム';
+  String get themeSystem => 'システム連動';
 
   @override
   String get languageTitle => '言語';
@@ -72,4 +72,61 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get langEn => 'English 🇬🇧';
+
+  @override
+  String get frontSide => '表面';
+
+  @override
+  String get backSide => '裏面';
+
+  @override
+  String get alignCardTitle => '枠内に名刺を合わせてください';
+
+  @override
+  String get alignCardSubtitle => '規格サイズ 91 × 55 mm · カメラを水平に保持';
+
+  @override
+  String get stepFront => '1 - 表面';
+
+  @override
+  String get stepBackOptional => '2 - 裏面（任意）';
+
+  @override
+  String get gallery => 'アルバム';
+
+  @override
+  String get cropAction => 'トリミング';
+
+  @override
+  String get cropTitle => '画像調整';
+
+  @override
+  String get changePhoto => '画像変更';
+
+  @override
+  String get autoDetectedSuccess => '枠を自動認識しました · 必要に応じて4隅を調整';
+
+  @override
+  String get rotate => '回転';
+
+  @override
+  String get autoAlign => '自動調整';
+
+  @override
+  String get addBackSide => '裏面を追加';
+
+  @override
+  String get recognizeText => '文字認識を開始';
+
+  @override
+  String get cameraPermissionRequired => '名刺撮影のためカメラ権限を許可してください';
+
+  @override
+  String get grantPermission => '権限を許可';
+
+  @override
+  String get cameraInitError => 'カメラの起動に失敗しました';
+
+  @override
+  String get processing => '画像を処理中...';
 }
