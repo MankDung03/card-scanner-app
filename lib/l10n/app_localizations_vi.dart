@@ -38,7 +38,7 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get offlineBadge => 'Xử lý ngay trên máy · không cần mạng';
+  String get offlineBadge => '100% On-device · Offline';
 
   @override
   String get today => 'Hôm nay';
@@ -133,4 +133,35 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get processing => 'Đang xử lý ảnh...';
+
+  @override
+  String get ocrProcessing => 'Đang nhận dạng chữ trên thẻ...';
+
+  @override
+  String get ocrSuccess => 'Nhận dạng chữ thành công';
+
+  @override
+  String ocrBlocksCount(Object count) {
+    return '$count khối chữ';
+  }
+
+  @override
+  String ocrLinesCount(Object count) {
+    return '$count dòng chữ';
+  }
+
+  @override
+  String get rawTextTab => 'Văn bản thô';
+
+  @override
+  String get blocksTab => 'Khối chữ & Tọa độ';
+
+  @override
+  String get copyRawText => 'Sao chép toàn bộ text';
+
+  @override
+  String get copiedToClipboard => 'Đã sao chép vào bộ nhớ tạm';
+
+  @override
+  String get noTextDetected => 'Không nhận diện được chữ nào trong ảnh';
 }

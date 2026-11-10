@@ -41,3 +41,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Bundled Japanese Text Recognition model (100% On-device offline, không tải qua mạng)
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/card_ocr_result.dart';
 
 enum CardSide { front, back }
 
@@ -12,6 +13,12 @@ class ScanState {
   final bool isProcessing;
   final String? errorMessage;
   final bool isFlashOn;
+
+  // OCR state
+  final CardOcrResult? frontOcrResult;
+  final CardOcrResult? backOcrResult;
+  final bool isOcrLoading;
+  final String? ocrErrorMessage;
 
   const ScanState({
     this.currentSide = CardSide.front,
@@ -28,11 +35,18 @@ class ScanState {
     this.isProcessing = false,
     this.errorMessage,
     this.isFlashOn = false,
+    this.frontOcrResult,
+    this.backOcrResult,
+    this.isOcrLoading = false,
+    this.ocrErrorMessage,
   });
 
   bool get hasBothSides => frontImagePath != null && backImagePath != null;
   bool get hasFrontImage => frontImagePath != null;
   bool get hasBackImage => backImagePath != null;
+
+  CardOcrResult? get currentOcrResult =>
+      currentSide == CardSide.front ? frontOcrResult : backOcrResult;
 
   ScanState copyWith({
     CardSide? currentSide,
@@ -44,6 +58,10 @@ class ScanState {
     bool? isProcessing,
     String? errorMessage,
     bool? isFlashOn,
+    CardOcrResult? frontOcrResult,
+    CardOcrResult? backOcrResult,
+    bool? isOcrLoading,
+    String? ocrErrorMessage,
   }) {
     return ScanState(
       currentSide: currentSide ?? this.currentSide,
@@ -55,6 +73,10 @@ class ScanState {
       isProcessing: isProcessing ?? this.isProcessing,
       errorMessage: errorMessage,
       isFlashOn: isFlashOn ?? this.isFlashOn,
+      frontOcrResult: frontOcrResult ?? this.frontOcrResult,
+      backOcrResult: backOcrResult ?? this.backOcrResult,
+      isOcrLoading: isOcrLoading ?? this.isOcrLoading,
+      ocrErrorMessage: ocrErrorMessage,
     );
   }
 }

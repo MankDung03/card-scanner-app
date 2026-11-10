@@ -38,7 +38,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get offlineBadge => '端末内で安全に処理・ネット不要';
+  String get offlineBadge => '100% オンデバイス・完全オフライン';
 
   @override
   String get today => '今日';
@@ -129,4 +129,35 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get processing => '画像を処理中...';
+
+  @override
+  String get ocrProcessing => '名刺の文字を認識中...';
+
+  @override
+  String get ocrSuccess => '文字認識が完了しました';
+
+  @override
+  String ocrBlocksCount(Object count) {
+    return '$count テキストブロック';
+  }
+
+  @override
+  String ocrLinesCount(Object count) {
+    return '$count 行';
+  }
+
+  @override
+  String get rawTextTab => '抽出テキスト';
+
+  @override
+  String get blocksTab => 'ブロックと座標';
+
+  @override
+  String get copyRawText => 'テキストを全コピー';
+
+  @override
+  String get copiedToClipboard => 'クリップボードにコピーしました';
+
+  @override
+  String get noTextDetected => '画像からテキストを検出できませんでした';
 }

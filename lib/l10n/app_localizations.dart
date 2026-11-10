@@ -157,7 +157,7 @@ abstract class AppLocalizations {
   /// No description provided for @offlineBadge.
   ///
   /// In vi, this message translates to:
-  /// **'Xử lý ngay trên máy · không cần mạng'**
+  /// **'100% On-device · Offline'**
   String get offlineBadge;
 
   /// No description provided for @today.
@@ -339,6 +339,60 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Đang xử lý ảnh...'**
   String get processing;
+
+  /// No description provided for @ocrProcessing.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang nhận dạng chữ trên thẻ...'**
+  String get ocrProcessing;
+
+  /// No description provided for @ocrSuccess.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhận dạng chữ thành công'**
+  String get ocrSuccess;
+
+  /// No description provided for @ocrBlocksCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} khối chữ'**
+  String ocrBlocksCount(Object count);
+
+  /// No description provided for @ocrLinesCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} dòng chữ'**
+  String ocrLinesCount(Object count);
+
+  /// No description provided for @rawTextTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Văn bản thô'**
+  String get rawTextTab;
+
+  /// No description provided for @blocksTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khối chữ & Tọa độ'**
+  String get blocksTab;
+
+  /// No description provided for @copyRawText.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sao chép toàn bộ text'**
+  String get copyRawText;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã sao chép vào bộ nhớ tạm'**
+  String get copiedToClipboard;
+
+  /// No description provided for @noTextDetected.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không nhận diện được chữ nào trong ảnh'**
+  String get noTextDetected;
 }
 
 class _AppLocalizationsDelegate

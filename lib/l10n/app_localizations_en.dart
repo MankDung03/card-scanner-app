@@ -38,7 +38,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get offlineBadge => 'Processed on-device · No network needed';
+  String get offlineBadge => '100% On-device · Offline';
 
   @override
   String get today => 'Today';
@@ -132,4 +132,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get processing => 'Processing image...';
+
+  @override
+  String get ocrProcessing => 'Recognizing text on card...';
+
+  @override
+  String get ocrSuccess => 'Text recognized successfully';
+
+  @override
+  String ocrBlocksCount(Object count) {
+    return '$count text blocks';
+  }
+
+  @override
+  String ocrLinesCount(Object count) {
+    return '$count lines';
+  }
+
+  @override
+  String get rawTextTab => 'Raw text';
+
+  @override
+  String get blocksTab => 'Blocks & Coordinates';
+
+  @override
+  String get copyRawText => 'Copy full text';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get noTextDetected => 'No text detected in the image';
 }

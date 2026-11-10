@@ -10,6 +10,7 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/crop_bottom_toolbar.dart';
 import '../widgets/interactive_quad_cropper.dart';
+import '../widgets/ocr_preview_sheet.dart';
 
 class CardCropPage extends StatelessWidget {
   const CardCropPage({super.key});
@@ -55,17 +56,67 @@ class CardCropPage extends StatelessWidget {
     );
   }
 
-  void _onRecognizeText(BuildContext context) {
+  Future<void> _onRecognizeText(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${l10n?.recognizeText ?? "Nhận dạng chữ"} (Google ML Kit OCR On-device) - Sẵn sàng chuyển tiếp Bước 3!',
+    final scanCubit = context.read<ScanCubit>();
+
+    // Hiển thị loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: Dialog(
+          backgroundColor: const Color(0xFF131B2E),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.r16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                  ),
+                ),
+                AppSpacing.gapW16,
+                Expanded(
+                  child: Text(
+                    l10n?.ocrProcessing ?? 'Đang nhận dạng chữ trên thẻ...',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        backgroundColor: AppColors.blueCardStart,
-        duration: const Duration(seconds: 3),
       ),
     );
+
+    final result = await scanCubit.processOcr();
+
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop(); // Đóng loading dialog
+
+      if (result != null) {
+        await OcrPreviewSheet.show(context, result);
+      } else {
+        final error = scanCubit.state.ocrErrorMessage ?? 'Lỗi nhận dạng';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   @override

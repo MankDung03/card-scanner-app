@@ -47,5 +47,15 @@
   "cameraPermissionRequired": "Cần cấp quyền truy cập máy ảnh để chụp danh thiếp",
   "grantPermission": "Cấp quyền",
   "cameraInitError": "Không thể khởi động camera",
-  "processing": "Đang xử lý ảnh..."
+  "processing": "Đang xử lý ảnh...",
+  "ocrProcessing": "Đang nhận dạng chữ trên thẻ...",
+  "ocrSuccess": "Nhận dạng chữ thành công",
+  "ocrBlocksCount": "{count} khối chữ",
+  "ocrLinesCount": "{count} dòng chữ",
+  "offlineBadge": "100% On-device · Offline",
+  "rawTextTab": "Văn bản thô",
+  "blocksTab": "Khối chữ & Tọa độ",
+  "copyRawText": "Sao chép toàn bộ text",
+  "copiedToClipboard": "Đã sao chép vào bộ nhớ tạm",
+  "noTextDetected": "Không nhận diện được chữ nào trong ảnh"
 }

@@ -47,5 +47,15 @@
   "cameraPermissionRequired": "名刺撮影のためカメラ権限を許可してください",
   "grantPermission": "権限を許可",
   "cameraInitError": "カメラの起動に失敗しました",
-  "processing": "画像を処理中..."
+  "processing": "画像を処理中...",
+  "ocrProcessing": "名刺の文字を認識中...",
+  "ocrSuccess": "文字認識が完了しました",
+  "ocrBlocksCount": "{count} テキストブロック",
+  "ocrLinesCount": "{count} 行",
+  "offlineBadge": "100% オンデバイス・完全オフライン",
+  "rawTextTab": "抽出テキスト",
+  "blocksTab": "ブロックと座標",
+  "copyRawText": "テキストを全コピー",
+  "copiedToClipboard": "クリップボードにコピーしました",
+  "noTextDetected": "画像からテキストを検出できませんでした"
 }

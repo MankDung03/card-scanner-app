@@ -47,5 +47,15 @@
   "cameraPermissionRequired": "Camera permission is required to scan cards",
   "grantPermission": "Grant permission",
   "cameraInitError": "Could not initialize camera",
-  "processing": "Processing image..."
+  "processing": "Processing image...",
+  "ocrProcessing": "Recognizing text on card...",
+  "ocrSuccess": "Text recognized successfully",
+  "ocrBlocksCount": "{count} text blocks",
+  "ocrLinesCount": "{count} lines",
+  "offlineBadge": "100% On-device · Offline",
+  "rawTextTab": "Raw text",
+  "blocksTab": "Blocks & Coordinates",
+  "copyRawText": "Copy full text",
+  "copiedToClipboard": "Copied to clipboard",
+  "noTextDetected": "No text detected in the image"
 }

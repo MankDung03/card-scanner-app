@@ -7,12 +7,18 @@ import 'package:image/image.dart' as img;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../data/repositories/mlkit_ocr_repository.dart';
+import '../../domain/entities/card_ocr_result.dart';
+import '../../domain/repositories/ocr_repository.dart';
 import 'scan_state.dart';
 
 class ScanCubit extends Cubit<ScanState> {
   final ImagePicker _picker = ImagePicker();
+  final OcrRepository _ocrRepository;
 
-  ScanCubit() : super(const ScanState());
+  ScanCubit({OcrRepository? ocrRepository})
+      : _ocrRepository = ocrRepository ?? MlKitOcrRepository(),
+        super(const ScanState());
 
   void setSide(CardSide side) {
     final imageForSide = side == CardSide.front ? state.frontImagePath : state.backImagePath;
@@ -238,6 +244,65 @@ class ScanCubit extends Cubit<ScanState> {
     } catch (e) {
       debugPrint('Error with image_cropper: $e');
     }
+  }
+
+  /// Thực hiện OCR On-Device bằng Google ML Kit (Model Bundled tiếng Nhật + Latin)
+  Future<CardOcrResult?> processOcr() async {
+    final currentPath = state.currentImagePath;
+    if (currentPath == null) {
+      emit(state.copyWith(
+        ocrErrorMessage: 'Không tìm thấy tệp ảnh danh thiếp để nhận dạng',
+      ));
+      return null;
+    }
+
+    try {
+      emit(state.copyWith(isOcrLoading: true, ocrErrorMessage: null));
+
+      String pathToProcess = currentPath;
+
+      // Nếu ảnh đang bị xoay, bake góc xoay vào ảnh tạm trước khi OCR
+      if (state.rotationAngle != 0) {
+        final originalBytes = await File(currentPath).readAsBytes();
+        final decoded = img.decodeImage(originalBytes);
+        if (decoded != null) {
+          final rotated = img.copyRotate(decoded, angle: state.rotationAngle);
+          final tempDir = await getTemporaryDirectory();
+          final rotatedPath = '${tempDir.path}/rotated_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated, quality: 95));
+          pathToProcess = rotatedPath;
+        }
+      }
+
+      final result = await _ocrRepository.recognizeText(pathToProcess);
+
+      if (state.currentSide == CardSide.front) {
+        emit(state.copyWith(
+          isOcrLoading: false,
+          frontOcrResult: result,
+        ));
+      } else {
+        emit(state.copyWith(
+          isOcrLoading: false,
+          backOcrResult: result,
+        ));
+      }
+
+      return result;
+    } catch (e, stack) {
+      debugPrint('OCR Error: $e\n$stack');
+      emit(state.copyWith(
+        isOcrLoading: false,
+        ocrErrorMessage: 'Lỗi nhận dạng chữ: $e',
+      ));
+      return null;
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    await _ocrRepository.dispose();
+    return super.close();
   }
 
   void reset() {
