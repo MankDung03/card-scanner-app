@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_colors.dart';
 
-class RecentCard {
+class RecentCardModel {
   final String id;
   final String name;
   final String company;
@@ -10,7 +10,7 @@ class RecentCard {
   final Color avatarBgColor;
   final Color avatarTextColor;
 
-  const RecentCard({
+  const RecentCardModel({
     required this.id,
     required this.name,
     required this.company,
@@ -20,8 +20,8 @@ class RecentCard {
     required this.avatarTextColor,
   });
 
-  static List<RecentCard> get sampleData => [
-        const RecentCard(
+  static List<RecentCardModel> get sampleData => const [
+        RecentCardModel(
           id: '1',
           name: '山田 太郎',
           company: '株式会社サンプル商事',
@@ -30,7 +30,7 @@ class RecentCard {
           avatarBgColor: AppColors.avatarPurpleBg,
           avatarTextColor: AppColors.avatarPurpleText,
         ),
-        const RecentCard(
+        RecentCardModel(
           id: '2',
           name: 'Nguyễn Minh Anh',
           company: 'Công ty TNHH ABC Việt Nam',

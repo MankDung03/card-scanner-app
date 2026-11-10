@@ -1,0 +1,31 @@
+{
+  "@@locale": "ja",
+  "appName": "名刺スキャン",
+  "addCardTitle": "名刺を追加",
+  "addCardSubtitle": "名刺の取り込み方法を選択してください",
+  "captureCardTitle": "撮影する",
+  "captureCardSubtitle": "カメラを起動、名刺枠に合わせます",
+  "galleryCardTitle": "アルバムから選択",
+  "galleryCardSubtitle": "端末内の名刺画像を使用します",
+  "recentlySaved": "最近保存した名刺",
+  "viewAll": "すべて見る ({count})",
+  "@viewAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineBadge": "端末内で安全に処理 · ネット不要",
+  "today": "今日",
+  "featureComingSoon": "この機能は次のステップで有効化されます",
+  "settingsTitle": "設定と環境設定",
+  "themeTitle": "テーマ",
+  "themeLight": "ライト",
+  "themeDark": "ダーク",
+  "themeSystem": "システム",
+  "languageTitle": "言語",
+  "langVi": "Tiếng Việt 🇻🇳",
+  "langJa": "日本語 🇯🇵",
+  "langEn": "English 🇬🇧"
+}

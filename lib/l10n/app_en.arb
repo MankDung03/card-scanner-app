@@ -1,0 +1,31 @@
+{
+  "@@locale": "en",
+  "appName": "Card Scanner",
+  "addCardTitle": "Add Card",
+  "addCardSubtitle": "Choose how to import your business card",
+  "captureCardTitle": "Take Photo",
+  "captureCardSubtitle": "Open camera with auto-fit frame",
+  "galleryCardTitle": "Choose from Gallery",
+  "galleryCardSubtitle": "Use card image saved on device",
+  "recentlySaved": "Recently Saved",
+  "viewAll": "View all ({count})",
+  "@viewAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineBadge": "Processed on-device · No network needed",
+  "today": "Today",
+  "featureComingSoon": "Feature will be enabled in the next step",
+  "settingsTitle": "Settings & Preferences",
+  "themeTitle": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "languageTitle": "Language",
+  "langVi": "Tiếng Việt 🇻🇳",
+  "langJa": "日本語 🇯🇵",
+  "langEn": "English 🇬🇧"
+}

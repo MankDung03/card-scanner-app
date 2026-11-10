@@ -1,0 +1,31 @@
+{
+  "@@locale": "vi",
+  "appName": "Scan Danh Thiếp",
+  "addCardTitle": "Thêm danh thiếp",
+  "addCardSubtitle": "Chọn cách lấy ảnh danh thiếp của bạn",
+  "captureCardTitle": "Chụp ảnh",
+  "captureCardSubtitle": "Mở camera, tự căn khung thẻ",
+  "galleryCardTitle": "Chọn từ thư viện",
+  "galleryCardSubtitle": "Dùng ảnh danh thiếp có sẵn trong máy",
+  "recentlySaved": "Đã lưu gần đây",
+  "viewAll": "Xem tất cả ({count})",
+  "@viewAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineBadge": "Xử lý ngay trên máy · không cần mạng",
+  "today": "Hôm nay",
+  "featureComingSoon": "Chức năng sẽ được kích hoạt ở bước tiếp theo",
+  "settingsTitle": "Cài đặt & Tùy chọn",
+  "themeTitle": "Giao diện",
+  "themeLight": "Sáng",
+  "themeDark": "Tối",
+  "themeSystem": "Hệ thống",
+  "languageTitle": "Ngôn ngữ",
+  "langVi": "Tiếng Việt 🇻🇳",
+  "langJa": "日本語 🇯🇵",
+  "langEn": "English 🇬🇧"
+}
