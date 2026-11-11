@@ -17,6 +17,7 @@ class MockOcrRepository implements OcrRepository {
   Future<CardOcrResult> recognizeText(
     String imagePath, {
     TextRecognitionScript script = TextRecognitionScript.japanese,
+    bool useDualScript = true,
   }) async {
     lastRecognizedPath = imagePath;
     return mockResult ??
@@ -100,14 +101,12 @@ void main() {
       expect(mockRepo.lastRecognizedPath, equals(cubit.state.lastProcessedImagePath));
       expect(File(cubit.state.lastProcessedImagePath!).existsSync(), isTrue);
 
-      // Xác minh kích thước ảnh đã cắt chính xác theo tỉ lệ:
-      // Chiều rộng = 200 * (0.75 - 0.25) = 100 px
-      // Chiều cao = 100 * (0.75 - 0.25) = 50 px
+      // Xác minh kích thước ảnh đã cắt bao gồm vùng chọn và lề an toàn:
       final croppedBytes = await File(cubit.state.lastProcessedImagePath!).readAsBytes();
       final croppedImg = img.decodeImage(croppedBytes);
       expect(croppedImg, isNotNull);
-      expect(croppedImg!.width, equals(100));
-      expect(croppedImg.height, equals(50));
+      expect(croppedImg!.width, greaterThanOrEqualTo(100));
+      expect(croppedImg.height, greaterThanOrEqualTo(50));
 
       await cubit.close();
       tempDir.deleteSync(recursive: true);

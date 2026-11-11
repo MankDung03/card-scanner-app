@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/business_card_info.dart';
 import '../../domain/entities/card_ocr_result.dart';
 
 enum CardSide { front, back }
@@ -20,6 +21,7 @@ class ScanState {
   // OCR state
   final CardOcrResult? frontOcrResult;
   final CardOcrResult? backOcrResult;
+  final BusinessCardInfo? currentCardInfo; // Thông tin danh thiếp đã bóc tách tự động
   final bool isOcrLoading;
   final String? ocrErrorMessage;
 
@@ -43,6 +45,7 @@ class ScanState {
     this.isFlashOn = false,
     this.frontOcrResult,
     this.backOcrResult,
+    this.currentCardInfo,
     this.isOcrLoading = false,
     this.ocrErrorMessage,
   });
@@ -69,6 +72,7 @@ class ScanState {
     bool? isFlashOn,
     CardOcrResult? frontOcrResult,
     CardOcrResult? backOcrResult,
+    BusinessCardInfo? currentCardInfo,
     bool? isOcrLoading,
     String? ocrErrorMessage,
   }) {
@@ -87,6 +91,7 @@ class ScanState {
       isFlashOn: isFlashOn ?? this.isFlashOn,
       frontOcrResult: frontOcrResult ?? this.frontOcrResult,
       backOcrResult: backOcrResult ?? this.backOcrResult,
+      currentCardInfo: currentCardInfo ?? this.currentCardInfo,
       isOcrLoading: isOcrLoading ?? this.isOcrLoading,
       ocrErrorMessage: ocrErrorMessage,
     );

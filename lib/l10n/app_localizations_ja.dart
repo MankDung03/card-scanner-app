@@ -163,4 +163,83 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noTextDetected => '画像からテキストを検出できませんでした';
+
+  @override
+  String get verificationTitle => '情報確認';
+
+  @override
+  String get retake => '撮り直す';
+
+  @override
+  String detectedFieldsCount(int count) {
+    return '$count 項目を認識';
+  }
+
+  @override
+  String needsReviewCount(int count) {
+    return '$count 項目要確認';
+  }
+
+  @override
+  String get allClear => 'すべて明確に認識';
+
+  @override
+  String get byFieldsTab => '項目別';
+
+  @override
+  String get originalTextTab => '元テキスト';
+
+  @override
+  String get fullName => '氏名';
+
+  @override
+  String get furigana => 'ふりがな';
+
+  @override
+  String get needsReviewTag => '要確認';
+
+  @override
+  String get jobTitle => '役職';
+
+  @override
+  String get company => '会社名';
+
+  @override
+  String get department => '部署';
+
+  @override
+  String get phone => '電話番号';
+
+  @override
+  String get mobile => '携帯番号';
+
+  @override
+  String get fax => 'FAX';
+
+  @override
+  String get email => 'メール';
+
+  @override
+  String get address => '住所';
+
+  @override
+  String get website => 'ウェブサイト';
+
+  @override
+  String get notOnCardPlaceholder => '記載なし — 必要に応じて入力';
+
+  @override
+  String get saveCard => '名刺を保存';
+
+  @override
+  String get editField => '項目を編集';
+
+  @override
+  String get cancel => 'キャンセル';
+
+  @override
+  String get done => '完了';
+
+  @override
+  String get cardSavedSuccess => '名刺を保存しました';
 }

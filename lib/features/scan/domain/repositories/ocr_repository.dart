@@ -3,12 +3,12 @@ import '../entities/card_ocr_result.dart';
 
 abstract class OcrRepository {
   /// Thực hiện OCR On-Device trên ảnh đường dẫn [imagePath]
-  /// Mặc định sử dụng script tiếng Nhật [TextRecognitionScript.japanese]
-  /// (nhận dạng cả Kanji, Kana và chữ số Latin/Romaji)
-  /// hoặc Latin [TextRecognitionScript.latin] (nhận dạng tiếng Việt có dấu, tiếng Anh)
+  /// Khi [useDualScript] là true (mặc định), sẽ chạy kết hợp song song cả Latin (tiếng Việt/Anh)
+  /// và Japanese (Kanji/Kana) để gộp kết quả tối ưu nhất.
   Future<CardOcrResult> recognizeText(
     String imagePath, {
     TextRecognitionScript script = TextRecognitionScript.japanese,
+    bool useDualScript = true,
   });
 
   /// Giải phóng tài nguyên của các TextRecognizer khi không còn dùng

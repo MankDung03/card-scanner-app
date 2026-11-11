@@ -10,8 +10,12 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../data/repositories/mlkit_ocr_repository.dart';
+import '../../domain/entities/business_card_info.dart';
 import '../../domain/entities/card_ocr_result.dart';
+import '../../domain/entities/ocr_model.dart';
 import '../../domain/repositories/ocr_repository.dart';
+import '../../domain/services/business_card_parser.dart';
+import '../../domain/services/ocr_image_preprocessor.dart';
 import 'scan_state.dart';
 
 class ScanCubit extends Cubit<ScanState> {
@@ -313,10 +317,19 @@ class ScanCubit extends Cubit<ScanState> {
       final double minY = corners.map((p) => p.dy).reduce(math.min).clamp(0.0, 1.0);
       final double maxY = corners.map((p) => p.dy).reduce(math.max).clamp(0.0, 1.0);
 
-      final int cropX = (minX * image.width).round().clamp(0, image.width - 1);
-      final int cropY = (minY * image.height).round().clamp(0, image.height - 1);
-      final int cropW = ((maxX - minX) * image.width).round().clamp(1, image.width - cropX);
-      final int cropH = ((maxY - minY) * image.height).round().clamp(1, image.height - cropY);
+      // Bổ sung lề an toàn (Safety Padding ~1.5% kích thước ảnh)
+      // để các chữ nằm sát mép như "FAX", "TEL" không bao giờ bị cắt cụt
+      final int padding = ((image.width + image.height) * 0.015).round().clamp(15, 35);
+
+      final int rawX = (minX * image.width).round();
+      final int rawY = (minY * image.height).round();
+      final int rawW = ((maxX - minX) * image.width).round();
+      final int rawH = ((maxY - minY) * image.height).round();
+
+      final int cropX = (rawX - padding).clamp(0, image.width - 1);
+      final int cropY = (rawY - padding).clamp(0, image.height - 1);
+      final int cropW = (rawW + padding * 2).clamp(1, image.width - cropX);
+      final int cropH = (rawH + padding * 2).clamp(1, image.height - cropY);
 
       debugPrint('=== [OCR CROP DEBUG] ===');
       debugPrint('Original image size: ${image.width}x${image.height}');
@@ -342,14 +355,25 @@ class ScanCubit extends Cubit<ScanState> {
           '${tempDir.path}/${sidePrefix}_cropped_ocr_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(processedPath).writeAsBytes(img.encodeJpg(croppedImage, quality: 95));
 
-      // 5. Chạy OCR TRÊN ẢNH ĐÃ CẮT THU NHỎ
-      final result = await _ocrRepository.recognizeText(processedPath, script: script);
+      // 5. Tiền xử lý ảnh (Resize cạnh dài về 1500-2000px, cân bằng tương phản nếu tối) trong isolate
+      final preprocessedPath = await OcrImagePreprocessor.preprocessImage(processedPath);
+
+      // 6. Chạy OCR Dual-Script (Latin + Japanese) TRÊN ẢNH ĐÃ TIỀN XỬ LÝ
+      final result = await _ocrRepository.recognizeText(
+        preprocessedPath,
+        script: script,
+        useDualScript: true,
+      );
+
+      // 7. Tự động bóc tách các trường thông tin (Name, Furigana, Title, Company, Phone, Email, Website...)
+      final parsedCard = BusinessCardParser.parse(result);
 
       emit(state.copyWith(
         isOcrLoading: false,
-        lastProcessedImagePath: processedPath,
+        lastProcessedImagePath: preprocessedPath,
         frontOcrResult: state.currentSide == CardSide.front ? result : state.frontOcrResult,
         backOcrResult: state.currentSide == CardSide.back ? result : state.backOcrResult,
+        currentCardInfo: parsedCard,
       ));
 
       return result;
@@ -367,6 +391,24 @@ class ScanCubit extends Cubit<ScanState> {
   Future<void> close() async {
     await _ocrRepository.dispose();
     return super.close();
+  }
+
+  void updateCardInfo(BusinessCardInfo info) {
+    emit(state.copyWith(currentCardInfo: info));
+  }
+
+  void updateCardField(String fieldKey, String? value) {
+    if (state.currentCardInfo != null) {
+      final updated = state.currentCardInfo!.updateField(fieldKey, value);
+      emit(state.copyWith(currentCardInfo: updated));
+    }
+  }
+
+  void assignUnmappedLine(OcrLine line, String targetFieldKey) {
+    if (state.currentCardInfo != null) {
+      final updated = state.currentCardInfo!.assignUnmappedLine(line, targetFieldKey);
+      emit(state.copyWith(currentCardInfo: updated));
+    }
   }
 
   void reset() {

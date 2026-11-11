@@ -103,7 +103,7 @@ class CardTextBlock {
   const CardTextBlock({
     required this.text,
     required this.boundingBox,
-    required this.cornerPoints,
+    this.cornerPoints = const [],
     required this.lines,
     this.recognizedLanguages = const [],
   });
@@ -134,8 +134,8 @@ class CardTextLine {
   const CardTextLine({
     required this.text,
     required this.boundingBox,
-    required this.cornerPoints,
-    required this.elements,
+    this.cornerPoints = const [],
+    this.elements = const [],
     this.confidence,
     this.angle,
   });
@@ -161,7 +161,7 @@ class CardTextElement {
   const CardTextElement({
     required this.text,
     required this.boundingBox,
-    required this.cornerPoints,
+    this.cornerPoints = const [],
   });
 
   /// Tọa độ chuẩn hóa [0.0 -> 1.0]

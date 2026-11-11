@@ -10,7 +10,6 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/crop_bottom_toolbar.dart';
 import '../widgets/interactive_quad_cropper.dart';
-import '../widgets/ocr_preview_sheet.dart';
 
 class CardCropPage extends StatelessWidget {
   const CardCropPage({super.key});
@@ -106,11 +105,8 @@ class CardCropPage extends StatelessWidget {
       Navigator.of(context, rootNavigator: true).pop(); // Đóng loading dialog
 
       if (result != null) {
-        await OcrPreviewSheet.show(
-          context,
-          result,
-          imagePath: scanCubit.state.lastProcessedImagePath ?? scanCubit.state.currentImagePath,
-        );
+        // Tự động chuyển thẳng sang Màn 3 với các trường đã được bóc tách và điền sẵn vào form
+        context.push(AppRoutes.ocrReview);
       } else {
         final error = scanCubit.state.ocrErrorMessage ?? 'Lỗi nhận dạng';
         ScaffoldMessenger.of(context).showSnackBar(

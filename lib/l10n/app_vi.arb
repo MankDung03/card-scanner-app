@@ -58,5 +58,40 @@
   "blocksTab": "Khối chữ",
   "copyRawText": "Sao chép toàn bộ text",
   "copiedToClipboard": "Đã sao chép vào bộ nhớ tạm",
-  "noTextDetected": "Không nhận diện được chữ nào trong ảnh"
+  "noTextDetected": "Không nhận diện được chữ nào trong ảnh",
+  "verificationTitle": "Kiểm tra thông tin",
+  "retake": "Chụp lại",
+  "detectedFieldsCount": "Đã nhận dạng {count} mục",
+  "@detectedFieldsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "needsReviewCount": "{count} mục nên kiểm tra lại",
+  "@needsReviewCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "allClear": "Mọi thông tin đều rõ ràng",
+  "byFieldsTab": "Theo mục",
+  "originalTextTab": "Văn bản gốc",
+  "fullName": "Họ tên",
+  "furigana": "Furigana",
+  "needsReviewTag": "Kiểm tra lại",
+  "jobTitle": "Chức vụ",
+  "company": "Công ty",
+  "department": "Phòng ban",
+  "phone": "Điện thoại",
+  "mobile": "Di động",
+  "fax": "FAX",
+  "email": "Email",
+  "address": "Địa chỉ",
+  "website": "Website",
+  "notOnCardPlaceholder": "Không có trên thẻ — nhập nếu cần",
+  "saveCard": "Lưu danh thiếp",
+  "editField": "Chỉnh sửa thông tin",
+  "cancel": "Hủy",
+  "done": "Xong",
+  "cardSavedSuccess": "Đã lưu danh thiếp thành công"
 }

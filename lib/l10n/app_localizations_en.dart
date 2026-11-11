@@ -166,4 +166,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noTextDetected => 'No text detected in the image';
+
+  @override
+  String get verificationTitle => 'Information Check';
+
+  @override
+  String get retake => 'Retake';
+
+  @override
+  String detectedFieldsCount(int count) {
+    return '$count items recognized';
+  }
+
+  @override
+  String needsReviewCount(int count) {
+    return '$count items to review';
+  }
+
+  @override
+  String get allClear => 'All information clear';
+
+  @override
+  String get byFieldsTab => 'By Fields';
+
+  @override
+  String get originalTextTab => 'Original Text';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get furigana => 'Furigana';
+
+  @override
+  String get needsReviewTag => 'Review';
+
+  @override
+  String get jobTitle => 'Job Title';
+
+  @override
+  String get company => 'Company';
+
+  @override
+  String get department => 'Department';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get mobile => 'Mobile';
+
+  @override
+  String get fax => 'FAX';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get notOnCardPlaceholder => 'Not on card — enter if needed';
+
+  @override
+  String get saveCard => 'Save Card';
+
+  @override
+  String get editField => 'Edit Information';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get cardSavedSuccess => 'Business card saved successfully';
 }

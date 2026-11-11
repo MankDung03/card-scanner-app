@@ -399,6 +399,156 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Không nhận diện được chữ nào trong ảnh'**
   String get noTextDetected;
+
+  /// No description provided for @verificationTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Kiểm tra thông tin'**
+  String get verificationTitle;
+
+  /// No description provided for @retake.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chụp lại'**
+  String get retake;
+
+  /// No description provided for @detectedFieldsCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã nhận dạng {count} mục'**
+  String detectedFieldsCount(int count);
+
+  /// No description provided for @needsReviewCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} mục nên kiểm tra lại'**
+  String needsReviewCount(int count);
+
+  /// No description provided for @allClear.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mọi thông tin đều rõ ràng'**
+  String get allClear;
+
+  /// No description provided for @byFieldsTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Theo mục'**
+  String get byFieldsTab;
+
+  /// No description provided for @originalTextTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Văn bản gốc'**
+  String get originalTextTab;
+
+  /// No description provided for @fullName.
+  ///
+  /// In vi, this message translates to:
+  /// **'Họ tên'**
+  String get fullName;
+
+  /// No description provided for @furigana.
+  ///
+  /// In vi, this message translates to:
+  /// **'Furigana'**
+  String get furigana;
+
+  /// No description provided for @needsReviewTag.
+  ///
+  /// In vi, this message translates to:
+  /// **'Kiểm tra lại'**
+  String get needsReviewTag;
+
+  /// No description provided for @jobTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chức vụ'**
+  String get jobTitle;
+
+  /// No description provided for @company.
+  ///
+  /// In vi, this message translates to:
+  /// **'Công ty'**
+  String get company;
+
+  /// No description provided for @department.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phòng ban'**
+  String get department;
+
+  /// No description provided for @phone.
+  ///
+  /// In vi, this message translates to:
+  /// **'Điện thoại'**
+  String get phone;
+
+  /// No description provided for @mobile.
+  ///
+  /// In vi, this message translates to:
+  /// **'Di động'**
+  String get mobile;
+
+  /// No description provided for @fax.
+  ///
+  /// In vi, this message translates to:
+  /// **'FAX'**
+  String get fax;
+
+  /// No description provided for @email.
+  ///
+  /// In vi, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @address.
+  ///
+  /// In vi, this message translates to:
+  /// **'Địa chỉ'**
+  String get address;
+
+  /// No description provided for @website.
+  ///
+  /// In vi, this message translates to:
+  /// **'Website'**
+  String get website;
+
+  /// No description provided for @notOnCardPlaceholder.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không có trên thẻ — nhập nếu cần'**
+  String get notOnCardPlaceholder;
+
+  /// No description provided for @saveCard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu danh thiếp'**
+  String get saveCard;
+
+  /// No description provided for @editField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chỉnh sửa thông tin'**
+  String get editField;
+
+  /// No description provided for @cancel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hủy'**
+  String get cancel;
+
+  /// No description provided for @done.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xong'**
+  String get done;
+
+  /// No description provided for @cardSavedSuccess.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu danh thiếp thành công'**
+  String get cardSavedSuccess;
 }
 
 class _AppLocalizationsDelegate

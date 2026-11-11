@@ -167,4 +167,83 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noTextDetected => 'Không nhận diện được chữ nào trong ảnh';
+
+  @override
+  String get verificationTitle => 'Kiểm tra thông tin';
+
+  @override
+  String get retake => 'Chụp lại';
+
+  @override
+  String detectedFieldsCount(int count) {
+    return 'Đã nhận dạng $count mục';
+  }
+
+  @override
+  String needsReviewCount(int count) {
+    return '$count mục nên kiểm tra lại';
+  }
+
+  @override
+  String get allClear => 'Mọi thông tin đều rõ ràng';
+
+  @override
+  String get byFieldsTab => 'Theo mục';
+
+  @override
+  String get originalTextTab => 'Văn bản gốc';
+
+  @override
+  String get fullName => 'Họ tên';
+
+  @override
+  String get furigana => 'Furigana';
+
+  @override
+  String get needsReviewTag => 'Kiểm tra lại';
+
+  @override
+  String get jobTitle => 'Chức vụ';
+
+  @override
+  String get company => 'Công ty';
+
+  @override
+  String get department => 'Phòng ban';
+
+  @override
+  String get phone => 'Điện thoại';
+
+  @override
+  String get mobile => 'Di động';
+
+  @override
+  String get fax => 'FAX';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get address => 'Địa chỉ';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get notOnCardPlaceholder => 'Không có trên thẻ — nhập nếu cần';
+
+  @override
+  String get saveCard => 'Lưu danh thiếp';
+
+  @override
+  String get editField => 'Chỉnh sửa thông tin';
+
+  @override
+  String get cancel => 'Hủy';
+
+  @override
+  String get done => 'Xong';
+
+  @override
+  String get cardSavedSuccess => 'Đã lưu danh thiếp thành công';
 }

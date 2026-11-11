@@ -58,5 +58,40 @@
   "blocksTab": "Blocks",
   "copyRawText": "Copy full text",
   "copiedToClipboard": "Copied to clipboard",
-  "noTextDetected": "No text detected in the image"
+  "noTextDetected": "No text detected in the image",
+  "verificationTitle": "Information Check",
+  "retake": "Retake",
+  "detectedFieldsCount": "{count} items recognized",
+  "@detectedFieldsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "needsReviewCount": "{count} items to review",
+  "@needsReviewCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "allClear": "All information clear",
+  "byFieldsTab": "By Fields",
+  "originalTextTab": "Original Text",
+  "fullName": "Full Name",
+  "furigana": "Furigana",
+  "needsReviewTag": "Review",
+  "jobTitle": "Job Title",
+  "company": "Company",
+  "department": "Department",
+  "phone": "Phone",
+  "mobile": "Mobile",
+  "fax": "FAX",
+  "email": "Email",
+  "address": "Address",
+  "website": "Website",
+  "notOnCardPlaceholder": "Not on card — enter if needed",
+  "saveCard": "Save Card",
+  "editField": "Edit Information",
+  "cancel": "Cancel",
+  "done": "Done",
+  "cardSavedSuccess": "Business card saved successfully"
 }

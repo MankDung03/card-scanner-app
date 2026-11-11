@@ -58,5 +58,40 @@
   "blocksTab": "ブロック",
   "copyRawText": "テキストを全コピー",
   "copiedToClipboard": "クリップボードにコピーしました",
-  "noTextDetected": "画像からテキストを検出できませんでした"
+  "noTextDetected": "画像からテキストを検出できませんでした",
+  "verificationTitle": "情報確認",
+  "retake": "撮り直す",
+  "detectedFieldsCount": "{count} 項目を認識",
+  "@detectedFieldsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "needsReviewCount": "{count} 項目要確認",
+  "@needsReviewCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "allClear": "すべて明確に認識",
+  "byFieldsTab": "項目別",
+  "originalTextTab": "元テキスト",
+  "fullName": "氏名",
+  "furigana": "ふりがな",
+  "needsReviewTag": "要確認",
+  "jobTitle": "役職",
+  "company": "会社名",
+  "department": "部署",
+  "phone": "電話番号",
+  "mobile": "携帯番号",
+  "fax": "FAX",
+  "email": "メール",
+  "address": "住所",
+  "website": "ウェブサイト",
+  "notOnCardPlaceholder": "記載なし — 必要に応じて入力",
+  "saveCard": "名刺を保存",
+  "editField": "項目を編集",
+  "cancel": "キャンセル",
+  "done": "完了",
+  "cardSavedSuccess": "名刺を保存しました"
 }
