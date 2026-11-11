@@ -218,5 +218,128 @@ FAX
       // 6. Số lượng dòng chưa gán bằng 0 (Tất cả đã được gán vào đúng trường!)
       expect(card.unmappedLines.isEmpty, isTrue);
     });
+
+    test('Real Tokyo Engineering Card with Japanese Legal Name takes priority over English Logo', () {
+      const ocrResult = CardOcrResult(
+        fullText: '''
+TOKYO
+ENGINEERING
+代表取締役社長
+田中 宏
+東京エンジニアリング株式会社
+〒103-2044 東京都朝日区2-1-29
+PHONE (03) 1055-8141(代)
+(03) 1055-8149
+''',
+        imageWidth: 1024,
+        imageHeight: 630,
+        blocks: [
+          CardTextBlock(
+            text: 'TOKYO',
+            boundingBox: Rect.fromLTWH(50, 50, 130, 40),
+            lines: [
+              CardTextLine(
+                text: 'TOKYO',
+                boundingBox: Rect.fromLTWH(50, 50, 130, 40),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: 'ENGINEERING',
+            boundingBox: Rect.fromLTWH(50, 95, 200, 36),
+            lines: [
+              CardTextLine(
+                text: 'ENGINEERING',
+                boundingBox: Rect.fromLTWH(50, 95, 200, 36),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: '代表取締役社長',
+            boundingBox: Rect.fromLTWH(500, 200, 220, 28),
+            lines: [
+              CardTextLine(
+                text: '代表取締役社長',
+                boundingBox: Rect.fromLTWH(500, 200, 220, 28),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: '田中 宏',
+            boundingBox: Rect.fromLTWH(500, 240, 250, 50),
+            lines: [
+              CardTextLine(
+                text: '田中 宏',
+                boundingBox: Rect.fromLTWH(500, 240, 250, 50),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: '東京エンジニアリング株式会社',
+            boundingBox: Rect.fromLTWH(500, 380, 300, 30),
+            lines: [
+              CardTextLine(
+                text: '東京エンジニアリング株式会社',
+                boundingBox: Rect.fromLTWH(500, 380, 300, 30),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: '〒103-2044 東京都朝日区2-1-29',
+            boundingBox: Rect.fromLTWH(500, 415, 320, 25),
+            lines: [
+              CardTextLine(
+                text: '〒103-2044 東京都朝日区2-1-29',
+                boundingBox: Rect.fromLTWH(500, 415, 320, 25),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: 'PHONE (03) 1055-8141(代)',
+            boundingBox: Rect.fromLTWH(550, 445, 250, 24),
+            lines: [
+              CardTextLine(
+                text: 'PHONE (03) 1055-8141(代)',
+                boundingBox: Rect.fromLTWH(550, 445, 250, 24),
+              ),
+            ],
+          ),
+          CardTextBlock(
+            text: '(03) 1055-8149',
+            boundingBox: Rect.fromLTWH(550, 475, 200, 24),
+            lines: [
+              CardTextLine(
+                text: '(03) 1055-8149',
+                boundingBox: Rect.fromLTWH(550, 475, 200, 24),
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final card = BusinessCardParser.parse(ocrResult);
+
+      // 1. Họ và tên: 田中 宏
+      expect(card.name, '田中 宏');
+
+      // 2. Chức vụ: BẮT BUỘC nhận diện chức danh "代表取締役社長", TUYỆT ĐỐI không lấy logo "TOKYO"
+      expect(card.jobTitle, '代表取締役社長');
+
+      // 3. Tên công ty: BẮT BUỘC ưu tiên pháp nhân Tier 1 "東京エンジニアリング株式会社", KHÔNG lấy "ENGINEERING"
+      expect(card.company, '東京エンジニアリング株式会社');
+
+      // 4. Điện thoại & FAX: Phân loại chuẩn xác
+      expect(card.phone, contains('1055-8141'));
+      expect(card.fax, contains('1055-8149'));
+
+      // 5. Địa chỉ & Zipcode
+      expect(card.address, contains('東京都朝日区'));
+      expect(card.postalCode, '〒103-2044');
+
+      // 6. Các dòng logo tiếng Anh "TOKYO", "ENGINEERING" không bị gán bừa, mà nằm an toàn trong unmappedLines
+      final unmappedTexts = card.unmappedLines.map((l) => l.text).toList();
+      expect(unmappedTexts, contains('TOKYO'));
+      expect(unmappedTexts, contains('ENGINEERING'));
+    });
   });
 }
