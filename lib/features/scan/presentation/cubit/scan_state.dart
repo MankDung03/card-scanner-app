@@ -8,6 +8,9 @@ class ScanState {
   final String? frontImagePath;
   final String? backImagePath;
   final String? currentImagePath; // Ảnh hiện tại đang hiển thị trên màn 2b để căn chỉnh
+  final String? lastProcessedImagePath; // Ảnh sau khi xoay & crop dùng cho OCR
+  final int? imageWidth; // Chiều rộng ảnh gốc
+  final int? imageHeight; // Chiều cao ảnh gốc
   final int rotationAngle; // 0, 90, 180, 270
   final List<Offset> cornerPoints; // 4 góc chuẩn hóa [0.0 -> 1.0] (TL, TR, BR, BL)
   final bool isProcessing;
@@ -25,6 +28,9 @@ class ScanState {
     this.frontImagePath,
     this.backImagePath,
     this.currentImagePath,
+    this.lastProcessedImagePath,
+    this.imageWidth,
+    this.imageHeight,
     this.rotationAngle = 0,
     this.cornerPoints = const [
       Offset(0.05, 0.08), // Top-Left
@@ -53,6 +59,9 @@ class ScanState {
     String? frontImagePath,
     String? backImagePath,
     String? currentImagePath,
+    String? lastProcessedImagePath,
+    int? imageWidth,
+    int? imageHeight,
     int? rotationAngle,
     List<Offset>? cornerPoints,
     bool? isProcessing,
@@ -68,6 +77,9 @@ class ScanState {
       frontImagePath: frontImagePath ?? this.frontImagePath,
       backImagePath: backImagePath ?? this.backImagePath,
       currentImagePath: currentImagePath ?? this.currentImagePath,
+      lastProcessedImagePath: lastProcessedImagePath ?? this.lastProcessedImagePath,
+      imageWidth: imageWidth ?? this.imageWidth,
+      imageHeight: imageHeight ?? this.imageHeight,
       rotationAngle: rotationAngle ?? this.rotationAngle,
       cornerPoints: cornerPoints ?? this.cornerPoints,
       isProcessing: isProcessing ?? this.isProcessing,

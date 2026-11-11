@@ -156,7 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rawTextTab => 'Raw text';
 
   @override
-  String get blocksTab => 'Blocks & Coordinates';
+  String get blocksTab => 'Blocks';
 
   @override
   String get copyRawText => 'Copy full text';

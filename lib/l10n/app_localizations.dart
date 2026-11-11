@@ -373,13 +373,13 @@ abstract class AppLocalizations {
   /// No description provided for @rawTextTab.
   ///
   /// In vi, this message translates to:
-  /// **'Văn bản thô'**
+  /// **'Văn bản'**
   String get rawTextTab;
 
   /// No description provided for @blocksTab.
   ///
   /// In vi, this message translates to:
-  /// **'Khối chữ & Tọa độ'**
+  /// **'Khối chữ'**
   String get blocksTab;
 
   /// No description provided for @copyRawText.

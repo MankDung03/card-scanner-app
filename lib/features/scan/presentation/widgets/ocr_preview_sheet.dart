@@ -180,6 +180,7 @@ class _OcrPreviewSheetState extends State<OcrPreviewSheet>
               controller: _tabController,
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               indicator: const BoxDecoration(
                 color: AppColors.blueCardStart,
                 borderRadius: AppRadius.r10,
@@ -187,27 +188,42 @@ class _OcrPreviewSheetState extends State<OcrPreviewSheet>
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white60,
               labelStyle:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
               tabs: [
                 if (_hasImage)
                   Tab(
                     iconMargin: EdgeInsets.zero,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.visibility_rounded, size: 16),
-                        AppSpacing.gapW6,
-                        Text(l10n?.visualTab ?? 'Trực quan'),
+                        const Icon(Icons.visibility_rounded, size: 15),
+                        AppSpacing.gapW4,
+                        Flexible(
+                          child: Text(
+                            l10n?.visualTab ?? 'Trực quan',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 Tab(
+                  iconMargin: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.crop_free_rounded, size: 16),
-                      AppSpacing.gapW6,
-                      Text(l10n?.blocksTab ?? 'Khối & Tọa độ'),
+                      const Icon(Icons.crop_free_rounded, size: 15),
+                      AppSpacing.gapW4,
+                      Flexible(
+                        child: Text(
+                          l10n?.blocksTab ?? 'Khối chữ',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -215,10 +231,17 @@ class _OcrPreviewSheetState extends State<OcrPreviewSheet>
                   iconMargin: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.article_rounded, size: 16),
-                      AppSpacing.gapW6,
-                      Text(l10n?.rawTextTab ?? 'Văn bản thô'),
+                      const Icon(Icons.article_rounded, size: 15),
+                      AppSpacing.gapW4,
+                      Flexible(
+                        child: Text(
+                          l10n?.rawTextTab ?? 'Văn bản',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -324,6 +347,7 @@ class _OcrPreviewSheetState extends State<OcrPreviewSheet>
                             child: Image.file(
                               File(widget.imagePath!),
                               fit: BoxFit.fill,
+                              cacheWidth: 1080,
                             ),
                           ),
                         ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,6 +28,14 @@ class ScanCubit extends Cubit<ScanState> {
       currentSide: side,
       currentImagePath: imageForSide ?? state.currentImagePath,
       rotationAngle: 0,
+    ));
+  }
+
+  @visibleForTesting
+  void setImageForTesting(String path) {
+    emit(state.copyWith(
+      frontImagePath: path,
+      currentImagePath: path,
     ));
   }
 
@@ -112,6 +121,8 @@ class ScanCubit extends Cubit<ScanState> {
         emit(state.copyWith(
           frontImagePath: savedPath,
           currentImagePath: savedPath,
+          imageWidth: cropW,
+          imageHeight: cropH,
           isProcessing: false,
           rotationAngle: 0,
         ));
@@ -119,6 +130,8 @@ class ScanCubit extends Cubit<ScanState> {
         emit(state.copyWith(
           backImagePath: savedPath,
           currentImagePath: savedPath,
+          imageWidth: cropW,
+          imageHeight: cropH,
           isProcessing: false,
           rotationAngle: 0,
         ));
@@ -149,10 +162,26 @@ class ScanCubit extends Cubit<ScanState> {
 
       await File(picked.path).copy(savedPath);
 
+      int? pickedW;
+      int? pickedH;
+      try {
+        final bytes = await File(savedPath).readAsBytes();
+        final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+        final descriptor = await ui.ImageDescriptor.encoded(buffer);
+        pickedW = descriptor.width;
+        pickedH = descriptor.height;
+        descriptor.dispose();
+        buffer.dispose();
+      } catch (e) {
+        debugPrint('Warning getting gallery image dimensions: $e');
+      }
+
       if (state.currentSide == CardSide.front) {
         emit(state.copyWith(
           frontImagePath: savedPath,
           currentImagePath: savedPath,
+          imageWidth: pickedW,
+          imageHeight: pickedH,
           isProcessing: false,
           rotationAngle: 0,
         ));
@@ -160,6 +189,8 @@ class ScanCubit extends Cubit<ScanState> {
         emit(state.copyWith(
           backImagePath: savedPath,
           currentImagePath: savedPath,
+          imageWidth: pickedW,
+          imageHeight: pickedH,
           isProcessing: false,
           rotationAngle: 0,
         ));
@@ -247,7 +278,7 @@ class ScanCubit extends Cubit<ScanState> {
     }
   }
 
-  /// Thực hiện OCR On-Device bằng Google ML Kit (Model Bundled tiếng Nhật + Latin)
+  /// Thực hiện OCR On-Device bằng Google ML Kit (chỉ quét vùng crop theo 4 góc & xoay)
   Future<CardOcrResult?> processOcr({
     TextRecognitionScript script = TextRecognitionScript.japanese,
   }) async {
@@ -262,34 +293,64 @@ class ScanCubit extends Cubit<ScanState> {
     try {
       emit(state.copyWith(isOcrLoading: true, ocrErrorMessage: null));
 
-      String pathToProcess = currentPath;
+      final originalBytes = await File(currentPath).readAsBytes();
+      img.Image? image = img.decodeImage(originalBytes);
+      if (image == null) {
+        throw Exception('Không thể giải mã tệp ảnh danh thiếp');
+      }
 
-      // Nếu ảnh đang bị xoay, bake góc xoay vào ảnh tạm trước khi OCR
+      image = img.bakeOrientation(image);
+
+      // 1. Áp dụng góc xoay nếu người dùng đã xoay ảnh
       if (state.rotationAngle != 0) {
-        final originalBytes = await File(currentPath).readAsBytes();
-        final decoded = img.decodeImage(originalBytes);
-        if (decoded != null) {
-          final rotated = img.copyRotate(decoded, angle: state.rotationAngle);
-          final tempDir = await getTemporaryDirectory();
-          final rotatedPath = '${tempDir.path}/rotated_${DateTime.now().millisecondsSinceEpoch}.jpg';
-          await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated, quality: 95));
-          pathToProcess = rotatedPath;
-        }
+        image = img.copyRotate(image, angle: state.rotationAngle);
       }
 
-      final result = await _ocrRepository.recognizeText(pathToProcess, script: script);
+      // 2. Tính toán vùng cắt (Bounding Box) từ 4 điểm cornerPoints do người dùng kéo
+      final corners = state.cornerPoints;
+      final double minX = corners.map((p) => p.dx).reduce(math.min).clamp(0.0, 1.0);
+      final double maxX = corners.map((p) => p.dx).reduce(math.max).clamp(0.0, 1.0);
+      final double minY = corners.map((p) => p.dy).reduce(math.min).clamp(0.0, 1.0);
+      final double maxY = corners.map((p) => p.dy).reduce(math.max).clamp(0.0, 1.0);
 
-      if (state.currentSide == CardSide.front) {
-        emit(state.copyWith(
-          isOcrLoading: false,
-          frontOcrResult: result,
-        ));
-      } else {
-        emit(state.copyWith(
-          isOcrLoading: false,
-          backOcrResult: result,
-        ));
-      }
+      final int cropX = (minX * image.width).round().clamp(0, image.width - 1);
+      final int cropY = (minY * image.height).round().clamp(0, image.height - 1);
+      final int cropW = ((maxX - minX) * image.width).round().clamp(1, image.width - cropX);
+      final int cropH = ((maxY - minY) * image.height).round().clamp(1, image.height - cropY);
+
+      debugPrint('=== [OCR CROP DEBUG] ===');
+      debugPrint('Original image size: ${image.width}x${image.height}');
+      debugPrint('Corners: $corners');
+      debugPrint('Bounding Box normalized: minX=$minX, minY=$minY, maxX=$maxX, maxY=$maxY');
+      debugPrint('Calculated Crop rect: x=$cropX, y=$cropY, w=$cropW, h=$cropH');
+
+      // 3. Cắt ảnh chính xác theo vùng người dùng đã chọn
+      final img.Image croppedImage = img.copyCrop(
+        image,
+        x: cropX,
+        y: cropY,
+        width: cropW,
+        height: cropH,
+      );
+
+      debugPrint('Cropped image size: ${croppedImage.width}x${croppedImage.height}');
+
+      // 4. Lưu ảnh đã cắt vào file tạm cho OCR
+      final tempDir = await getTemporaryDirectory();
+      final String sidePrefix = state.currentSide == CardSide.front ? 'front' : 'back';
+      final String processedPath =
+          '${tempDir.path}/${sidePrefix}_cropped_ocr_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await File(processedPath).writeAsBytes(img.encodeJpg(croppedImage, quality: 95));
+
+      // 5. Chạy OCR TRÊN ẢNH ĐÃ CẮT THU NHỎ
+      final result = await _ocrRepository.recognizeText(processedPath, script: script);
+
+      emit(state.copyWith(
+        isOcrLoading: false,
+        lastProcessedImagePath: processedPath,
+        frontOcrResult: state.currentSide == CardSide.front ? result : state.frontOcrResult,
+        backOcrResult: state.currentSide == CardSide.back ? result : state.backOcrResult,
+      ));
 
       return result;
     } catch (e, stack) {

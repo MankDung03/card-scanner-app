@@ -55,7 +55,7 @@
   "offlineBadge": "100% On-device · Offline",
   "visualTab": "Visual",
   "rawTextTab": "Raw text",
-  "blocksTab": "Blocks & Coordinates",
+  "blocksTab": "Blocks",
   "copyRawText": "Copy full text",
   "copiedToClipboard": "Copied to clipboard",
   "noTextDetected": "No text detected in the image"

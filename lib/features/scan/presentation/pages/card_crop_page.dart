@@ -109,7 +109,7 @@ class CardCropPage extends StatelessWidget {
         await OcrPreviewSheet.show(
           context,
           result,
-          imagePath: scanCubit.state.currentImagePath,
+          imagePath: scanCubit.state.lastProcessedImagePath ?? scanCubit.state.currentImagePath,
         );
       } else {
         final error = scanCubit.state.ocrErrorMessage ?? 'Lỗi nhận dạng';
@@ -179,6 +179,11 @@ class CardCropPage extends StatelessWidget {
                           ? InteractiveQuadCropper(
                               imagePath: imagePath,
                               rotationAngle: state.rotationAngle,
+                              aspectRatio: (state.imageWidth != null && state.imageHeight != null)
+                                  ? (state.rotationAngle % 180 != 0
+                                      ? state.imageHeight! / state.imageWidth!
+                                      : state.imageWidth! / state.imageHeight!)
+                                  : null,
                               corners: state.cornerPoints,
                               onCornerChanged: (index, newOffset) {
                                 scanCubit.updateCorner(index, newOffset);

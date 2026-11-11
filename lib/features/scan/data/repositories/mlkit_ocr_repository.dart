@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:image/image.dart' as img;
 import '../../domain/entities/card_ocr_result.dart';
 import '../../domain/repositories/ocr_repository.dart';
 
@@ -25,16 +25,17 @@ class MlKitOcrRepository implements OcrRepository {
       throw Exception('Tệp ảnh không tồn tại: $imagePath');
     }
 
-    // 1. Xác định kích thước ảnh thực tế (px)
+    // 1. Xác định kích thước ảnh thực tế (px) qua Header metadata (siêu nhẹ, không tốn RAM heap)
     int imgW = 0;
     int imgH = 0;
     try {
       final bytes = await file.readAsBytes();
-      final decoded = img.decodeImage(bytes);
-      if (decoded != null) {
-        imgW = decoded.width;
-        imgH = decoded.height;
-      }
+      final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      final descriptor = await ui.ImageDescriptor.encoded(buffer);
+      imgW = descriptor.width;
+      imgH = descriptor.height;
+      descriptor.dispose();
+      buffer.dispose();
     } catch (e) {
       debugPrint('Warning reading image dimensions: $e');
     }

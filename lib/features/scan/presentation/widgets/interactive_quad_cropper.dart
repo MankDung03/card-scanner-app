@@ -6,6 +6,7 @@ class InteractiveQuadCropper extends StatelessWidget {
   final int rotationAngle;
   final List<Offset> corners; // 4 normalized points: TL (0), TR (1), BR (2), BL (3)
   final Function(int index, Offset newNormalizedOffset) onCornerChanged;
+  final double? aspectRatio;
 
   const InteractiveQuadCropper({
     super.key,
@@ -13,15 +14,28 @@ class InteractiveQuadCropper extends StatelessWidget {
     required this.rotationAngle,
     required this.corners,
     required this.onCornerChanged,
+    this.aspectRatio,
   });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-        // Tỉ lệ khung thẻ danh thiếp 91:55
-        final double height = width / (91.0 / 55.0);
+        final double maxW = constraints.maxWidth;
+        final double maxH = constraints.maxHeight;
+
+        // Tỷ lệ thực tế của ảnh (đã tính xoay), mặc định 91/55
+        final double targetRatio = (aspectRatio != null && aspectRatio! > 0)
+            ? aspectRatio!
+            : (91.0 / 55.0);
+
+        double width = maxW;
+        double height = width / targetRatio;
+
+        if (maxH > 0 && height > maxH) {
+          height = maxH;
+          width = height * targetRatio;
+        }
 
         return Center(
           child: Container(
@@ -43,12 +57,13 @@ class InteractiveQuadCropper extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // 1. Ảnh thẻ xoay theo góc
+                  // 1. Ảnh thẻ xoay theo góc, khít 100% với container
                   RotatedBox(
                     quarterTurns: (rotationAngle ~/ 90),
                     child: Image.file(
                       File(imagePath),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
+                      cacheWidth: 1080,
                       errorBuilder: (_, __, ___) => const Center(
                         child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 48),
                       ),
@@ -82,34 +97,42 @@ class InteractiveQuadCropper extends StatelessWidget {
     required Offset normalizedPos,
     required Size canvasSize,
   }) {
-    const double handleRadius = 12.0;
+    const double touchRadius = 26.0;
+    const double visualRadius = 12.0;
     final double pixelX = normalizedPos.dx * canvasSize.width;
     final double pixelY = normalizedPos.dy * canvasSize.height;
 
     return Positioned(
-      left: pixelX - handleRadius,
-      top: pixelY - handleRadius,
+      left: pixelX - touchRadius,
+      top: pixelY - touchRadius,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onPanUpdate: (details) {
-          final double newX = (pixelX + details.delta.dx) / canvasSize.width;
-          final double newY = (pixelY + details.delta.dy) / canvasSize.height;
+          final double newX = normalizedPos.dx + (details.delta.dx / canvasSize.width);
+          final double newY = normalizedPos.dy + (details.delta.dy / canvasSize.height);
           onCornerChanged(index, Offset(newX.clamp(0.0, 1.0), newY.clamp(0.0, 1.0)));
         },
         child: Container(
-          width: handleRadius * 2,
-          height: handleRadius * 2,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2563EB),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.35),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+          width: touchRadius * 2,
+          height: touchRadius * 2,
+          color: Colors.transparent, // Vùng chạm rộng 52x52px, dễ tương tác trên mobile
+          child: Center(
+            child: Container(
+              width: visualRadius * 2,
+              height: visualRadius * 2,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -131,27 +154,34 @@ class _QuadOverlayPainter extends CustomPainter {
     final Offset p2 = Offset(corners[2].dx * size.width, corners[2].dy * size.height);
     final Offset p3 = Offset(corners[3].dx * size.width, corners[3].dy * size.height);
 
-    final Path path = Path()
+    final Path quadPath = Path()
       ..moveTo(p0.dx, p0.dy)
       ..lineTo(p1.dx, p1.dy)
       ..lineTo(p2.dx, p2.dy)
       ..lineTo(p3.dx, p3.dy)
       ..close();
 
-    // Viền trắng nối 4 góc
+    // 1. Phủ tối toàn bộ vùng bên ngoài 4 góc (Dim mask làm nổi bật vùng chọn)
+    final Path fullCanvas = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final Path outsideMask = Path.combine(PathOperation.difference, fullCanvas, quadPath);
+    final Paint darkMaskPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.55)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(outsideMask, darkMaskPaint);
+
+    // 2. Viền xanh ngọc nổi bật nối 4 góc
     final Paint borderPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2.0
+      ..color = const Color(0xFF38BDF8)
+      ..strokeWidth = 2.2
       ..style = PaintingStyle.stroke
       ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(quadPath, borderPaint);
 
-    canvas.drawPath(path, borderPaint);
-
-    // Vùng sáng nhẹ bên trong tứ giác
+    // 3. Vùng sáng nhẹ bên trong tứ giác
     final Paint fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
+      ..color = const Color(0xFF38BDF8).withValues(alpha: 0.08)
       ..style = PaintingStyle.fill;
-    canvas.drawPath(path, fillPaint);
+    canvas.drawPath(quadPath, fillPaint);
   }
 
   @override

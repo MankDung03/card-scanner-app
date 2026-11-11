@@ -147,13 +147,13 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get visualTab => '視覚的オーバーレイ';
+  String get visualTab => '視覚的';
 
   @override
-  String get rawTextTab => '抽出テキスト';
+  String get rawTextTab => 'テキスト';
 
   @override
-  String get blocksTab => 'ブロックと座標';
+  String get blocksTab => 'ブロック';
 
   @override
   String get copyRawText => 'テキストを全コピー';
