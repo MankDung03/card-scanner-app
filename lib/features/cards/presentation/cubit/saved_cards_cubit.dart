@@ -77,18 +77,38 @@ class SavedCardsCubit extends Cubit<SavedCardsState> {
   Future<bool> updateNote(String id, String? note) async {
     final card = state.findById(id);
     if (card == null) return false;
+    return updateCard(card.copyWith(note: SavedCard.clean(note)));
+  }
+
+  /// Lưu toàn bộ thay đổi của một danh thiếp (thông tin, ghi chú, ngày/nơi gặp, tag).
+  Future<bool> updateCard(SavedCard card) async {
     try {
-      final updated = await _repository.update(
-        card.copyWith(note: note?.trim() ?? '', updatedAt: DateTime.now()),
-      );
-      emit(state.copyWith(
-        cards: state.cards.map((c) => c.id == id ? updated : c).toList(),
-      ));
+      final updated = await _repository.update(card.copyWith(updatedAt: DateTime.now()));
+      _replace(updated);
       return true;
     } catch (e) {
-      debugPrint('SavedCardsCubit.updateNote error: $e');
+      debugPrint('SavedCardsCubit.updateCard error: $e');
       return false;
     }
+  }
+
+  Future<bool> setImage(String id, {required bool isFront, required String sourcePath}) async {
+    final card = state.findById(id);
+    if (card == null) return false;
+    try {
+      final updated = await _repository.setImage(card, isFront: isFront, sourcePath: sourcePath);
+      _replace(updated);
+      return true;
+    } catch (e) {
+      debugPrint('SavedCardsCubit.setImage error: $e');
+      return false;
+    }
+  }
+
+  void _replace(SavedCard updated) {
+    emit(state.copyWith(
+      cards: state.cards.map((c) => c.id == updated.id ? updated : c).toList(),
+    ));
   }
 
   /// Xoá ngay trên UI (cần cho Dismissible), sau đó xoá trên đĩa; lỗi thì nạp lại.

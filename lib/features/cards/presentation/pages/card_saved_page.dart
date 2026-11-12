@@ -117,6 +117,7 @@ class CardSavedPage extends StatelessWidget {
                               RecentCardTile(
                                 card: card,
                                 margin: EdgeInsets.zero,
+                                onTap: () => context.push(AppRoutes.cardDetailPath(card.id)),
                                 trailing: Icon(Icons.chevron_right_rounded, color: textSecondary),
                               ),
                             AppSpacing.gapH20,

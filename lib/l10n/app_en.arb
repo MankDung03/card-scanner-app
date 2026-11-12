@@ -137,5 +137,35 @@
   },
   "copiedPhone": "Phone number copied",
   "copiedEmail": "Email address copied",
-  "editNote": "Edit note"
+  "editNote": "Edit note",
+  "cardDetailTitle": "Business card",
+  "edit": "Edit",
+  "call": "Call",
+  "map": "Map",
+  "export": "Export",
+  "meetingSectionTitle": "Where & when you met",
+  "meetingEmptyPrompt": "Add the date, place or a note to remember this contact",
+  "metDateLabel": "Date met",
+  "metPlaceLabel": "Place",
+  "metPlaceHint": "e.g. IT Expo, Tokyo",
+  "noteLabel": "Note",
+  "addTag": "Tag",
+  "tagHint": "Tag name, e.g. Client",
+  "removeTag": "Remove tag",
+  "addedOnLocal": "Added {date} · Stored on this device only",
+  "@addedOnLocal": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "noImageForSide": "No photo for this side",
+  "addPhoto": "Add photo",
+  "cannotOpenApp": "No app available to open this",
+  "choosePhoneNumber": "Choose a number to call",
+  "copied": "Copied",
+  "postalCode": "Postal code",
+  "editCardTitle": "Edit card",
+  "cardUpdated": "Card updated",
+  "cardNotFound": "Card not found",
+  "deleteCard": "Delete card"
 }

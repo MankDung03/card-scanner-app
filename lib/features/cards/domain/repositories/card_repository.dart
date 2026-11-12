@@ -14,5 +14,8 @@ abstract class CardRepository {
 
   Future<SavedCard> update(SavedCard card);
 
+  /// Thêm / thay ảnh một mặt của thẻ (ảnh nguồn được copy vào bộ nhớ của app).
+  Future<SavedCard> setImage(SavedCard card, {required bool isFront, required String sourcePath});
+
   Future<void> delete(String id);
 }

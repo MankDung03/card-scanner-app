@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import '../../features/cards/presentation/pages/card_detail_page.dart';
+import '../../features/cards/presentation/pages/card_edit_page.dart';
 import '../../features/cards/presentation/pages/card_saved_page.dart';
 import '../../features/cards/presentation/pages/saved_cards_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -23,6 +25,18 @@ class AppRouter {
           GoRoute(
             path: AppRoutes.savedCards.substring(1),
             builder: (context, state) => const SavedCardsPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => CardDetailPage(cardId: state.pathParameters['id']!),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) => CardEditPage(cardId: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),

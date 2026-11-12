@@ -349,4 +349,82 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get editNote => 'Sửa ghi chú';
+
+  @override
+  String get cardDetailTitle => 'Danh thiếp';
+
+  @override
+  String get edit => 'Sửa';
+
+  @override
+  String get call => 'Gọi';
+
+  @override
+  String get map => 'Bản đồ';
+
+  @override
+  String get export => 'Xuất';
+
+  @override
+  String get meetingSectionTitle => 'Gặp ở đâu, khi nào';
+
+  @override
+  String get meetingEmptyPrompt =>
+      'Thêm ngày gặp, nơi gặp hoặc ghi chú để dễ nhớ hơn';
+
+  @override
+  String get metDateLabel => 'Ngày gặp';
+
+  @override
+  String get metPlaceLabel => 'Nơi gặp';
+
+  @override
+  String get metPlaceHint => 'VD: Triển lãm IT, Tokyo';
+
+  @override
+  String get noteLabel => 'Ghi chú';
+
+  @override
+  String get addTag => 'Tag';
+
+  @override
+  String get tagHint => 'Tên tag, VD: Khách hàng';
+
+  @override
+  String get removeTag => 'Xoá tag';
+
+  @override
+  String addedOnLocal(String date) {
+    return 'Đã thêm $date · Chỉ lưu trên máy này';
+  }
+
+  @override
+  String get noImageForSide => 'Chưa có ảnh mặt này';
+
+  @override
+  String get addPhoto => 'Thêm ảnh';
+
+  @override
+  String get cannotOpenApp => 'Không mở được ứng dụng phù hợp trên máy';
+
+  @override
+  String get choosePhoneNumber => 'Chọn số để gọi';
+
+  @override
+  String get copied => 'Đã sao chép';
+
+  @override
+  String get postalCode => 'Mã bưu chính';
+
+  @override
+  String get editCardTitle => 'Sửa danh thiếp';
+
+  @override
+  String get cardUpdated => 'Đã cập nhật danh thiếp';
+
+  @override
+  String get cardNotFound => 'Không tìm thấy danh thiếp';
+
+  @override
+  String get deleteCard => 'Xoá danh thiếp';
 }

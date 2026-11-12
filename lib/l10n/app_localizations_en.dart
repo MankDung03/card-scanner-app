@@ -351,4 +351,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editNote => 'Edit note';
+
+  @override
+  String get cardDetailTitle => 'Business card';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get map => 'Map';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get meetingSectionTitle => 'Where & when you met';
+
+  @override
+  String get meetingEmptyPrompt =>
+      'Add the date, place or a note to remember this contact';
+
+  @override
+  String get metDateLabel => 'Date met';
+
+  @override
+  String get metPlaceLabel => 'Place';
+
+  @override
+  String get metPlaceHint => 'e.g. IT Expo, Tokyo';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get addTag => 'Tag';
+
+  @override
+  String get tagHint => 'Tag name, e.g. Client';
+
+  @override
+  String get removeTag => 'Remove tag';
+
+  @override
+  String addedOnLocal(String date) {
+    return 'Added $date · Stored on this device only';
+  }
+
+  @override
+  String get noImageForSide => 'No photo for this side';
+
+  @override
+  String get addPhoto => 'Add photo';
+
+  @override
+  String get cannotOpenApp => 'No app available to open this';
+
+  @override
+  String get choosePhoneNumber => 'Choose a number to call';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get postalCode => 'Postal code';
+
+  @override
+  String get editCardTitle => 'Edit card';
+
+  @override
+  String get cardUpdated => 'Card updated';
+
+  @override
+  String get cardNotFound => 'Card not found';
+
+  @override
+  String get deleteCard => 'Delete card';
 }

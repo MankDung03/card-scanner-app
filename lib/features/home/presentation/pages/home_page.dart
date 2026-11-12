@@ -226,7 +226,11 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.symmetric(vertical: AppSpacing.s20),
                         )
                       else
-                        for (final card in recent) RecentCardTile(card: card),
+                        for (final card in recent)
+                          RecentCardTile(
+                            card: card,
+                            onTap: () => context.push(AppRoutes.cardDetailPath(card.id)),
+                          ),
                     ],
                   );
                 },

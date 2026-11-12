@@ -345,4 +345,81 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get editNote => 'メモを編集';
+
+  @override
+  String get cardDetailTitle => '名刺';
+
+  @override
+  String get edit => '編集';
+
+  @override
+  String get call => '電話';
+
+  @override
+  String get map => '地図';
+
+  @override
+  String get export => '書き出し';
+
+  @override
+  String get meetingSectionTitle => '出会った場所・日時';
+
+  @override
+  String get meetingEmptyPrompt => '日付・場所・メモを追加して思い出しやすくしましょう';
+
+  @override
+  String get metDateLabel => '日付';
+
+  @override
+  String get metPlaceLabel => '場所';
+
+  @override
+  String get metPlaceHint => '例：ITエキスポ 東京';
+
+  @override
+  String get noteLabel => 'メモ';
+
+  @override
+  String get addTag => 'タグ';
+
+  @override
+  String get tagHint => 'タグ名（例：顧客）';
+
+  @override
+  String get removeTag => 'タグを削除';
+
+  @override
+  String addedOnLocal(String date) {
+    return '$date に追加 · この端末のみに保存';
+  }
+
+  @override
+  String get noImageForSide => 'この面の画像はありません';
+
+  @override
+  String get addPhoto => '画像を追加';
+
+  @override
+  String get cannotOpenApp => '対応するアプリを開けません';
+
+  @override
+  String get choosePhoneNumber => '発信する番号を選択';
+
+  @override
+  String get copied => 'コピーしました';
+
+  @override
+  String get postalCode => '郵便番号';
+
+  @override
+  String get editCardTitle => '名刺を編集';
+
+  @override
+  String get cardUpdated => '名刺を更新しました';
+
+  @override
+  String get cardNotFound => '名刺が見つかりません';
+
+  @override
+  String get deleteCard => '名刺を削除';
 }

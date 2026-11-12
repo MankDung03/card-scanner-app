@@ -8,5 +8,11 @@ class AppRoutes {
   static const String cardDetail = '/card-detail';
   static const String cardSaved = '/card-saved';
   static const String savedCards = '/cards';
+
+  /// Chi tiết danh thiếp: /cards/:id
+  static String cardDetailPath(String id) => '$savedCards/$id';
+
+  /// Sửa danh thiếp: /cards/:id/edit
+  static String cardEditPath(String id) => '$savedCards/$id/edit';
   static const String settings = '/settings';
 }

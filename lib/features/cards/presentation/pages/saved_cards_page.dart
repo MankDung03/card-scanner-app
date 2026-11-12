@@ -421,6 +421,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                             ),
                             child: CardListItem(
                               card: card,
+                              onTap: () => context.push(AppRoutes.cardDetailPath(card.id)),
                               onEditNote: () => _editNote(context, card),
                               onDelete: () async {
                                 final confirmed = await _confirmDelete(context, card);

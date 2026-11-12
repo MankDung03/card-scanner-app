@@ -747,6 +747,156 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Sửa ghi chú'**
   String get editNote;
+
+  /// No description provided for @cardDetailTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp'**
+  String get cardDetailTitle;
+
+  /// No description provided for @edit.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa'**
+  String get edit;
+
+  /// No description provided for @call.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gọi'**
+  String get call;
+
+  /// No description provided for @map.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bản đồ'**
+  String get map;
+
+  /// No description provided for @export.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất'**
+  String get export;
+
+  /// No description provided for @meetingSectionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gặp ở đâu, khi nào'**
+  String get meetingSectionTitle;
+
+  /// No description provided for @meetingEmptyPrompt.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm ngày gặp, nơi gặp hoặc ghi chú để dễ nhớ hơn'**
+  String get meetingEmptyPrompt;
+
+  /// No description provided for @metDateLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngày gặp'**
+  String get metDateLabel;
+
+  /// No description provided for @metPlaceLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nơi gặp'**
+  String get metPlaceLabel;
+
+  /// No description provided for @metPlaceHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'VD: Triển lãm IT, Tokyo'**
+  String get metPlaceHint;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ghi chú'**
+  String get noteLabel;
+
+  /// No description provided for @addTag.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tag'**
+  String get addTag;
+
+  /// No description provided for @tagHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên tag, VD: Khách hàng'**
+  String get tagHint;
+
+  /// No description provided for @removeTag.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá tag'**
+  String get removeTag;
+
+  /// No description provided for @addedOnLocal.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã thêm {date} · Chỉ lưu trên máy này'**
+  String addedOnLocal(String date);
+
+  /// No description provided for @noImageForSide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có ảnh mặt này'**
+  String get noImageForSide;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm ảnh'**
+  String get addPhoto;
+
+  /// No description provided for @cannotOpenApp.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không mở được ứng dụng phù hợp trên máy'**
+  String get cannotOpenApp;
+
+  /// No description provided for @choosePhoneNumber.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn số để gọi'**
+  String get choosePhoneNumber;
+
+  /// No description provided for @copied.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã sao chép'**
+  String get copied;
+
+  /// No description provided for @postalCode.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mã bưu chính'**
+  String get postalCode;
+
+  /// No description provided for @editCardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa danh thiếp'**
+  String get editCardTitle;
+
+  /// No description provided for @cardUpdated.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã cập nhật danh thiếp'**
+  String get cardUpdated;
+
+  /// No description provided for @cardNotFound.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không tìm thấy danh thiếp'**
+  String get cardNotFound;
+
+  /// No description provided for @deleteCard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá danh thiếp'**
+  String get deleteCard;
 }
 
 class _AppLocalizationsDelegate

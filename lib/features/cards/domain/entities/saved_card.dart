@@ -1,5 +1,8 @@
 import '../../../scan/domain/entities/business_card_info.dart';
 
+/// Giá trị mặc định cho [SavedCard.copyWith] để phân biệt "không đổi" với "xoá về null".
+const Object _unset = Object();
+
 /// Danh thiếp đã được người dùng lưu (lưu hoàn toàn trên máy).
 class SavedCard {
   final String id;
@@ -16,8 +19,17 @@ class SavedCard {
   final String? address;
   final String? postalCode;
 
-  /// Ghi chú "gặp ở đâu"
+  /// Ghi chú "gặp ở đâu" (nội dung tự do)
   final String? note;
+
+  /// Ngày gặp
+  final DateTime? metAt;
+
+  /// Nơi gặp (VD: "Triển lãm IT, Tokyo")
+  final String? metPlace;
+
+  /// Nhãn phân loại (VD: "Khách hàng", "Sự kiện")
+  final List<String> tags;
 
   /// Đường dẫn ảnh đã được copy vào thư mục dữ liệu của app
   final String? frontImagePath;
@@ -41,6 +53,9 @@ class SavedCard {
     this.address,
     this.postalCode,
     this.note,
+    this.metAt,
+    this.metPlace,
+    this.tags = const [],
     this.frontImagePath,
     this.backImagePath,
     required this.createdAt,
@@ -56,18 +71,18 @@ class SavedCard {
   }) {
     return SavedCard(
       id: id,
-      name: _clean(info.name),
-      furigana: _clean(info.furigana),
-      jobTitle: _clean(info.jobTitle),
-      company: _clean(info.company),
-      department: _clean(info.department),
-      phone: _clean(info.phone),
-      mobile: _clean(info.mobile),
-      fax: _clean(info.fax),
-      email: _clean(info.email),
-      website: _clean(info.website),
-      address: _clean(info.address),
-      postalCode: _clean(info.postalCode),
+      name: clean(info.name),
+      furigana: clean(info.furigana),
+      jobTitle: clean(info.jobTitle),
+      company: clean(info.company),
+      department: clean(info.department),
+      phone: clean(info.phone),
+      mobile: clean(info.mobile),
+      fax: clean(info.fax),
+      email: clean(info.email),
+      website: clean(info.website),
+      address: clean(info.address),
+      postalCode: clean(info.postalCode),
       frontImagePath: frontImagePath,
       backImagePath: backImagePath,
       createdAt: now,
@@ -95,27 +110,64 @@ class SavedCard {
     return String.fromCharCode(source.runes.first).toUpperCase();
   }
 
+  /// Địa chỉ đầy đủ kèm mã bưu chính (nếu có)
+  String? get fullAddress {
+    if (address == null && postalCode == null) return null;
+    final zip = postalCode == null
+        ? null
+        : (postalCode!.startsWith('〒') ? postalCode! : '〒$postalCode');
+    if (address == null) return zip;
+    if (zip == null || address!.contains(postalCode!)) return address;
+    return '$zip $address';
+  }
+
+  bool get hasMeetingInfo =>
+      metAt != null || metPlace != null || (note?.trim().isNotEmpty ?? false) || tags.isNotEmpty;
+
+  /// Truyền `null` cho trường nullable để xoá giá trị; bỏ qua tham số để giữ nguyên.
   SavedCard copyWith({
-    String? note,
+    Object? name = _unset,
+    Object? furigana = _unset,
+    Object? jobTitle = _unset,
+    Object? company = _unset,
+    Object? department = _unset,
+    Object? phone = _unset,
+    Object? mobile = _unset,
+    Object? fax = _unset,
+    Object? email = _unset,
+    Object? website = _unset,
+    Object? address = _unset,
+    Object? postalCode = _unset,
+    Object? note = _unset,
+    Object? metAt = _unset,
+    Object? metPlace = _unset,
+    List<String>? tags,
+    Object? frontImagePath = _unset,
+    Object? backImagePath = _unset,
     DateTime? updatedAt,
   }) {
+    T? pick<T>(Object? value, T? current) => identical(value, _unset) ? current : value as T?;
+
     return SavedCard(
       id: id,
-      name: name,
-      furigana: furigana,
-      jobTitle: jobTitle,
-      company: company,
-      department: department,
-      phone: phone,
-      mobile: mobile,
-      fax: fax,
-      email: email,
-      website: website,
-      address: address,
-      postalCode: postalCode,
-      note: note ?? this.note,
-      frontImagePath: frontImagePath,
-      backImagePath: backImagePath,
+      name: pick(name, this.name),
+      furigana: pick(furigana, this.furigana),
+      jobTitle: pick(jobTitle, this.jobTitle),
+      company: pick(company, this.company),
+      department: pick(department, this.department),
+      phone: pick(phone, this.phone),
+      mobile: pick(mobile, this.mobile),
+      fax: pick(fax, this.fax),
+      email: pick(email, this.email),
+      website: pick(website, this.website),
+      address: pick(address, this.address),
+      postalCode: pick(postalCode, this.postalCode),
+      note: pick(note, this.note),
+      metAt: pick(metAt, this.metAt),
+      metPlace: pick(metPlace, this.metPlace),
+      tags: tags ?? this.tags,
+      frontImagePath: pick(frontImagePath, this.frontImagePath),
+      backImagePath: pick(backImagePath, this.backImagePath),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -136,6 +188,9 @@ class SavedCard {
         'address': address,
         'postalCode': postalCode,
         'note': note,
+        'metAt': metAt?.toIso8601String(),
+        'metPlace': metPlace,
+        'tags': tags,
         'frontImagePath': frontImagePath,
         'backImagePath': backImagePath,
         'createdAt': createdAt.toIso8601String(),
@@ -159,6 +214,9 @@ class SavedCard {
       address: json['address'] as String?,
       postalCode: json['postalCode'] as String?,
       note: json['note'] as String?,
+      metAt: DateTime.tryParse(json['metAt'] as String? ?? ''),
+      metPlace: json['metPlace'] as String?,
+      tags: (json['tags'] as List?)?.whereType<String>().toList() ?? const [],
       frontImagePath: json['frontImagePath'] as String?,
       backImagePath: json['backImagePath'] as String?,
       createdAt: created,
@@ -166,7 +224,8 @@ class SavedCard {
     );
   }
 
-  static String? _clean(String? value) {
+  /// Chuẩn hoá chuỗi nhập: trim, chuỗi rỗng → null.
+  static String? clean(String? value) {
     final trimmed = value?.trim();
     return (trimmed == null || trimmed.isEmpty) ? null : trimmed;
   }

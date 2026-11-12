@@ -137,5 +137,35 @@
   },
   "copiedPhone": "Đã sao chép số điện thoại",
   "copiedEmail": "Đã sao chép địa chỉ email",
-  "editNote": "Sửa ghi chú"
+  "editNote": "Sửa ghi chú",
+  "cardDetailTitle": "Danh thiếp",
+  "edit": "Sửa",
+  "call": "Gọi",
+  "map": "Bản đồ",
+  "export": "Xuất",
+  "meetingSectionTitle": "Gặp ở đâu, khi nào",
+  "meetingEmptyPrompt": "Thêm ngày gặp, nơi gặp hoặc ghi chú để dễ nhớ hơn",
+  "metDateLabel": "Ngày gặp",
+  "metPlaceLabel": "Nơi gặp",
+  "metPlaceHint": "VD: Triển lãm IT, Tokyo",
+  "noteLabel": "Ghi chú",
+  "addTag": "Tag",
+  "tagHint": "Tên tag, VD: Khách hàng",
+  "removeTag": "Xoá tag",
+  "addedOnLocal": "Đã thêm {date} · Chỉ lưu trên máy này",
+  "@addedOnLocal": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "noImageForSide": "Chưa có ảnh mặt này",
+  "addPhoto": "Thêm ảnh",
+  "cannotOpenApp": "Không mở được ứng dụng phù hợp trên máy",
+  "choosePhoneNumber": "Chọn số để gọi",
+  "copied": "Đã sao chép",
+  "postalCode": "Mã bưu chính",
+  "editCardTitle": "Sửa danh thiếp",
+  "cardUpdated": "Đã cập nhật danh thiếp",
+  "cardNotFound": "Không tìm thấy danh thiếp",
+  "deleteCard": "Xoá danh thiếp"
 }

@@ -137,5 +137,35 @@
   },
   "copiedPhone": "電話番号をコピーしました",
   "copiedEmail": "メールアドレスをコピーしました",
-  "editNote": "メモを編集"
+  "editNote": "メモを編集",
+  "cardDetailTitle": "名刺",
+  "edit": "編集",
+  "call": "電話",
+  "map": "地図",
+  "export": "書き出し",
+  "meetingSectionTitle": "出会った場所・日時",
+  "meetingEmptyPrompt": "日付・場所・メモを追加して思い出しやすくしましょう",
+  "metDateLabel": "日付",
+  "metPlaceLabel": "場所",
+  "metPlaceHint": "例：ITエキスポ 東京",
+  "noteLabel": "メモ",
+  "addTag": "タグ",
+  "tagHint": "タグ名（例：顧客）",
+  "removeTag": "タグを削除",
+  "addedOnLocal": "{date} に追加 · この端末のみに保存",
+  "@addedOnLocal": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "noImageForSide": "この面の画像はありません",
+  "addPhoto": "画像を追加",
+  "cannotOpenApp": "対応するアプリを開けません",
+  "choosePhoneNumber": "発信する番号を選択",
+  "copied": "コピーしました",
+  "postalCode": "郵便番号",
+  "editCardTitle": "名刺を編集",
+  "cardUpdated": "名刺を更新しました",
+  "cardNotFound": "名刺が見つかりません",
+  "deleteCard": "名刺を削除"
 }

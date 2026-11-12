@@ -105,6 +105,38 @@ class LocalCardRepository implements CardRepository {
   }
 
   @override
+  Future<SavedCard> setImage(
+    SavedCard card, {
+    required bool isFront,
+    required String sourcePath,
+  }) async {
+    // Tên file mới mỗi lần để Image.file không dùng lại ảnh cũ trong cache
+    final side = isFront ? 'front' : 'back';
+    final newPath = await _copyImage(
+      sourcePath,
+      '${card.id}_${side}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    if (newPath == null) throw StateError('Image not found: $sourcePath');
+
+    final oldPath = isFront ? card.frontImagePath : card.backImagePath;
+    final updated = await update(
+      isFront
+          ? card.copyWith(frontImagePath: newPath, updatedAt: DateTime.now())
+          : card.copyWith(backImagePath: newPath, updatedAt: DateTime.now()),
+    );
+    await _deleteFile(oldPath);
+    return updated;
+  }
+
+  Future<void> _deleteFile(String? path) async {
+    if (path == null) return;
+    try {
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+    } catch (_) {}
+  }
+
+  @override
   Future<void> delete(String id) async {
     final cards = [...await _load()];
     final index = cards.indexWhere((c) => c.id == id);
@@ -112,13 +144,8 @@ class LocalCardRepository implements CardRepository {
     final removed = cards.removeAt(index);
     await _persist(cards);
     _cache = cards;
-    for (final path in [removed.frontImagePath, removed.backImagePath]) {
-      if (path == null) continue;
-      try {
-        final f = File(path);
-        if (await f.exists()) await f.delete();
-      } catch (_) {}
-    }
+    await _deleteFile(removed.frontImagePath);
+    await _deleteFile(removed.backImagePath);
   }
 
   Future<String?> _copyImage(String? sourcePath, String baseName) async {
