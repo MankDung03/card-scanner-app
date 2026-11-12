@@ -3,20 +3,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/cubits/app_locale_cubit.dart';
 import 'core/cubits/app_theme_cubit.dart';
 import 'core/routes/app_router.dart';
+import 'core/services/app_settings_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'features/cards/presentation/cubit/saved_cards_cubit.dart';
 import 'features/scan/presentation/cubit/scan_cubit.dart';
 import 'l10n/app_localizations.dart';
 
 class BusinessCardScannerApp extends StatelessWidget {
-  const BusinessCardScannerApp({super.key});
+  /// Cài đặt đã lưu (giao diện, ngôn ngữ). `null` → không lưu (test).
+  final AppSettingsStorage? settings;
+
+  const BusinessCardScannerApp({super.key, this.settings});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AppThemeCubit()),
-        BlocProvider(create: (_) => AppLocaleCubit()),
+        BlocProvider(create: (_) => AppThemeCubit(storage: settings)),
+        BlocProvider(create: (_) => AppLocaleCubit(storage: settings)),
         BlocProvider(create: (_) => ScanCubit()),
         BlocProvider(create: (_) => SavedCardsCubit()..load()),
       ],
@@ -25,7 +29,8 @@ class BusinessCardScannerApp extends StatelessWidget {
           return BlocBuilder<AppLocaleCubit, Locale?>(
             builder: (context, locale) {
               return MaterialApp.router(
-                title: 'Scan Danh Thiếp',
+                onGenerateTitle: (context) =>
+                    AppLocalizations.of(context)?.appName ?? 'Scan Danh Thiếp',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,

@@ -8,7 +8,6 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/camera_bottom_bar.dart';
 import '../widgets/camera_viewfinder_overlay.dart';
-import '../widgets/ocr_language_toggle.dart';
 import '../widgets/side_segmented_control.dart';
 
 class CameraScanPage extends StatefulWidget {
@@ -233,12 +232,6 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
                                 onTap: () => scanCubit.toggleFlash(_cameraController),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 10),
-                          // Nút chuyển đổi ngôn ngữ OCR: [ Tự động | VN | JP ]
-                          OcrLanguageToggle(
-                            currentMode: state.ocrLanguageMode,
-                            onModeChanged: (mode) => scanCubit.setOcrLanguageMode(mode),
                           ),
                         ],
                       );

@@ -176,7 +176,7 @@ class _FieldEditBottomSheetState extends State<FieldEditBottomSheet> {
                 borderRadius: AppRadius.r12,
                 borderSide: BorderSide(color: AppColors.blueCardStart, width: 2),
               ),
-              hintText: 'Nhập ${widget.label}...',
+              hintText: l10n?.enterFieldHint(widget.label) ?? 'Nhập ${widget.label}...',
             ),
             onSubmitted: (_) => _submit(),
           ),

@@ -429,4 +429,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteCard => 'Delete card';
+
+  @override
+  String ocrProcessingSide(String side, int index, int total) {
+    return 'Recognizing $side ($index/$total)...';
+  }
+
+  @override
+  String ocrSideFailed(String side) {
+    return 'Could not read the $side; using the other side only';
+  }
+
+  @override
+  String get assignLineTitle => 'Assign text to field:';
+
+  @override
+  String unmappedLinesCount(int count) {
+    return 'Unassigned lines ($count)';
+  }
+
+  @override
+  String get assignTo => 'Assign to...';
+
+  @override
+  String get noCardImage => 'No card photo yet';
+
+  @override
+  String get ocrFailed =>
+      'Could not recognize text in the photo, please try again';
+
+  @override
+  String enterFieldHint(String field) {
+    return 'Enter $field...';
+  }
 }

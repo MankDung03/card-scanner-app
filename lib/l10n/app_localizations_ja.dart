@@ -422,4 +422,36 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get deleteCard => '名刺を削除';
+
+  @override
+  String ocrProcessingSide(String side, int index, int total) {
+    return '$sideを認識中（$index/$total）...';
+  }
+
+  @override
+  String ocrSideFailed(String side) {
+    return '$sideを認識できませんでした。もう一方の面の情報のみ使用します';
+  }
+
+  @override
+  String get assignLineTitle => '割り当てる項目：';
+
+  @override
+  String unmappedLinesCount(int count) {
+    return '未割り当ての行（$count）';
+  }
+
+  @override
+  String get assignTo => '割り当て...';
+
+  @override
+  String get noCardImage => '名刺の画像がありません';
+
+  @override
+  String get ocrFailed => '文字を認識できませんでした。もう一度お試しください';
+
+  @override
+  String enterFieldHint(String field) {
+    return '$fieldを入力...';
+  }
 }

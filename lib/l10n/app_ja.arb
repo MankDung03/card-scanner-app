@@ -167,5 +167,17 @@
   "editCardTitle": "名刺を編集",
   "cardUpdated": "名刺を更新しました",
   "cardNotFound": "名刺が見つかりません",
-  "deleteCard": "名刺を削除"
+  "deleteCard": "名刺を削除",
+  "ocrProcessingSide": "{side}を認識中（{index}/{total}）...",
+  "ocrSideFailed": "{side}を認識できませんでした。もう一方の面の情報のみ使用します",
+  "@ocrProcessingSide": {"placeholders":{"side":{"type":"String"},"index":{"type":"int"},"total":{"type":"int"}}},
+  "@ocrSideFailed": {"placeholders":{"side":{"type":"String"}}},
+  "assignLineTitle": "割り当てる項目：",
+  "unmappedLinesCount": "未割り当ての行（{count}）",
+  "assignTo": "割り当て...",
+  "noCardImage": "名刺の画像がありません",
+  "ocrFailed": "文字を認識できませんでした。もう一度お試しください",
+  "enterFieldHint": "{field}を入力...",
+  "@unmappedLinesCount": {"placeholders":{"count":{"type":"int"}}},
+  "@enterFieldHint": {"placeholders":{"field":{"type":"String"}}}
 }

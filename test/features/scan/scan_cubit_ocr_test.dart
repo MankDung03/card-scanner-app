@@ -112,20 +112,5 @@ void main() {
       await cubit.close();
       tempDir.deleteSync(recursive: true);
     });
-
-    test('setOcrLanguageMode updates ocrLanguageMode in state', () {
-      final mockRepo = MockOcrRepository();
-      final cubit = ScanCubit(ocrRepository: mockRepo);
-
-      expect(cubit.state.ocrLanguageMode, OcrLanguageMode.auto);
-
-      cubit.setOcrLanguageMode(OcrLanguageMode.vietnamese);
-      expect(cubit.state.ocrLanguageMode, OcrLanguageMode.vietnamese);
-
-      cubit.setOcrLanguageMode(OcrLanguageMode.japanese);
-      expect(cubit.state.ocrLanguageMode, OcrLanguageMode.japanese);
-
-      cubit.close();
-    });
   });
 }

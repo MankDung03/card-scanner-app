@@ -897,6 +897,54 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Xoá danh thiếp'**
   String get deleteCard;
+
+  /// No description provided for @ocrProcessingSide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang nhận dạng {side} ({index}/{total})...'**
+  String ocrProcessingSide(String side, int index, int total);
+
+  /// No description provided for @ocrSideFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không nhận dạng được {side}, chỉ dùng thông tin mặt còn lại'**
+  String ocrSideFailed(String side);
+
+  /// No description provided for @assignLineTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gán văn bản vào mục:'**
+  String get assignLineTitle;
+
+  /// No description provided for @unmappedLinesCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dòng chưa gán ({count})'**
+  String unmappedLinesCount(int count);
+
+  /// No description provided for @assignTo.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gán vào...'**
+  String get assignTo;
+
+  /// No description provided for @noCardImage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có ảnh danh thiếp'**
+  String get noCardImage;
+
+  /// No description provided for @ocrFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không nhận dạng được chữ trên ảnh, vui lòng thử lại'**
+  String get ocrFailed;
+
+  /// No description provided for @enterFieldHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhập {field}...'**
+  String enterFieldHint(String field);
 }
 
 class _AppLocalizationsDelegate

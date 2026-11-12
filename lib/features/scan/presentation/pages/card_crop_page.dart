@@ -10,7 +10,7 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/crop_bottom_toolbar.dart';
 import '../widgets/interactive_quad_cropper.dart';
-import '../widgets/ocr_language_toggle.dart';
+import '../widgets/side_segmented_control.dart';
 
 class CardCropPage extends StatelessWidget {
   const CardCropPage({super.key});
@@ -56,6 +56,10 @@ class CardCropPage extends StatelessWidget {
     );
   }
 
+  static String _sideLabel(AppLocalizations? l10n, CardSide side) => side == CardSide.front
+      ? (l10n?.frontSide ?? 'Mặt trước')
+      : (l10n?.backSide ?? 'Mặt sau');
+
   Future<void> _onRecognizeText(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final scanCubit = context.read<ScanCubit>();
@@ -84,13 +88,30 @@ class CardCropPage extends StatelessWidget {
                 ),
                 AppSpacing.gapW16,
                 Expanded(
-                  child: Text(
-                    l10n?.ocrProcessing ?? 'Đang nhận dạng chữ trên thẻ...',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  // Cập nhật tiến độ khi OCR lần lượt từng mặt
+                  child: BlocBuilder<ScanCubit, ScanState>(
+                    bloc: scanCubit,
+                    buildWhen: (a, b) =>
+                        a.ocrSideInProgress != b.ocrSideInProgress || a.ocrSideIndex != b.ocrSideIndex,
+                    builder: (_, s) {
+                      final side = s.ocrSideInProgress;
+                      final text = (side != null && s.ocrSidesTotal > 1)
+                          ? (l10n?.ocrProcessingSide(
+                                _sideLabel(l10n, side).toLowerCase(),
+                                s.ocrSideIndex,
+                                s.ocrSidesTotal,
+                              ) ??
+                              'Đang nhận dạng (${s.ocrSideIndex}/${s.ocrSidesTotal})...')
+                          : (l10n?.ocrProcessing ?? 'Đang nhận dạng chữ trên thẻ...');
+                      return Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -106,13 +127,28 @@ class CardCropPage extends StatelessWidget {
       Navigator.of(context, rootNavigator: true).pop(); // Đóng loading dialog
 
       if (result != null) {
+        // Một mặt lỗi nhưng mặt kia vẫn đọc được → cảnh báo nhẹ rồi vẫn sang màn xác nhận
+        final failed = scanCubit.state.ocrFailedSides;
+        if (failed.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                l10n?.ocrSideFailed(_sideLabel(l10n, failed.first).toLowerCase()) ??
+                    'Không nhận dạng được một mặt, chỉ dùng thông tin mặt còn lại',
+              ),
+              backgroundColor: const Color(0xFFD97706),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
         // Tự động chuyển thẳng sang Màn 3 với các trường đã được bóc tách và điền sẵn vào form
         context.push(AppRoutes.ocrReview);
       } else {
-        final error = scanCubit.state.ocrErrorMessage ?? 'Lỗi nhận dạng';
+        // Chi tiết kỹ thuật (ocrErrorMessage) chỉ ghi log; người dùng thấy câu đã dịch
+        debugPrint('OCR failed: ${scanCubit.state.ocrErrorMessage}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error),
+            content: Text(l10n?.ocrFailed ?? 'Không nhận dạng được chữ trên ảnh, vui lòng thử lại'),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -186,16 +222,27 @@ class CardCropPage extends StatelessWidget {
                                 scanCubit.updateCorner(index, newOffset);
                               },
                             )
-                          : const Center(
+                          : Center(
                               child: Text(
-                                'Chưa có ảnh danh thiếp',
-                                style: TextStyle(color: Colors.white54),
+                                l10n?.noCardImage ?? 'Chưa có ảnh danh thiếp',
+                                style: const TextStyle(color: Colors.white54),
                               ),
                             ),
                     ),
                   ),
 
                   AppSpacing.gapH16,
+
+                  // 1b. Đã có 2 mặt → cho chuyển qua lại để căn chỉnh từng mặt
+                  if (state.hasBothSides) ...[
+                    SideSegmentedControl(
+                      currentSide: state.currentSide,
+                      frontLabel: '${l10n?.frontSide ?? 'Mặt trước'} ✓',
+                      backLabel: '${l10n?.backSide ?? 'Mặt sau'} ✓',
+                      onSideChanged: scanCubit.setSide,
+                    ),
+                    AppSpacing.gapH12,
+                  ],
 
                   // 2. Huy hiệu trạng thái đã tự nhận diện
                   Container(
@@ -243,16 +290,6 @@ class CardCropPage extends StatelessWidget {
                       scanCubit.setSide(CardSide.back);
                       context.pushReplacement(AppRoutes.scanCamera);
                     },
-                  ),
-
-                  AppSpacing.gapH14,
-
-                  // Bộ chọn ngôn ngữ OCR: [ Tự động | VN | JP ]
-                  Center(
-                    child: OcrLanguageToggle(
-                      currentMode: state.ocrLanguageMode,
-                      onModeChanged: (mode) => scanCubit.setOcrLanguageMode(mode),
-                    ),
                   ),
 
                   AppSpacing.gapH14,

@@ -27,6 +27,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  /// Mặt đang xem trong tab "Văn bản gốc"
+  CardSide _textSide = CardSide.front;
+
   @override
   void initState() {
     super.initState();
@@ -58,17 +61,18 @@ class _CardVerificationPageState extends State<CardVerificationPage>
   }
 
   void _onAssignUnmappedLine(BuildContext context, OcrLine line) {
+    final l10n = AppLocalizations.of(context);
     final fields = [
-      {'key': 'name', 'label': 'Họ tên'},
-      {'key': 'jobTitle', 'label': 'Chức vụ'},
-      {'key': 'company', 'label': 'Công ty'},
-      {'key': 'department', 'label': 'Phòng ban'},
-      {'key': 'phone', 'label': 'Điện thoại bàn'},
-      {'key': 'mobile', 'label': 'Di động'},
-      {'key': 'fax', 'label': 'FAX'},
-      {'key': 'email', 'label': 'Email'},
-      {'key': 'website', 'label': 'Website'},
-      {'key': 'address', 'label': 'Địa chỉ'},
+      {'key': 'name', 'label': l10n?.fullName ?? 'Họ tên'},
+      {'key': 'jobTitle', 'label': l10n?.jobTitle ?? 'Chức vụ'},
+      {'key': 'company', 'label': l10n?.company ?? 'Công ty'},
+      {'key': 'department', 'label': l10n?.department ?? 'Phòng ban'},
+      {'key': 'phone', 'label': l10n?.phone ?? 'Điện thoại'},
+      {'key': 'mobile', 'label': l10n?.mobile ?? 'Di động'},
+      {'key': 'fax', 'label': l10n?.fax ?? 'FAX'},
+      {'key': 'email', 'label': l10n?.email ?? 'Email'},
+      {'key': 'website', 'label': l10n?.website ?? 'Website'},
+      {'key': 'address', 'label': l10n?.address ?? 'Địa chỉ'},
     ];
 
     showModalBottomSheet(
@@ -86,9 +90,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Gán văn bản vào mục:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  Text(
+                    l10n?.assignLineTitle ?? 'Gán văn bản vào mục:',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -141,14 +145,11 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     final cardInfo = scanState.currentCardInfo;
     if (cardInfo == null) return;
 
-    // Ảnh của mặt vừa OCR (ảnh đã crop) – mặt còn lại lấy ảnh gốc nếu có
-    final processedImage = scanState.lastProcessedImagePath ?? scanState.currentImagePath;
-    final isFront = scanState.currentSide == CardSide.front;
-
+    // Mỗi mặt: ưu tiên ảnh đã crop theo 4 góc (dùng cho OCR), không có thì dùng ảnh gốc
     final saved = await context.read<SavedCardsCubit>().saveFromScan(
           cardInfo,
-          frontImagePath: isFront ? processedImage : scanState.frontImagePath,
-          backImagePath: isFront ? scanState.backImagePath : processedImage,
+          frontImagePath: scanState.processedImagePathFor(CardSide.front) ?? scanState.frontImagePath,
+          backImagePath: scanState.processedImagePathFor(CardSide.back) ?? scanState.backImagePath,
         );
     if (!context.mounted) return;
 
@@ -252,7 +253,7 @@ class _CardVerificationPageState extends State<CardVerificationPage>
                       _buildFieldsList(context, l10n, isDark, cardInfo),
 
                       // TAB 2: VĂN BẢN GỐC & ẢNH OCR
-                      _buildOriginalTextTab(context, l10n, isDark, state, imagePath),
+                      _buildOriginalTextTab(context, l10n, isDark, state),
                     ],
                   ),
                 ),
@@ -540,14 +541,14 @@ class _CardVerificationPageState extends State<CardVerificationPage>
               icon: Icons.language_rounded,
               iconBgColor: const Color(0xFFE0F2FE),
               iconColor: const Color(0xFF0284C7),
-              label: 'Website',
+              label: l10n?.website ?? 'Website',
               value: cardInfo.website,
               isNeedsReview: cardInfo.isFieldNeedsReview('website'),
               placeholder: notOnCard,
               onTap: () => _onEditField(
                 context,
                 'website',
-                'Website',
+                l10n?.website ?? 'Website',
                 cardInfo.website,
                 alternatives: cardInfo.alternatives['website'] ?? const [],
               ),
@@ -584,7 +585,8 @@ class _CardVerificationPageState extends State<CardVerificationPage>
                         size: 16, color: Color(0xFF0284C7)),
                     AppSpacing.gapW8,
                     Text(
-                      'Dòng chưa gán (${cardInfo.unmappedLines.length})',
+                      l10n?.unmappedLinesCount(cardInfo.unmappedLines.length) ??
+                          'Dòng chưa gán (${cardInfo.unmappedLines.length})',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -632,9 +634,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
                         ),
                         icon: const Icon(Icons.add_circle_outline_rounded,
                             size: 15, color: Color(0xFF0284C7)),
-                        label: const Text(
-                          'Gán vào...',
-                          style: TextStyle(
+                        label: Text(
+                          l10n?.assignTo ?? 'Gán vào...',
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF0284C7),
@@ -669,10 +671,17 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     AppLocalizations? l10n,
     bool isDark,
     ScanState state,
-    String? imagePath,
   ) {
-    final ocrResult = state.currentOcrResult;
-    if (ocrResult == null || ocrResult.isEmpty) {
+    // Các mặt có kết quả OCR; mặt đang xem rơi về mặt có dữ liệu nếu mặt đã chọn không có
+    final sides = [
+      for (final s in CardSide.values)
+        if (state.ocrResultFor(s) != null) s,
+    ];
+    final side = sides.contains(_textSide) ? _textSide : (sides.isEmpty ? _textSide : sides.first);
+    final ocrResult = state.ocrResultFor(side);
+    final imagePath = state.processedImagePathFor(side) ?? state.imagePathFor(side);
+
+    if (ocrResult == null || (ocrResult.isEmpty && sides.length < 2)) {
       return Center(
         child: Text(
           l10n?.noTextDetected ?? 'Không có dữ liệu văn bản',
@@ -697,6 +706,23 @@ class _CardVerificationPageState extends State<CardVerificationPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Chuyển mặt trước / mặt sau khi cả 2 mặt đều đã OCR
+            if (sides.length > 1) ...[
+              Center(
+                child: SegmentedButton<CardSide>(
+                  segments: [
+                    ButtonSegment(value: CardSide.front, label: Text(l10n?.frontSide ?? 'Mặt trước')),
+                    ButtonSegment(value: CardSide.back, label: Text(l10n?.backSide ?? 'Mặt sau')),
+                  ],
+                  selected: {side},
+                  showSelectedIcon: false,
+                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                  onSelectionChanged: (s) => setState(() => _textSide = s.first),
+                ),
+              ),
+              AppSpacing.gapH12,
+            ],
+
             // Ảnh thẻ
             if (imagePath != null && File(imagePath).existsSync()) ...[
               ClipRRect(

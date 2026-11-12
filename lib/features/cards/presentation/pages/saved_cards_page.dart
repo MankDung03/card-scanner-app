@@ -8,6 +8,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/saved_card.dart';
+import '../../../scan/presentation/cubit/scan_cubit.dart';
 import '../cubit/saved_cards_cubit.dart';
 import '../widgets/card_list_item.dart';
 import '../widgets/meeting_note_bottom_sheet.dart';
@@ -172,6 +173,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
   }
 
   void _onScanNewCard(BuildContext context) {
+    context.read<ScanCubit>().startNewScan();
     context.push(AppRoutes.scanCamera);
   }
 
@@ -403,14 +405,14 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                                 color: Color(0xFFDC2626),
                                 borderRadius: AppRadius.r16,
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Xoá',
-                                    style: TextStyle(
+                                    l10n?.delete ?? 'Xoá',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,

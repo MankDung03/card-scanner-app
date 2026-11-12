@@ -20,7 +20,7 @@ class CardSavedPage extends StatelessWidget {
   const CardSavedPage({super.key, this.cardId});
 
   void _scanAnother(BuildContext context) {
-    context.read<ScanCubit>().reset();
+    context.read<ScanCubit>().startNewScan();
     context.pushReplacement(AppRoutes.scanCamera);
   }
 

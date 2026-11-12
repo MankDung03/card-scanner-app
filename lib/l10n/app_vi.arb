@@ -167,5 +167,17 @@
   "editCardTitle": "Sửa danh thiếp",
   "cardUpdated": "Đã cập nhật danh thiếp",
   "cardNotFound": "Không tìm thấy danh thiếp",
-  "deleteCard": "Xoá danh thiếp"
+  "deleteCard": "Xoá danh thiếp",
+  "ocrProcessingSide": "Đang nhận dạng {side} ({index}/{total})...",
+  "ocrSideFailed": "Không nhận dạng được {side}, chỉ dùng thông tin mặt còn lại",
+  "@ocrProcessingSide": {"placeholders":{"side":{"type":"String"},"index":{"type":"int"},"total":{"type":"int"}}},
+  "@ocrSideFailed": {"placeholders":{"side":{"type":"String"}}},
+  "assignLineTitle": "Gán văn bản vào mục:",
+  "unmappedLinesCount": "Dòng chưa gán ({count})",
+  "assignTo": "Gán vào...",
+  "noCardImage": "Chưa có ảnh danh thiếp",
+  "ocrFailed": "Không nhận dạng được chữ trên ảnh, vui lòng thử lại",
+  "enterFieldHint": "Nhập {field}...",
+  "@unmappedLinesCount": {"placeholders":{"count":{"type":"int"}}},
+  "@enterFieldHint": {"placeholders":{"field":{"type":"String"}}}
 }

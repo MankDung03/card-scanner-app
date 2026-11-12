@@ -167,5 +167,17 @@
   "editCardTitle": "Edit card",
   "cardUpdated": "Card updated",
   "cardNotFound": "Card not found",
-  "deleteCard": "Delete card"
+  "deleteCard": "Delete card",
+  "ocrProcessingSide": "Recognizing {side} ({index}/{total})...",
+  "ocrSideFailed": "Could not read the {side}; using the other side only",
+  "@ocrProcessingSide": {"placeholders":{"side":{"type":"String"},"index":{"type":"int"},"total":{"type":"int"}}},
+  "@ocrSideFailed": {"placeholders":{"side":{"type":"String"}}},
+  "assignLineTitle": "Assign text to field:",
+  "unmappedLinesCount": "Unassigned lines ({count})",
+  "assignTo": "Assign to...",
+  "noCardImage": "No card photo yet",
+  "ocrFailed": "Could not recognize text in the photo, please try again",
+  "enterFieldHint": "Enter {field}...",
+  "@unmappedLinesCount": {"placeholders":{"count":{"type":"int"}}},
+  "@enterFieldHint": {"placeholders":{"field":{"type":"String"}}}
 }

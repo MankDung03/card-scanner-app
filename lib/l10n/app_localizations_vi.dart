@@ -427,4 +427,36 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get deleteCard => 'Xoá danh thiếp';
+
+  @override
+  String ocrProcessingSide(String side, int index, int total) {
+    return 'Đang nhận dạng $side ($index/$total)...';
+  }
+
+  @override
+  String ocrSideFailed(String side) {
+    return 'Không nhận dạng được $side, chỉ dùng thông tin mặt còn lại';
+  }
+
+  @override
+  String get assignLineTitle => 'Gán văn bản vào mục:';
+
+  @override
+  String unmappedLinesCount(int count) {
+    return 'Dòng chưa gán ($count)';
+  }
+
+  @override
+  String get assignTo => 'Gán vào...';
+
+  @override
+  String get noCardImage => 'Chưa có ảnh danh thiếp';
+
+  @override
+  String get ocrFailed => 'Không nhận dạng được chữ trên ảnh, vui lòng thử lại';
+
+  @override
+  String enterFieldHint(String field) {
+    return 'Nhập $field...';
+  }
 }

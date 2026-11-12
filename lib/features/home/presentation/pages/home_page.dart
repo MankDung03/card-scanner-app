@@ -27,11 +27,13 @@ class _HomePageState extends State<HomePage> {
   static const int _recentLimit = 3;
 
   void _onCaptureCard(BuildContext context) {
+    // Bắt đầu scan mới: xoá ảnh / kết quả OCR còn sót của lần trước
+    context.read<ScanCubit>().startNewScan();
     context.push(AppRoutes.scanCamera);
   }
 
   Future<void> _onPickFromGallery(BuildContext context) async {
-    final scanCubit = context.read<ScanCubit>();
+    final scanCubit = context.read<ScanCubit>()..startNewScan();
     final picked = await scanCubit.pickFromGallery();
     if (picked != null && context.mounted) {
       context.push(AppRoutes.scanCrop);
