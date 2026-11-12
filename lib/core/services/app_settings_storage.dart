@@ -34,4 +34,11 @@ class AppSettingsStorage {
   Future<void> setLocale(Locale? locale) => locale == null
       ? _prefs.remove(_localeKey)
       : _prefs.setString(_localeKey, locale.languageCode);
+
+  /// Cách sắp xếp danh sách danh thiếp (tên enum); `null` = chưa chọn
+  String? get cardSortOrder => _prefs.getString(_cardSortKey);
+
+  Future<void> setCardSortOrder(String value) => _prefs.setString(_cardSortKey, value);
+
+  static const _cardSortKey = 'settings.card_sort_order';
 }

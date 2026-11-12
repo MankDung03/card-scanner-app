@@ -9,10 +9,14 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
+import '../../domain/entities/card_ocr_result.dart';
 import '../../domain/entities/ocr_model.dart';
+import '../../domain/services/ocr_line_field_matcher.dart';
 import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
+import '../widgets/assign_lines_bottom_sheet.dart';
 import '../widgets/field_edit_bottom_sheet.dart';
+import '../widgets/ocr_text_overlay.dart';
 import '../widgets/verification_field_tile.dart';
 import '../widgets/verification_header_card.dart';
 
@@ -29,6 +33,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
 
   /// Mặt đang xem trong tab "Văn bản gốc"
   CardSide _textSide = CardSide.front;
+
+  /// Các dòng OCR đang chọn trên ảnh (chỉ số trong `allLines` của mặt đang xem)
+  final Set<int> _selectedLines = {};
 
   @override
   void initState() {
@@ -339,7 +346,7 @@ class _CardVerificationPageState extends State<CardVerificationPage>
         labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
         tabs: [
           Tab(text: l10n?.byFieldsTab ?? 'Theo mục'),
-          Tab(text: l10n?.originalTextTab ?? 'Văn bản gốc'),
+          Tab(text: l10n?.onImageTab ?? 'Trên ảnh'),
         ],
       ),
     );
@@ -666,6 +673,64 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     );
   }
 
+  // ───────────── Tab "Trên ảnh": chạm dòng chữ trên ảnh để gán vào trường ─────────────
+
+  void _toggleLine(int index) {
+    setState(() {
+      if (!_selectedLines.remove(index)) _selectedLines.add(index);
+    });
+  }
+
+  void _switchTextSide(CardSide side) {
+    setState(() {
+      _textSide = side;
+      _selectedLines.clear(); // chỉ số dòng thuộc về từng mặt
+    });
+  }
+
+  Future<void> _assignSelectedLines(BuildContext context, List<CardTextLine> lines) async {
+    final l10n = AppLocalizations.of(context);
+    final cubit = context.read<ScanCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    final previous = cubit.state.currentCardInfo;
+    if (previous == null || _selectedLines.isEmpty) return;
+
+    // Ghép các dòng theo thứ tự đọc (trên → dưới, trái → phải)
+    final chosen = _selectedLines.map((i) => lines[i]).toList()
+      ..sort((a, b) {
+        final dy = a.boundingBox.top - b.boundingBox.top;
+        if (dy.abs() > a.boundingBox.height / 2) return dy.sign.toInt();
+        return a.boundingBox.left.compareTo(b.boundingBox.left);
+      });
+    final texts = chosen.map((l) => l.text.trim()).where((t) => t.isNotEmpty).toList();
+
+    final result = await AssignLinesBottomSheet.show(context, text: texts.join(' '), cardInfo: previous);
+    if (result == null || !mounted) return;
+
+    cubit.updateCardInfo(previous.assignText(
+      result.fieldKey,
+      result.text,
+      append: result.append,
+      consumedLineTexts: texts,
+    ));
+    setState(_selectedLines.clear);
+
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(
+          l10n?.assignedToField(fieldLabel(l10n, result.fieldKey)) ??
+              'Đã gán vào ${fieldLabel(l10n, result.fieldKey)}',
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: l10n?.undo ?? 'Hoàn tác',
+          onPressed: () => cubit.updateCardInfo(previous),
+        ),
+      ));
+  }
+
   Widget _buildOriginalTextTab(
     BuildContext context,
     AppLocalizations? l10n,
@@ -680,8 +745,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     final side = sides.contains(_textSide) ? _textSide : (sides.isEmpty ? _textSide : sides.first);
     final ocrResult = state.ocrResultFor(side);
     final imagePath = state.processedImagePathFor(side) ?? state.imagePathFor(side);
+    final cardInfo = state.currentCardInfo;
 
-    if (ocrResult == null || (ocrResult.isEmpty && sides.length < 2)) {
+    if (ocrResult == null || cardInfo == null || (ocrResult.isEmpty && sides.length < 2)) {
       return Center(
         child: Text(
           l10n?.noTextDetected ?? 'Không có dữ liệu văn bản',
@@ -690,105 +756,197 @@ class _CardVerificationPageState extends State<CardVerificationPage>
       );
     }
 
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: AppRadius.r16,
-          border: Border.all(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-            width: 1,
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Chuyển mặt trước / mặt sau khi cả 2 mặt đều đã OCR
-            if (sides.length > 1) ...[
-              Center(
-                child: SegmentedButton<CardSide>(
-                  segments: [
-                    ButtonSegment(value: CardSide.front, label: Text(l10n?.frontSide ?? 'Mặt trước')),
-                    ButtonSegment(value: CardSide.back, label: Text(l10n?.backSide ?? 'Mặt sau')),
-                  ],
-                  selected: {side},
-                  showSelectedIcon: false,
-                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
-                  onSelectionChanged: (s) => setState(() => _textSide = s.first),
-                ),
-              ),
-              AppSpacing.gapH12,
-            ],
+    final lines = ocrResult.allLines;
+    final hasImage = imagePath != null && File(imagePath).existsSync();
+    final muted = isDark ? Colors.white60 : const Color(0xFF64748B);
 
-            // Ảnh thẻ
-            if (imagePath != null && File(imagePath).existsSync()) ...[
-              ClipRRect(
-                borderRadius: AppRadius.r12,
-                child: Container(
-                  height: 180,
-                  width: double.infinity,
-                  color: Colors.black12,
-                  child: Image.file(
-                    File(imagePath),
-                    fit: BoxFit.contain,
-                    cacheWidth: 800,
-                  ),
-                ),
-              ),
-              AppSpacing.gapH12,
-            ],
-
-            // Văn bản thô OCR
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+            child: Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                borderRadius: AppRadius.r12,
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: AppRadius.r16,
                 border: Border.all(
                   color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  width: 1,
                 ),
               ),
-              child: SelectableText(
-                ocrResult.fullText,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 13.5,
-                  height: 1.5,
-                  color: isDark ? Colors.white70 : const Color(0xFF1E293B),
-                ),
-              ),
-            ),
-            AppSpacing.gapH14,
-
-            // Nút copy văn bản
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: ocrResult.fullText));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n?.copiedToClipboard ?? 'Đã sao chép vào bộ nhớ tạm'),
-                      backgroundColor: const Color(0xFF16A34A),
-                      duration: const Duration(seconds: 1),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Chuyển mặt trước / mặt sau khi cả 2 mặt đều đã OCR
+                  if (sides.length > 1) ...[
+                    Center(
+                      child: SegmentedButton<CardSide>(
+                        segments: [
+                          ButtonSegment(value: CardSide.front, label: Text(l10n?.frontSide ?? 'Mặt trước')),
+                          ButtonSegment(value: CardSide.back, label: Text(l10n?.backSide ?? 'Mặt sau')),
+                        ],
+                        selected: {side},
+                        showSelectedIcon: false,
+                        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                        onSelectionChanged: (s) => _switchTextSide(s.first),
+                      ),
                     ),
-                  );
-                },
-                icon: const Icon(Icons.copy_rounded, size: 16),
-                label: Text(l10n?.copyRawText ?? 'Sao chép toàn bộ text'),
-                style: OutlinedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
-                ),
+                    AppSpacing.gapH12,
+                  ],
+
+                  // Ảnh + khung từng dòng chữ (chạm để chọn)
+                  if (hasImage && lines.isNotEmpty) ...[
+                    Text(
+                      l10n?.tapLinesHint ?? 'Chạm vào dòng chữ trên ảnh để chọn, rồi gán vào mục',
+                      style: TextStyle(fontSize: 12.5, color: muted),
+                    ),
+                    AppSpacing.gapH8,
+                    OcrTextOverlay(
+                      imagePath: imagePath,
+                      ocr: ocrResult,
+                      lines: lines,
+                      selected: _selectedLines,
+                      isAssigned: (i) => OcrLineFieldMatcher.fieldOf(cardInfo, lines[i].text) != null,
+                      onTapLine: _toggleLine,
+                    ),
+                    AppSpacing.gapH8,
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 4,
+                      children: [
+                        _LegendDot(color: OcrOverlayColors.assigned, label: l10n?.lineAssigned ?? 'Đã có trong form'),
+                        _LegendDot(color: OcrOverlayColors.unassigned, label: l10n?.lineUnassigned ?? 'Chưa dùng'),
+                      ],
+                    ),
+                    AppSpacing.gapH14,
+                  ] else if (hasImage) ...[
+                    ClipRRect(
+                      borderRadius: AppRadius.r12,
+                      child: Image.file(File(imagePath), fit: BoxFit.contain, cacheWidth: 800),
+                    ),
+                    AppSpacing.gapH12,
+                  ],
+
+                  // Văn bản thô OCR
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                      borderRadius: AppRadius.r12,
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                      ),
+                    ),
+                    child: SelectableText(
+                      ocrResult.fullText,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13.5,
+                        height: 1.5,
+                        color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                      ),
+                    ),
+                  ),
+                  AppSpacing.gapH14,
+
+                  // Nút copy văn bản
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: ocrResult.fullText));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n?.copiedToClipboard ?? 'Đã sao chép vào bộ nhớ tạm'),
+                            backgroundColor: const Color(0xFF16A34A),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy_rounded, size: 16),
+                      label: Text(l10n?.copyRawText ?? 'Sao chép toàn bộ text'),
+                      style: OutlinedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
-      ),
+
+        // Thanh hành động khi đang chọn dòng
+        if (_selectedLines.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E3A8A) : const Color(0xFFEFF6FF),
+              border: Border(
+                top: BorderSide(color: isDark ? const Color(0xFF1E40AF) : const Color(0xFFBFDBFE)),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n?.selectedLinesCount(_selectedLines.length) ?? 'Đã chọn ${_selectedLines.length} dòng',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF1E3A8A),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setState(_selectedLines.clear),
+                  child: Text(l10n?.clearSelection ?? 'Bỏ chọn'),
+                ),
+                AppSpacing.gapW4,
+                ElevatedButton.icon(
+                  onPressed: () => _assignSelectedLines(context, lines),
+                  icon: const Icon(Icons.input_rounded, size: 18),
+                  label: Text(l10n?.assignTo ?? 'Gán vào...'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.blueCardStart,
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            border: Border.all(color: color, width: 1.5),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 }

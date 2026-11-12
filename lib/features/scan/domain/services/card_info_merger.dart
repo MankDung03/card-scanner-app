@@ -87,21 +87,7 @@ class CardInfoMerger {
     );
   }
 
-  static String? valueOf(BusinessCardInfo info, String key) => switch (key) {
-        'name' => info.name,
-        'furigana' => info.furigana,
-        'jobTitle' => info.jobTitle,
-        'company' => info.company,
-        'department' => info.department,
-        'phone' => info.phone,
-        'mobile' => info.mobile,
-        'fax' => info.fax,
-        'email' => info.email,
-        'website' => info.website,
-        'address' => info.address,
-        'postalCode' => info.postalCode,
-        _ => null,
-      };
+  static String? valueOf(BusinessCardInfo info, String key) => info.fieldValue(key);
 
   static BusinessCardInfo _prefixLines(BusinessCardInfo info, String prefix) => info.copyWith(
         unmappedLines: info.unmappedLines.map((l) => l.copyWith(id: '$prefix${l.id}')).toList(),

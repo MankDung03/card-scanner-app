@@ -945,6 +945,108 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Nhập {field}...'**
   String enterFieldHint(String field);
+
+  /// No description provided for @sortBy.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sắp xếp theo'**
+  String get sortBy;
+
+  /// No description provided for @sortCompanyAZ.
+  ///
+  /// In vi, this message translates to:
+  /// **'Công ty A-Z'**
+  String get sortCompanyAZ;
+
+  /// No description provided for @noCompanyGroup.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không có công ty'**
+  String get noCompanyGroup;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá bộ lọc'**
+  String get clearFilters;
+
+  /// No description provided for @onImageTab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trên ảnh'**
+  String get onImageTab;
+
+  /// No description provided for @tapLinesHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chạm vào dòng chữ trên ảnh để chọn (chọn được nhiều dòng), rồi gán vào mục'**
+  String get tapLinesHint;
+
+  /// No description provided for @lineAssigned.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã có trong form'**
+  String get lineAssigned;
+
+  /// No description provided for @lineUnassigned.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa dùng'**
+  String get lineUnassigned;
+
+  /// No description provided for @selectedLinesCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã chọn {count} dòng'**
+  String selectedLinesCount(int count);
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ chọn'**
+  String get clearSelection;
+
+  /// No description provided for @assignTextLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nội dung sẽ gán'**
+  String get assignTextLabel;
+
+  /// No description provided for @replaceValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thay thế'**
+  String get replaceValue;
+
+  /// No description provided for @appendValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nối thêm'**
+  String get appendValue;
+
+  /// No description provided for @assign.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gán'**
+  String get assign;
+
+  /// No description provided for @assignedToField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã gán vào {field}'**
+  String assignedToField(String field);
+
+  /// No description provided for @undo.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hoàn tác'**
+  String get undo;
+
+  /// No description provided for @emptyValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'(trống)'**
+  String get emptyValue;
 }
 
 class _AppLocalizationsDelegate

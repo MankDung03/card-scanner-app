@@ -459,4 +459,60 @@ class AppLocalizationsVi extends AppLocalizations {
   String enterFieldHint(String field) {
     return 'Nhập $field...';
   }
+
+  @override
+  String get sortBy => 'Sắp xếp theo';
+
+  @override
+  String get sortCompanyAZ => 'Công ty A-Z';
+
+  @override
+  String get noCompanyGroup => 'Không có công ty';
+
+  @override
+  String get clearFilters => 'Xoá bộ lọc';
+
+  @override
+  String get onImageTab => 'Trên ảnh';
+
+  @override
+  String get tapLinesHint =>
+      'Chạm vào dòng chữ trên ảnh để chọn (chọn được nhiều dòng), rồi gán vào mục';
+
+  @override
+  String get lineAssigned => 'Đã có trong form';
+
+  @override
+  String get lineUnassigned => 'Chưa dùng';
+
+  @override
+  String selectedLinesCount(int count) {
+    return 'Đã chọn $count dòng';
+  }
+
+  @override
+  String get clearSelection => 'Bỏ chọn';
+
+  @override
+  String get assignTextLabel => 'Nội dung sẽ gán';
+
+  @override
+  String get replaceValue => 'Thay thế';
+
+  @override
+  String get appendValue => 'Nối thêm';
+
+  @override
+  String get assign => 'Gán';
+
+  @override
+  String assignedToField(String field) {
+    return 'Đã gán vào $field';
+  }
+
+  @override
+  String get undo => 'Hoàn tác';
+
+  @override
+  String get emptyValue => '(trống)';
 }

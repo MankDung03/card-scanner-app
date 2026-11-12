@@ -5,6 +5,7 @@ import 'core/cubits/app_theme_cubit.dart';
 import 'core/routes/app_router.dart';
 import 'core/services/app_settings_storage.dart';
 import 'core/theme/app_theme.dart';
+import 'features/cards/presentation/cubit/card_sort_cubit.dart';
 import 'features/cards/presentation/cubit/saved_cards_cubit.dart';
 import 'features/scan/presentation/cubit/scan_cubit.dart';
 import 'l10n/app_localizations.dart';
@@ -23,6 +24,7 @@ class BusinessCardScannerApp extends StatelessWidget {
         BlocProvider(create: (_) => AppLocaleCubit(storage: settings)),
         BlocProvider(create: (_) => ScanCubit()),
         BlocProvider(create: (_) => SavedCardsCubit()..load()),
+        BlocProvider(create: (_) => CardSortCubit(storage: settings)),
       ],
       child: BlocBuilder<AppThemeCubit, ThemeMode>(
         builder: (context, themeMode) {

@@ -232,4 +232,61 @@ class BusinessCardInfo {
     final updatedInfo = updateField(targetFieldKey, line.text);
     return updatedInfo.copyWith(unmappedLines: remainingUnmapped);
   }
+
+  /// Các trường có thể gán, theo thứ tự hiển thị trên form
+  static const fieldKeys = [
+    'name',
+    'furigana',
+    'jobTitle',
+    'department',
+    'company',
+    'phone',
+    'mobile',
+    'fax',
+    'email',
+    'website',
+    'postalCode',
+    'address',
+  ];
+
+  /// Giá trị hiện tại của một trường theo key
+  String? fieldValue(String key) => switch (key) {
+        'name' => name,
+        'furigana' => furigana,
+        'jobTitle' => jobTitle,
+        'company' => company,
+        'department' => department,
+        'phone' => phone,
+        'mobile' => mobile,
+        'fax' => fax,
+        'email' => email,
+        'website' => website,
+        'address' => address,
+        'postalCode' => postalCode,
+        _ => null,
+      };
+
+  /// Gán [text] (ghép từ các dòng OCR người dùng chọn trên ảnh) vào [fieldKey].
+  ///
+  /// - [append] = true và trường đã có giá trị → nối thêm phía sau (cách 1 dấu cách).
+  /// - Ngược lại → thay thế.
+  /// - Cờ "Kiểm tra lại" của trường được tắt (người dùng đã tự xác nhận).
+  /// - Các dòng chưa gán có text trùng [consumedLineTexts] được bỏ khỏi danh sách.
+  BusinessCardInfo assignText(
+    String fieldKey,
+    String text, {
+    bool append = false,
+    Iterable<String> consumedLineTexts = const [],
+  }) {
+    final value = text.trim();
+    if (value.isEmpty || !fieldKeys.contains(fieldKey)) return this;
+
+    final current = fieldValue(fieldKey)?.trim();
+    final newValue = (append && current != null && current.isNotEmpty) ? '$current $value' : value;
+
+    final consumed = consumedLineTexts.map((t) => t.trim()).toSet();
+    return updateField(fieldKey, newValue).copyWith(
+      unmappedLines: unmappedLines.where((l) => !consumed.contains(l.text.trim())).toList(),
+    );
+  }
 }

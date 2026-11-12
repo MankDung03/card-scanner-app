@@ -462,4 +462,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String enterFieldHint(String field) {
     return 'Enter $field...';
   }
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get sortCompanyAZ => 'Company A-Z';
+
+  @override
+  String get noCompanyGroup => 'No company';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String get onImageTab => 'On photo';
+
+  @override
+  String get tapLinesHint =>
+      'Tap text lines on the photo to select them (multiple allowed), then assign to a field';
+
+  @override
+  String get lineAssigned => 'In form';
+
+  @override
+  String get lineUnassigned => 'Not used';
+
+  @override
+  String selectedLinesCount(int count) {
+    return '$count lines selected';
+  }
+
+  @override
+  String get clearSelection => 'Clear';
+
+  @override
+  String get assignTextLabel => 'Text to assign';
+
+  @override
+  String get replaceValue => 'Replace';
+
+  @override
+  String get appendValue => 'Append';
+
+  @override
+  String get assign => 'Assign';
+
+  @override
+  String assignedToField(String field) {
+    return 'Assigned to $field';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get emptyValue => '(empty)';
 }

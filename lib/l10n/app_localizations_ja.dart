@@ -454,4 +454,59 @@ class AppLocalizationsJa extends AppLocalizations {
   String enterFieldHint(String field) {
     return '$fieldを入力...';
   }
+
+  @override
+  String get sortBy => '並べ替え';
+
+  @override
+  String get sortCompanyAZ => '会社名順';
+
+  @override
+  String get noCompanyGroup => '会社名なし';
+
+  @override
+  String get clearFilters => '絞り込みを解除';
+
+  @override
+  String get onImageTab => '画像で確認';
+
+  @override
+  String get tapLinesHint => '画像の文字行をタップして選択し（複数可）、項目に割り当てます';
+
+  @override
+  String get lineAssigned => '入力済み';
+
+  @override
+  String get lineUnassigned => '未使用';
+
+  @override
+  String selectedLinesCount(int count) {
+    return '$count行を選択中';
+  }
+
+  @override
+  String get clearSelection => '選択解除';
+
+  @override
+  String get assignTextLabel => '割り当てるテキスト';
+
+  @override
+  String get replaceValue => '置き換え';
+
+  @override
+  String get appendValue => '追記';
+
+  @override
+  String get assign => '割り当て';
+
+  @override
+  String assignedToField(String field) {
+    return '$fieldに割り当てました';
+  }
+
+  @override
+  String get undo => '元に戻す';
+
+  @override
+  String get emptyValue => '（空）';
 }
