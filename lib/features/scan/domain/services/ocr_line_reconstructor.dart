@@ -8,33 +8,44 @@ class _ElementItem {
   final String text;
   final Rect rect;
   final List<Point<int>> cornerPoints;
+  final int blockIndex;
+  final int lineIndex;
   bool isUsed;
 
   _ElementItem({
     required this.text,
     required this.rect,
     this.cornerPoints = const [],
+    this.blockIndex = 0,
+    this.lineIndex = 0,
   }) : isUsed = false;
 }
 
 /// Thuật toán tái tạo và gom dòng OCR dựa trên tọa độ phần tử (Bounding Box Merging)
-/// Giải quyết triệt để 4 lỗi:
+/// Giải quyết triệt để các bài toán:
 /// 1. Rớt chữ do khoảng cách thiết kế kerning rộng ("田 中     宏" -> "田 中 宏")
 /// 2. Phân mảnh khối chữ lệch kích thước ("TOKYO" + "ENGINEERING" -> "TOKYO ENGINEERING")
 /// 3. Ghép số điện thoại & dấu ngoặc ("(03" + "1055-8141" + "(代)" -> "(03) 1055-8141 (代)")
 /// 4. Đảm bảo toàn vẹn các chữ ở lề ("FAX" + số fax -> "FAX 03-1055-8142")
+/// 5. BẢO VỆ RANH GIỚI CỘT: Tuyệt đối không gộp các phần tử ở 2 cột khác nhau của thẻ
+///    (ví dụ "Ngô Tiến Công" ở cột trái và "VIB Quốc Tế" ở cột phải)
 class OcrLineReconstructor {
   /// Tái cấu trúc lại toàn bộ CardOcrResult từ tọa độ các TextElement
-  static CardOcrResult reconstruct(CardOcrResult rawResult) {
+  static CardOcrResult reconstruct(
+    CardOcrResult rawResult, {
+    bool isVietnamese = false,
+  }) {
     if (rawResult.isEmpty || rawResult.blocks.isEmpty) {
       return rawResult;
     }
 
-    // 1. Trích xuất toàn bộ TextElement từ tất cả các khối
+    // 1. Trích xuất toàn bộ TextElement từ tất cả các khối (kèm thông tin blockIndex và lineIndex)
     final allElements = <_ElementItem>[];
 
-    for (final block in rawResult.blocks) {
-      for (final line in block.lines) {
+    for (int bIdx = 0; bIdx < rawResult.blocks.length; bIdx++) {
+      final block = rawResult.blocks[bIdx];
+      for (int lIdx = 0; lIdx < block.lines.length; lIdx++) {
+        final line = block.lines[lIdx];
         if (line.elements.isNotEmpty) {
           for (final elem in line.elements) {
             final t = elem.text.trim();
@@ -43,6 +54,8 @@ class OcrLineReconstructor {
                 text: t,
                 rect: elem.boundingBox,
                 cornerPoints: elem.cornerPoints,
+                blockIndex: bIdx,
+                lineIndex: lIdx,
               ));
             }
           }
@@ -54,6 +67,8 @@ class OcrLineReconstructor {
               text: t,
               rect: line.boundingBox,
               cornerPoints: line.cornerPoints,
+              blockIndex: bIdx,
+              lineIndex: lIdx,
             ));
           }
         }
@@ -64,8 +79,9 @@ class OcrLineReconstructor {
       return rawResult;
     }
 
-    // 2. Thuật toán gom cụm phần tử có cùng trục ngang (Horizontal Baseline Clustering)
+    // 2. Thuật toán gom cụm phần tử có cùng trục ngang (Horizontal Baseline & Gap Clustering)
     final lineClusters = <List<_ElementItem>>[];
+    final cardW = rawResult.imageWidth.toDouble();
 
     for (int i = 0; i < allElements.length; i++) {
       final seed = allElements[i];
@@ -74,22 +90,33 @@ class OcrLineReconstructor {
       final currentCluster = <_ElementItem>[seed];
       seed.isUsed = true;
 
-      for (int j = i + 1; j < allElements.length; j++) {
-        final candidate = allElements[j];
-        if (candidate.isUsed) continue;
+      // Tìm tất cả các candidate lân cận thỏa mãn cả baseline Y và khoảng cách ngang X
+      bool addedAny = true;
+      while (addedAny) {
+        addedAny = false;
+        for (int j = 0; j < allElements.length; j++) {
+          final candidate = allElements[j];
+          if (candidate.isUsed) continue;
 
-        // Kiểm tra xem candidate có nằm trên cùng trục Y với bất kỳ phần tử nào trong cluster không
-        bool matchesCluster = false;
-        for (final member in currentCluster) {
-          if (_isSameHorizontalLine(member.rect, candidate.rect)) {
-            matchesCluster = true;
-            break;
+          // Kiểm tra xem candidate có thể nối với bất kỳ member nào trong cluster không
+          bool canConnect = false;
+          for (final member in currentCluster) {
+            if (_isCompatibleNeighbor(
+              member,
+              candidate,
+              cardW,
+              isVietnamese,
+            )) {
+              canConnect = true;
+              break;
+            }
           }
-        }
 
-        if (matchesCluster) {
-          candidate.isUsed = true;
-          currentCluster.add(candidate);
+          if (canConnect) {
+            candidate.isUsed = true;
+            currentCluster.add(candidate);
+            addedAny = true;
+          }
         }
       }
 
@@ -215,5 +242,66 @@ class OcrLineReconstructor {
     }
 
     return true;
+  }
+
+  /// Tính khoảng cách ngang giữa 2 bounding box
+  static double _horizontalGap(Rect a, Rect b) {
+    if (a.right < b.left) {
+      return b.left - a.right;
+    } else if (b.right < a.left) {
+      return a.left - b.right;
+    }
+    return 0.0;
+  }
+
+  /// Xác định xem 2 phần tử có phải là láng giềng hợp lệ trên cùng 1 dòng hay không
+  /// (Kiểm tra cả trục dọc Y lẫn khoảng cách ngang X để ngăn chặn triệt để lỗi gom đè cột)
+  static bool _isCompatibleNeighbor(
+    _ElementItem member,
+    _ElementItem candidate,
+    double cardWidth,
+    bool isVietnamese,
+  ) {
+    // 1. Bắt buộc phải có cùng baseline Y
+    if (!_isSameHorizontalLine(member.rect, candidate.rect)) {
+      return false;
+    }
+
+    // 2. Tính khoảng cách ngang giữa 2 box
+    final gapX = _horizontalGap(member.rect, candidate.rect);
+    final fontH = max(member.rect.height, candidate.rect.height);
+
+    // TH 1: Cùng trong 1 block layout của ML Kit
+    if (member.blockIndex == candidate.blockIndex) {
+      if (member.lineIndex == candidate.lineIndex) {
+        // Trong cùng 1 dòng ban đầu của ML Kit, cho phép nối nếu khoảng cách từ hợp lý
+        final maxSameLineGap = max(fontH * (isVietnamese ? 2.0 : 3.0), 60.0);
+        return gapX <= maxSameLineGap;
+      }
+
+      // Khác dòng trong cùng block (ví dụ ML Kit ngắt dòng sai nhưng cùng độ cao Y):
+      final maxSameBlockGap = max(fontH * (isVietnamese ? 1.5 : 2.5), 50.0);
+      if (cardWidth > 0 && gapX > cardWidth * (isVietnamese ? 0.10 : 0.15)) {
+        return false;
+      }
+      return gapX <= maxSameBlockGap;
+    }
+
+    // TH 2: Khác block layout (2 khối hoàn toàn độc lập do ML Kit chia cột/đoạn)
+    // CHẶN ĐÈ CỘT: Tuyệt đối không gộp nếu nằm ở 2 cột khác nhau (ví dụ Tên bên trái và Logo bên phải)
+    if (isVietnamese) {
+      // Đối với thẻ tiếng Việt, tuyệt đối không gộp giữa 2 block khác nhau nếu khoảng cách vượt quá 1 từ
+      final maxCrossBlockGap = max(fontH * 0.8, 25.0);
+      if (cardWidth > 0 && gapX > cardWidth * 0.05) return false;
+      return gapX <= maxCrossBlockGap;
+    } else {
+      // Đối với thẻ tiếng Nhật, cho phép gom kerning tên người (như "田 中" và "宏")
+      // nhưng giới hạn chặt chẽ không quá 2.2x fontH hoặc 12% chiều rộng thẻ
+      double maxCrossBlockGap = max(fontH * 2.2, 75.0);
+      if (cardWidth > 0) {
+        maxCrossBlockGap = min(maxCrossBlockGap, cardWidth * 0.12);
+      }
+      return gapX <= maxCrossBlockGap;
+    }
   }
 }

@@ -549,6 +549,204 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Đã lưu danh thiếp thành công'**
   String get cardSavedSuccess;
+
+  /// No description provided for @cardSavedTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu danh thiếp'**
+  String get cardSavedTitle;
+
+  /// No description provided for @cardSavedSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu vào app trên máy này.'**
+  String get cardSavedSubtitle;
+
+  /// No description provided for @cardSaveFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không thể lưu danh thiếp, vui lòng thử lại'**
+  String get cardSaveFailed;
+
+  /// No description provided for @optionalActions.
+  ///
+  /// In vi, this message translates to:
+  /// **'Làm thêm (không bắt buộc)'**
+  String get optionalActions;
+
+  /// No description provided for @saveToContacts.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu vào Danh bạ'**
+  String get saveToContacts;
+
+  /// No description provided for @addMeetingNote.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ghi chú gặp ở đâu'**
+  String get addMeetingNote;
+
+  /// No description provided for @meetingNoteHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'VD: Gặp ở hội thảo tại Tokyo, 12/11'**
+  String get meetingNoteHint;
+
+  /// No description provided for @save.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu'**
+  String get save;
+
+  /// No description provided for @noteSaved.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu ghi chú'**
+  String get noteSaved;
+
+  /// No description provided for @scanAnotherCard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Scan danh thiếp khác'**
+  String get scanAnotherCard;
+
+  /// No description provided for @backToHome.
+  ///
+  /// In vi, this message translates to:
+  /// **'Về trang chủ'**
+  String get backToHome;
+
+  /// No description provided for @unnamedCard.
+  ///
+  /// In vi, this message translates to:
+  /// **'(Chưa có tên)'**
+  String get unnamedCard;
+
+  /// No description provided for @noSavedCards.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có danh thiếp nào. Hãy scan tấm đầu tiên!'**
+  String get noSavedCards;
+
+  /// No description provided for @savedCardsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp đã lưu'**
+  String get savedCardsTitle;
+
+  /// No description provided for @deleteCardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá danh thiếp?'**
+  String get deleteCardTitle;
+
+  /// No description provided for @deleteCardMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp và ảnh sẽ bị xoá khỏi máy này.'**
+  String get deleteCardMessage;
+
+  /// No description provided for @delete.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá'**
+  String get delete;
+
+  /// No description provided for @cardDeleted.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã xoá danh thiếp'**
+  String get cardDeleted;
+
+  /// No description provided for @searchCardPlaceholder.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tìm tên, công ty, SĐT, ghi chú...'**
+  String get searchCardPlaceholder;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tất cả'**
+  String get filterAll;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mới nhất'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cũ nhất'**
+  String get sortOldest;
+
+  /// No description provided for @sortNameAZ.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên A-Z'**
+  String get sortNameAZ;
+
+  /// No description provided for @filterHasNote.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có ghi chú'**
+  String get filterHasNote;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không tìm thấy danh thiếp nào'**
+  String get noSearchResults;
+
+  /// No description provided for @noSearchResultsDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thử tìm với từ khoá khác hoặc xoá bộ lọc'**
+  String get noSearchResultsDesc;
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá tìm kiếm'**
+  String get clearSearch;
+
+  /// No description provided for @scanCardAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quét thẻ mới'**
+  String get scanCardAction;
+
+  /// No description provided for @cardsCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp'**
+  String cardsCount(int count);
+
+  /// No description provided for @showingCardsCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiển thị {filtered} / {total} danh thiếp'**
+  String showingCardsCount(int filtered, int total);
+
+  /// No description provided for @copiedPhone.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã sao chép số điện thoại'**
+  String get copiedPhone;
+
+  /// No description provided for @copiedEmail.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã sao chép địa chỉ email'**
+  String get copiedEmail;
+
+  /// No description provided for @editNote.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa ghi chú'**
+  String get editNote;
 }
 
 class _AppLocalizationsDelegate

@@ -93,5 +93,49 @@
   "editField": "Chỉnh sửa thông tin",
   "cancel": "Hủy",
   "done": "Xong",
-  "cardSavedSuccess": "Đã lưu danh thiếp thành công"
+  "cardSavedSuccess": "Đã lưu danh thiếp thành công",
+  "cardSavedTitle": "Đã lưu danh thiếp",
+  "cardSavedSubtitle": "Đã lưu vào app trên máy này.",
+  "cardSaveFailed": "Không thể lưu danh thiếp, vui lòng thử lại",
+  "optionalActions": "Làm thêm (không bắt buộc)",
+  "saveToContacts": "Lưu vào Danh bạ",
+  "addMeetingNote": "Ghi chú gặp ở đâu",
+  "meetingNoteHint": "VD: Gặp ở hội thảo tại Tokyo, 12/11",
+  "save": "Lưu",
+  "noteSaved": "Đã lưu ghi chú",
+  "scanAnotherCard": "Scan danh thiếp khác",
+  "backToHome": "Về trang chủ",
+  "unnamedCard": "(Chưa có tên)",
+  "noSavedCards": "Chưa có danh thiếp nào. Hãy scan tấm đầu tiên!",
+  "savedCardsTitle": "Danh thiếp đã lưu",
+  "deleteCardTitle": "Xoá danh thiếp?",
+  "deleteCardMessage": "Danh thiếp và ảnh sẽ bị xoá khỏi máy này.",
+  "delete": "Xoá",
+  "cardDeleted": "Đã xoá danh thiếp",
+  "searchCardPlaceholder": "Tìm tên, công ty, SĐT, ghi chú...",
+  "filterAll": "Tất cả",
+  "sortNewest": "Mới nhất",
+  "sortOldest": "Cũ nhất",
+  "sortNameAZ": "Tên A-Z",
+  "filterHasNote": "Có ghi chú",
+  "noSearchResults": "Không tìm thấy danh thiếp nào",
+  "noSearchResultsDesc": "Thử tìm với từ khoá khác hoặc xoá bộ lọc",
+  "clearSearch": "Xoá tìm kiếm",
+  "scanCardAction": "Quét thẻ mới",
+  "cardsCount": "{count} danh thiếp",
+  "@cardsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "showingCardsCount": "Hiển thị {filtered} / {total} danh thiếp",
+  "@showingCardsCount": {
+    "placeholders": {
+      "filtered": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "copiedPhone": "Đã sao chép số điện thoại",
+  "copiedEmail": "Đã sao chép địa chỉ email",
+  "editNote": "Sửa ghi chú"
 }

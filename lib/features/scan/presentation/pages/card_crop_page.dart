@@ -10,6 +10,7 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/crop_bottom_toolbar.dart';
 import '../widgets/interactive_quad_cropper.dart';
+import '../widgets/ocr_language_toggle.dart';
 
 class CardCropPage extends StatelessWidget {
   const CardCropPage({super.key});
@@ -242,6 +243,16 @@ class CardCropPage extends StatelessWidget {
                       scanCubit.setSide(CardSide.back);
                       context.pushReplacement(AppRoutes.scanCamera);
                     },
+                  ),
+
+                  AppSpacing.gapH14,
+
+                  // Bộ chọn ngôn ngữ OCR: [ Tự động | VN | JP ]
+                  Center(
+                    child: OcrLanguageToggle(
+                      currentMode: state.ocrLanguageMode,
+                      onModeChanged: (mode) => scanCubit.setOcrLanguageMode(mode),
+                    ),
                   ),
 
                   AppSpacing.gapH14,

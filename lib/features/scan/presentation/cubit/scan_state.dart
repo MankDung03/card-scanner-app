@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/business_card_info.dart';
 import '../../domain/entities/card_ocr_result.dart';
+import '../../domain/entities/ocr_language_mode.dart';
+
+export '../../domain/entities/ocr_language_mode.dart';
 
 enum CardSide { front, back }
 
 class ScanState {
   final CardSide currentSide;
+  final OcrLanguageMode ocrLanguageMode; // Chế độ ngôn ngữ OCR (Auto / VN / JP)
   final String? frontImagePath;
   final String? backImagePath;
   final String? currentImagePath; // Ảnh hiện tại đang hiển thị trên màn 2b để căn chỉnh
@@ -27,6 +31,7 @@ class ScanState {
 
   const ScanState({
     this.currentSide = CardSide.front,
+    this.ocrLanguageMode = OcrLanguageMode.auto,
     this.frontImagePath,
     this.backImagePath,
     this.currentImagePath,
@@ -59,6 +64,7 @@ class ScanState {
 
   ScanState copyWith({
     CardSide? currentSide,
+    OcrLanguageMode? ocrLanguageMode,
     String? frontImagePath,
     String? backImagePath,
     String? currentImagePath,
@@ -78,6 +84,7 @@ class ScanState {
   }) {
     return ScanState(
       currentSide: currentSide ?? this.currentSide,
+      ocrLanguageMode: ocrLanguageMode ?? this.ocrLanguageMode,
       frontImagePath: frontImagePath ?? this.frontImagePath,
       backImagePath: backImagePath ?? this.backImagePath,
       currentImagePath: currentImagePath ?? this.currentImagePath,

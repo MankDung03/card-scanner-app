@@ -242,4 +242,107 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cardSavedSuccess => '名刺を保存しました';
+
+  @override
+  String get cardSavedTitle => '名刺を保存しました';
+
+  @override
+  String get cardSavedSubtitle => 'この端末のアプリに保存しました。';
+
+  @override
+  String get cardSaveFailed => '名刺を保存できませんでした。もう一度お試しください';
+
+  @override
+  String get optionalActions => 'その他（任意）';
+
+  @override
+  String get saveToContacts => '連絡先に保存';
+
+  @override
+  String get addMeetingNote => '出会った場所をメモ';
+
+  @override
+  String get meetingNoteHint => '例：11/12 東京のセミナーで';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get noteSaved => 'メモを保存しました';
+
+  @override
+  String get scanAnotherCard => '別の名刺をスキャン';
+
+  @override
+  String get backToHome => 'ホームに戻る';
+
+  @override
+  String get unnamedCard => '（名前なし）';
+
+  @override
+  String get noSavedCards => 'まだ名刺がありません。最初の1枚をスキャンしましょう！';
+
+  @override
+  String get savedCardsTitle => '保存した名刺';
+
+  @override
+  String get deleteCardTitle => 'この名刺を削除しますか？';
+
+  @override
+  String get deleteCardMessage => '名刺と画像がこの端末から削除されます。';
+
+  @override
+  String get delete => '削除';
+
+  @override
+  String get cardDeleted => '名刺を削除しました';
+
+  @override
+  String get searchCardPlaceholder => '名前、会社、電話番号、メモで検索...';
+
+  @override
+  String get filterAll => 'すべて';
+
+  @override
+  String get sortNewest => '最新順';
+
+  @override
+  String get sortOldest => '古い順';
+
+  @override
+  String get sortNameAZ => '名前順 (A-Z)';
+
+  @override
+  String get filterHasNote => 'メモあり';
+
+  @override
+  String get noSearchResults => '名刺が見つかりません';
+
+  @override
+  String get noSearchResultsDesc => 'キーワードを変更するか、フィルターを解除してください';
+
+  @override
+  String get clearSearch => '検索をクリア';
+
+  @override
+  String get scanCardAction => '新しい名刺をスキャン';
+
+  @override
+  String cardsCount(int count) {
+    return '$count枚の名刺';
+  }
+
+  @override
+  String showingCardsCount(int filtered, int total) {
+    return '$total枚中 $filtered枚を表示';
+  }
+
+  @override
+  String get copiedPhone => '電話番号をコピーしました';
+
+  @override
+  String get copiedEmail => 'メールアドレスをコピーしました';
+
+  @override
+  String get editNote => 'メモを編集';
 }

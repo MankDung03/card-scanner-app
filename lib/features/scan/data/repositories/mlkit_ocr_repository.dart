@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../../domain/entities/card_ocr_result.dart';
+import '../../domain/entities/ocr_language_mode.dart';
 import '../../domain/repositories/ocr_repository.dart';
 import '../../domain/services/ocr_line_reconstructor.dart';
 import '../../domain/services/text_normalizer.dart';
@@ -23,6 +24,7 @@ class MlKitOcrRepository implements OcrRepository {
     String imagePath, {
     TextRecognitionScript script = TextRecognitionScript.japanese,
     bool useDualScript = true,
+    OcrLanguageMode languageMode = OcrLanguageMode.auto,
   }) async {
     final file = File(imagePath);
     if (!await file.exists()) {
@@ -46,8 +48,19 @@ class MlKitOcrRepository implements OcrRepository {
 
     final inputImage = InputImage.fromFilePath(imagePath);
 
-    // 2. Chế độ Dual-Script: Chạy đồng thời Latin (Việt/Anh) và Japanese (Kanji/Kana)
-    if (useDualScript) {
+    // 2. Chế độ ép buộc TIẾNG VIỆT (Latin script thuần túy):
+    // Không bao giờ khởi tạo model Nhật, loại bỏ 100% nguy cơ sinh chữ 'の' hoặc ký tự lạ
+    if (languageMode == OcrLanguageMode.vietnamese) {
+      debugPrint('[OCR] Mode: VIETNAMESE. Running pure Latin Recognizer.');
+      final latinRecognizer = _getRecognizer(TextRecognitionScript.latin);
+      final latinResult = await latinRecognizer.processImage(inputImage);
+      final raw = _mapToDomain(latinResult, imgW, imgH);
+      return OcrLineReconstructor.reconstruct(raw, isVietnamese: true);
+    }
+
+    // 3. Chế độ ép buộc TIẾNG NHẬT (Dual-Script tối ưu cho Kanji/Kana):
+    if (languageMode == OcrLanguageMode.japanese) {
+      debugPrint('[OCR] Mode: JAPANESE. Running Dual-Script with Japanese focus.');
       final latinRecognizer = _getRecognizer(TextRecognitionScript.latin);
       final japaneseRecognizer = _getRecognizer(TextRecognitionScript.japanese);
 
@@ -56,30 +69,39 @@ class MlKitOcrRepository implements OcrRepository {
         japaneseRecognizer.processImage(inputImage),
       ]);
 
-      final RecognizedText latinResult = results[0];
-      final RecognizedText japaneseResult = results[1];
-
-      // Nếu kết quả Japanese hoàn toàn không có ký tự CJK nào -> Đây là danh thiếp thuần Latin / Tiếng Việt!
-      // Bỏ qua kết quả Japanese để tránh lỗi hallucination ép ký tự Latin/dấu tiếng Việt thành Kana (như 'Quản lý' -> 'のudny')
-      final bool hasCjk = TextNormalizer.containsCjk(japaneseResult.text);
-
-      if (!hasCjk) {
-        debugPrint('[DualScriptOCR] No CJK characters detected. Using Latin OCR result.');
-        final raw = _mapToDomain(latinResult, imgW, imgH);
-        return OcrLineReconstructor.reconstruct(raw);
-      }
-
-      // Nếu có CJK: Hợp nhất thông minh giữa Japanese và Latin
-      debugPrint('[DualScriptOCR] CJK characters detected. Merging Japanese and Latin results.');
-      final merged = _mergeRecognizedTexts(latinResult, japaneseResult, imgW, imgH);
-      return OcrLineReconstructor.reconstruct(merged);
+      final merged = _mergeRecognizedTexts(results[0], results[1], imgW, imgH);
+      return OcrLineReconstructor.reconstruct(merged, isVietnamese: false);
     }
 
-    // Chế độ đơn script theo yêu cầu
-    final recognizer = _getRecognizer(script);
-    final RecognizedText recognizedText = await recognizer.processImage(inputImage);
-    final raw = _mapToDomain(recognizedText, imgW, imgH);
-    return OcrLineReconstructor.reconstruct(raw);
+    // 4. Chế độ TỰ ĐỘNG (Auto Mode): Bắt mạch ngôn ngữ thông minh
+    debugPrint('[OCR] Mode: AUTO. Running Dual-Script & Smart Language Diagnosis.');
+    final latinRecognizer = _getRecognizer(TextRecognitionScript.latin);
+    final japaneseRecognizer = _getRecognizer(TextRecognitionScript.japanese);
+
+    final results = await Future.wait([
+      latinRecognizer.processImage(inputImage),
+      japaneseRecognizer.processImage(inputImage),
+    ]);
+
+    final RecognizedText latinResult = results[0];
+    final RecognizedText japaneseResult = results[1];
+
+    // Thuật toán "bắt mạch" ngôn ngữ:
+    // Kiểm tra số lượng chữ Hán Kanji thực sự và dấu tiếng Việt
+    final bool isVietnamese = TextNormalizer.isVietnameseCard(
+      latinResult.text,
+      japaneseResult.text,
+    );
+
+    if (isVietnamese) {
+      debugPrint('[OCR] Auto-diagnosis: VIETNAMESE CARD. Discarding Japanese hallucination.');
+      final raw = _mapToDomain(latinResult, imgW, imgH);
+      return OcrLineReconstructor.reconstruct(raw, isVietnamese: true);
+    }
+
+    debugPrint('[OCR] Auto-diagnosis: JAPANESE CARD. Merging Japanese and Latin results.');
+    final merged = _mergeRecognizedTexts(latinResult, japaneseResult, imgW, imgH);
+    return OcrLineReconstructor.reconstruct(merged, isVietnamese: false);
   }
 
   /// Gộp kết quả giữa Japanese và Latin recognizer

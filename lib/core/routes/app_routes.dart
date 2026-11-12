@@ -6,5 +6,7 @@ class AppRoutes {
   static const String scanCrop = '/crop';
   static const String ocrReview = '/ocr-review';
   static const String cardDetail = '/card-detail';
+  static const String cardSaved = '/card-saved';
+  static const String savedCards = '/cards';
   static const String settings = '/settings';
 }

@@ -46,6 +46,7 @@ class HeuristicFieldScorer {
     // Tiếng Việt
     'tổng giám đốc', 'phó tổng giám đốc', 'giám đốc', 'phó giám đốc',
     'trưởng phòng', 'phó phòng', 'trưởng nhóm', 'quản lý khách hàng', 'quản lý',
+    'quản ý khách hàng', 'quản ý', // Khắc phục lỗi OCR mất chữ 'l'
     'chuyên viên tư vấn', 'chuyên viên khách hàng', 'chuyên viên', 'nhân viên',
     'kế toán', 'kỹ sư', 'luật sư', 'cố vấn', 'thư ký',
 
@@ -143,8 +144,9 @@ class HeuristicFieldScorer {
     }
 
     if (bestTitleLine != null && maxTitleScore >= 80) {
+      // Sử dụng normalizedText để giữ lại kết quả sau khi đã sửa lỗi chính tả OCR (ví dụ "Quản ý" -> "Quản lý")
       title = FieldValue(
-        value: bestTitleLine.text.trim(),
+        value: bestTitleLine.normalizedText.trim(),
         confidence: maxTitleScore >= 100 ? 0.95 : 0.85,
         sourceLineIds: [bestTitleLine.id],
       );
@@ -206,12 +208,12 @@ class HeuristicFieldScorer {
     }
 
     if (bestCompanyLine != null) {
-      var companyName = bestCompanyLine.text.trim();
+      var companyName = bestCompanyLine.normalizedText.trim();
       companyAlternatives.add(companyName);
 
       // Nếu có dòng brand (ví dụ VIB) ở gần, kết hợp thành "Ngân hàng Quốc Tế VIB"
       if (brandLine != null && brandLine != bestCompanyLine) {
-        final brandText = brandLine.text.trim();
+        final brandText = brandLine.normalizedText.trim();
         companyAlternatives.add(brandText);
         if (!companyName.toLowerCase().contains(brandText.toLowerCase())) {
           companyName = '$companyName $brandText';
@@ -275,9 +277,9 @@ class HeuristicFieldScorer {
     }
 
     if (bestDeptLine != null) {
-      deptAlternatives.add(bestDeptLine.text.trim());
+      deptAlternatives.add(bestDeptLine.normalizedText.trim());
       department = FieldValue(
-        value: bestDeptLine.text.trim(),
+        value: bestDeptLine.normalizedText.trim(),
         confidence: 0.90,
         sourceLineIds: [bestDeptLine.id],
         alternatives: deptAlternatives,
@@ -306,7 +308,7 @@ class HeuristicFieldScorer {
     }
 
     if (addressLines.isNotEmpty) {
-      final combinedAddress = addressLines.map((l) => l.text.trim()).join(', ');
+      final combinedAddress = addressLines.map((l) => l.normalizedText.trim()).join(', ');
       address = FieldValue(
         value: combinedAddress,
         confidence: 0.92,

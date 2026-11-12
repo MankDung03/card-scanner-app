@@ -245,4 +245,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardSavedSuccess => 'Business card saved successfully';
+
+  @override
+  String get cardSavedTitle => 'Card saved';
+
+  @override
+  String get cardSavedSubtitle => 'Saved in the app on this device.';
+
+  @override
+  String get cardSaveFailed => 'Could not save the card, please try again';
+
+  @override
+  String get optionalActions => 'More (optional)';
+
+  @override
+  String get saveToContacts => 'Save to Contacts';
+
+  @override
+  String get addMeetingNote => 'Where you met';
+
+  @override
+  String get meetingNoteHint => 'e.g. Met at a conference in Tokyo, Nov 12';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get noteSaved => 'Note saved';
+
+  @override
+  String get scanAnotherCard => 'Scan another card';
+
+  @override
+  String get backToHome => 'Back to home';
+
+  @override
+  String get unnamedCard => '(No name)';
+
+  @override
+  String get noSavedCards => 'No cards yet. Scan your first one!';
+
+  @override
+  String get savedCardsTitle => 'Saved cards';
+
+  @override
+  String get deleteCardTitle => 'Delete this card?';
+
+  @override
+  String get deleteCardMessage =>
+      'The card and its photos will be removed from this device.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cardDeleted => 'Card deleted';
+
+  @override
+  String get searchCardPlaceholder =>
+      'Search by name, company, phone, notes...';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortOldest => 'Oldest';
+
+  @override
+  String get sortNameAZ => 'Name A-Z';
+
+  @override
+  String get filterHasNote => 'With note';
+
+  @override
+  String get noSearchResults => 'No cards found';
+
+  @override
+  String get noSearchResultsDesc =>
+      'Try searching with different keywords or clear filters';
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get scanCardAction => 'Scan new card';
+
+  @override
+  String cardsCount(int count) {
+    return '$count cards';
+  }
+
+  @override
+  String showingCardsCount(int filtered, int total) {
+    return 'Showing $filtered of $total cards';
+  }
+
+  @override
+  String get copiedPhone => 'Phone number copied';
+
+  @override
+  String get copiedEmail => 'Email address copied';
+
+  @override
+  String get editNote => 'Edit note';
 }

@@ -93,5 +93,49 @@
   "editField": "項目を編集",
   "cancel": "キャンセル",
   "done": "完了",
-  "cardSavedSuccess": "名刺を保存しました"
+  "cardSavedSuccess": "名刺を保存しました",
+  "cardSavedTitle": "名刺を保存しました",
+  "cardSavedSubtitle": "この端末のアプリに保存しました。",
+  "cardSaveFailed": "名刺を保存できませんでした。もう一度お試しください",
+  "optionalActions": "その他（任意）",
+  "saveToContacts": "連絡先に保存",
+  "addMeetingNote": "出会った場所をメモ",
+  "meetingNoteHint": "例：11/12 東京のセミナーで",
+  "save": "保存",
+  "noteSaved": "メモを保存しました",
+  "scanAnotherCard": "別の名刺をスキャン",
+  "backToHome": "ホームに戻る",
+  "unnamedCard": "（名前なし）",
+  "noSavedCards": "まだ名刺がありません。最初の1枚をスキャンしましょう！",
+  "savedCardsTitle": "保存した名刺",
+  "deleteCardTitle": "この名刺を削除しますか？",
+  "deleteCardMessage": "名刺と画像がこの端末から削除されます。",
+  "delete": "削除",
+  "cardDeleted": "名刺を削除しました",
+  "searchCardPlaceholder": "名前、会社、電話番号、メモで検索...",
+  "filterAll": "すべて",
+  "sortNewest": "最新順",
+  "sortOldest": "古い順",
+  "sortNameAZ": "名前順 (A-Z)",
+  "filterHasNote": "メモあり",
+  "noSearchResults": "名刺が見つかりません",
+  "noSearchResultsDesc": "キーワードを変更するか、フィルターを解除してください",
+  "clearSearch": "検索をクリア",
+  "scanCardAction": "新しい名刺をスキャン",
+  "cardsCount": "{count}枚の名刺",
+  "@cardsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "showingCardsCount": "{total}枚中 {filtered}枚を表示",
+  "@showingCardsCount": {
+    "placeholders": {
+      "filtered": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "copiedPhone": "電話番号をコピーしました",
+  "copiedEmail": "メールアドレスをコピーしました",
+  "editNote": "メモを編集"
 }

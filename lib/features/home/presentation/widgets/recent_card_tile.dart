@@ -1,21 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../data/models/recent_card_model.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../cards/domain/entities/saved_card.dart';
+
+/// Avatar chữ cái đầu của danh thiếp, màu cố định theo id.
+class SavedCardAvatar extends StatelessWidget {
+  final SavedCard card;
+  final double size;
+
+  const SavedCardAvatar({super.key, required this.card, this.size = 42});
+
+  static const _palette = [
+    (AppColors.avatarPurpleBg, AppColors.avatarPurpleText),
+    (AppColors.avatarAmberBg, AppColors.avatarAmberText),
+    (AppColors.avatarTealBg, AppColors.avatarTealText),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = _palette[card.id.hashCode.abs() % _palette.length];
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: colors.$1, borderRadius: AppRadius.r12),
+      child: Center(
+        child: Text(
+          card.avatarChar,
+          style: TextStyle(color: colors.$2, fontWeight: FontWeight.bold, fontSize: size * 0.38),
+        ),
+      ),
+    );
+  }
+}
 
 class RecentCardTile extends StatelessWidget {
-  final RecentCardModel card;
+  final SavedCard card;
   final VoidCallback? onTap;
+
+  /// Widget bên phải. Mặc định hiển thị thời gian lưu ("Hôm nay" / dd/MM).
+  final Widget? trailing;
+  final EdgeInsetsGeometry margin;
 
   const RecentCardTile({
     super.key,
     required this.card,
     this.onTap,
+    this.trailing,
+    this.margin = const EdgeInsets.only(bottom: AppSpacing.lg),
   });
+
+  static String timeLabel(BuildContext context, DateTime date) {
+    final now = DateTime.now();
+    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+      return AppLocalizations.of(context)?.today ?? 'Hôm nay';
+    }
+    return DateFormat(date.year == now.year ? 'dd/MM' : 'dd/MM/yy').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.borderLight;
@@ -23,11 +70,14 @@ class RecentCardTile extends StatelessWidget {
     final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
     final textTertiary = isDark ? AppColors.darkTextTertiary : AppColors.textTertiary;
 
+    final title = card.displayName ?? l10n?.unnamedCard ?? '(Chưa có tên)';
+    final subtitle = card.subtitle;
+
     return Semantics(
-      button: true,
-      label: '${card.name}, ${card.company}',
+      button: onTap != null,
+      label: subtitle.isEmpty ? title : '$title, $subtitle',
       child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+        margin: margin,
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: AppRadius.r16,
@@ -49,66 +99,50 @@ class RecentCardTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.xl),
               child: Row(
                 children: [
-                  // Avatar badge
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: card.avatarBgColor,
-                      borderRadius: AppRadius.r12,
-                    ),
-                    child: Center(
-                      child: Text(
-                        card.avatarChar,
-                        style: TextStyle(
-                          color: card.avatarTextColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
+                  SavedCardAvatar(card: card),
                   AppSpacing.gapW12,
-
-                  // Name & Company
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          card.name,
+                          title,
                           style: TextStyle(
                             color: textPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 14.5,
                             letterSpacing: -0.2,
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          card.company,
-                          style: TextStyle(
-                            color: textSecondary,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w500,
-                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              color: textSecondary,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
                     ),
                   ),
-
-                  // Time Indicator
-                  Text(
-                    card.timeAgo,
-                    style: TextStyle(
-                      color: textTertiary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  AppSpacing.gapW8,
+                  trailing ??
+                      Text(
+                        timeLabel(context, card.createdAt),
+                        style: TextStyle(
+                          color: textTertiary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                 ],
               ),
             ),

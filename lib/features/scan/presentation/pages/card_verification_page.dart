@@ -8,6 +8,7 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
 import '../../domain/entities/ocr_model.dart';
 import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
@@ -134,25 +135,37 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     );
   }
 
-  void _onSaveCard(BuildContext context) {
+  Future<void> _onSaveCard(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-            AppSpacing.gapW10,
-            Text(l10n?.cardSavedSuccess ?? 'Đã lưu danh thiếp thành công'),
-          ],
+    final scanState = context.read<ScanCubit>().state;
+    final cardInfo = scanState.currentCardInfo;
+    if (cardInfo == null) return;
+
+    // Ảnh của mặt vừa OCR (ảnh đã crop) – mặt còn lại lấy ảnh gốc nếu có
+    final processedImage = scanState.lastProcessedImagePath ?? scanState.currentImagePath;
+    final isFront = scanState.currentSide == CardSide.front;
+
+    final saved = await context.read<SavedCardsCubit>().saveFromScan(
+          cardInfo,
+          frontImagePath: isFront ? processedImage : scanState.frontImagePath,
+          backImagePath: isFront ? scanState.backImagePath : processedImage,
+        );
+    if (!context.mounted) return;
+
+    if (saved == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n?.cardSaveFailed ?? 'Không thể lưu danh thiếp, vui lòng thử lại'),
+          backgroundColor: const Color(0xFFDC2626),
+          behavior: SnackBarBehavior.floating,
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.r12),
         ),
-        backgroundColor: const Color(0xFF16A34A),
-        behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.r12),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-    // Quay về màn hình chính
-    context.go(AppRoutes.home);
+      );
+      return;
+    }
+
+    // Thay toàn bộ stack scan bằng [Home, Đã lưu]
+    context.go(AppRoutes.cardSaved, extra: saved.id);
   }
 
   @override
@@ -262,7 +275,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () => _onSaveCard(context),
+                      onPressed: context.select((SavedCardsCubit c) => c.state.isSaving)
+                          ? null
+                          : () => _onSaveCard(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2563EB),
                         foregroundColor: Colors.white,

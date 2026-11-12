@@ -93,5 +93,49 @@
   "editField": "Edit Information",
   "cancel": "Cancel",
   "done": "Done",
-  "cardSavedSuccess": "Business card saved successfully"
+  "cardSavedSuccess": "Business card saved successfully",
+  "cardSavedTitle": "Card saved",
+  "cardSavedSubtitle": "Saved in the app on this device.",
+  "cardSaveFailed": "Could not save the card, please try again",
+  "optionalActions": "More (optional)",
+  "saveToContacts": "Save to Contacts",
+  "addMeetingNote": "Where you met",
+  "meetingNoteHint": "e.g. Met at a conference in Tokyo, Nov 12",
+  "save": "Save",
+  "noteSaved": "Note saved",
+  "scanAnotherCard": "Scan another card",
+  "backToHome": "Back to home",
+  "unnamedCard": "(No name)",
+  "noSavedCards": "No cards yet. Scan your first one!",
+  "savedCardsTitle": "Saved cards",
+  "deleteCardTitle": "Delete this card?",
+  "deleteCardMessage": "The card and its photos will be removed from this device.",
+  "delete": "Delete",
+  "cardDeleted": "Card deleted",
+  "searchCardPlaceholder": "Search by name, company, phone, notes...",
+  "filterAll": "All",
+  "sortNewest": "Newest",
+  "sortOldest": "Oldest",
+  "sortNameAZ": "Name A-Z",
+  "filterHasNote": "With note",
+  "noSearchResults": "No cards found",
+  "noSearchResultsDesc": "Try searching with different keywords or clear filters",
+  "clearSearch": "Clear search",
+  "scanCardAction": "Scan new card",
+  "cardsCount": "{count} cards",
+  "@cardsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "showingCardsCount": "Showing {filtered} of {total} cards",
+  "@showingCardsCount": {
+    "placeholders": {
+      "filtered": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "copiedPhone": "Phone number copied",
+  "copiedEmail": "Email address copied",
+  "editNote": "Edit note"
 }

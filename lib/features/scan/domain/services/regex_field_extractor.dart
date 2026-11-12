@@ -65,14 +65,14 @@ class RegexFieldExtractor {
         continue;
       }
 
-      // 1.2 Phục hồi Email bị ngắt dấu cách do OCR (ví dụ: "Email. cong ngotien 0@gmail.com")
-      if (text.toLowerCase().contains('email') && text.contains('@')) {
+      // 1.2 Phục hồi Email bị ngắt dấu cách hoặc mất đuôi .com do OCR (ví dụ: "Email. cong ngotien 0@gmail." hoặc "cong ngotien10@gmail.")
+      if (text.contains('@')) {
         final cleaned = TextNormalizer.cleanEmail(text);
         final matchAfterClean = _emailRegex.firstMatch(cleaned);
         if (matchAfterClean != null) {
           emails.add(FieldValue(
             value: matchAfterClean.group(0)!,
-            confidence: 0.85,
+            confidence: 0.90,
             sourceLineIds: [line.id],
           ));
           line.isConsumed = true;
@@ -111,12 +111,13 @@ class RegexFieldExtractor {
     }
 
     // =========================================================================
-    // PASS 3: SỐ ĐIỆN THOẠI / DI ĐỘNG / FAX
+    // PASS 3: SỐ ĐIỆN THOẠI / DI ĐỘNG / FAX / SỐ MÁY LẺ
     // =========================================================================
     for (final line in lines) {
       if (line.isConsumed) continue;
       final text = line.normalizedText;
-      final lower = text.toLowerCase();
+      final processedText = TextNormalizer.repairPhoneNumberNoise(text);
+      final lower = processedText.toLowerCase();
 
       // Kiểm tra tiền tố nhận diện
       final isFax = lower.contains('fax') ||
@@ -135,8 +136,23 @@ class RegexFieldExtractor {
           lower.contains('電話') ||
           lower.contains('dn thogit'); // Lỗi OCR phổ biến chữ Điện thoại
 
-      // Trích xuất số điện thoại (chứa chữ số, +, -, (, ), .)
-      final phoneMatch = RegExp(r'(\+?\(?\d[\d\s\-\(\)\.]{6,}\d(?:\s*\(代\))?)').firstMatch(text);
+      // Kiểm tra xem dòng có chứa số máy lẻ không (ví dụ: ". số lẻ 115", "sỐ Iề 115", "ext. 115", "(代)")
+      String? extension;
+      final extMatch = RegExp(
+        r'(?:[\.,\s]+(?:số\s*lẻ|sỐ\s*Iề|máy\s*lẻ|ext\.?|x)\s*(\d{1,5})|(?:\s*\(代\)))',
+        caseSensitive: false,
+      ).firstMatch(processedText);
+
+      if (extMatch != null) {
+        if (extMatch.group(1) != null) {
+          extension = 'số lẻ ${extMatch.group(1)!}';
+        } else if (extMatch.group(0)!.contains('代')) {
+          extension = '代';
+        }
+      }
+
+      // Trích xuất số điện thoại (chứa chữ số, +, -, (, ), ., hỗ trợ cả (+84... và (03...)
+      final phoneMatch = RegExp(r'((?:\(\+?|\+?\(?)\d[\d\s\-\(\)\.]{5,}\d)').firstMatch(processedText);
       if (phoneMatch != null) {
         final rawPhone = phoneMatch.group(0)!;
         // Chuỗi chỉ gồm chữ số để đếm độ dài hợp lệ (9-13 số)
@@ -145,6 +161,22 @@ class RegexFieldExtractor {
         if (digitsOnly.length >= 9 && digitsOnly.length <= 13) {
           // Làm sạch số hiển thị
           var cleanedPhone = rawPhone.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+          // Tự động cân bằng ngoặc nếu rớt dấu mở ngoặc (ví dụ "+84 4) 3783 4250" -> "(+84 4) 3783 4250")
+          if (cleanedPhone.contains(')') && !cleanedPhone.contains('(')) {
+            cleanedPhone = '($cleanedPhone';
+          }
+
+          // Ghép số máy lẻ vào trường Phone nếu có
+          if (extension != null) {
+            if (extension == '代') {
+              if (!cleanedPhone.contains('代')) {
+                cleanedPhone = '$cleanedPhone(代)';
+              }
+            } else {
+              cleanedPhone = '$cleanedPhone ($extension)';
+            }
+          }
 
           PhoneType type;
           if (isFax) {
@@ -217,6 +249,7 @@ class RegexFieldExtractor {
     for (final line in lines) {
       if (line.isConsumed) continue;
       var text = line.normalizedText;
+      text = TextNormalizer.cleanUrl(text);
 
       // Loại bỏ email nếu dòng này từng có email để không bắt gmail.com
       text = text.replaceAll(_emailRegex, '');

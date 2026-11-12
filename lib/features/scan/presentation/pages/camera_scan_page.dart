@@ -8,6 +8,7 @@ import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
 import '../widgets/camera_bottom_bar.dart';
 import '../widgets/camera_viewfinder_overlay.dart';
+import '../widgets/ocr_language_toggle.dart';
 import '../widgets/side_segmented_control.dart';
 
 class CameraScanPage extends StatefulWidget {
@@ -205,28 +206,39 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: BlocBuilder<ScanCubit, ScanState>(
                     builder: (context, state) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Nút Đóng X
-                          _buildCircleIconButton(
-                            icon: Icons.close_rounded,
-                            onTap: () => context.pop(),
-                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Nút Đóng X
+                              _buildCircleIconButton(
+                                icon: Icons.close_rounded,
+                                onTap: () => context.pop(),
+                              ),
 
-                          // Segmented Switch [ Mặt trước | Mặt sau ]
-                          SideSegmentedControl(
-                            currentSide: state.currentSide,
-                            frontLabel: l10n?.frontSide ?? 'Mặt trước',
-                            backLabel: l10n?.backSide ?? 'Mặt sau',
-                            onSideChanged: (side) => scanCubit.setSide(side),
-                          ),
+                              // Segmented Switch [ Mặt trước | Mặt sau ]
+                              SideSegmentedControl(
+                                currentSide: state.currentSide,
+                                frontLabel: l10n?.frontSide ?? 'Mặt trước',
+                                backLabel: l10n?.backSide ?? 'Mặt sau',
+                                onSideChanged: (side) => scanCubit.setSide(side),
+                              ),
 
-                          // Nút Flash
-                          _buildCircleIconButton(
-                            icon: state.isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                            color: state.isFlashOn ? Colors.amber : Colors.white,
-                            onTap: () => scanCubit.toggleFlash(_cameraController),
+                              // Nút Flash
+                              _buildCircleIconButton(
+                                icon: state.isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                                color: state.isFlashOn ? Colors.amber : Colors.white,
+                                onTap: () => scanCubit.toggleFlash(_cameraController),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // Nút chuyển đổi ngôn ngữ OCR: [ Tự động | VN | JP ]
+                          OcrLanguageToggle(
+                            currentMode: state.ocrLanguageMode,
+                            onModeChanged: (mode) => scanCubit.setOcrLanguageMode(mode),
                           ),
                         ],
                       );

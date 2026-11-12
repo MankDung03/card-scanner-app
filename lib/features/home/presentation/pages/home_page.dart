@@ -8,7 +8,8 @@ import '../../../../core/routes/app_routes.dart';
 import '../../../../core/widgets/trust_badge.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../scan/presentation/cubit/scan_cubit.dart';
-import '../../data/models/recent_card_model.dart';
+import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
+import '../../../cards/presentation/pages/saved_cards_page.dart';
 import '../widgets/camera_action_card.dart';
 import '../widgets/gallery_action_card.dart';
 import '../widgets/recent_card_tile.dart';
@@ -22,7 +23,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<RecentCardModel> _recentCards = RecentCardModel.sampleData;
+  /// Số danh thiếp gần đây hiển thị trên Home (tối đa 3 danh thiếp mới nhất)
+  static const int _recentLimit = 3;
 
   void _onCaptureCard(BuildContext context) {
     context.push(AppRoutes.scanCamera);
@@ -37,13 +39,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onViewAllCards(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n?.recentlySaved ?? 'Danh sách danh thiếp'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    context.push(AppRoutes.savedCards);
   }
 
   void _openSettings(BuildContext context) {
@@ -180,55 +176,58 @@ class _HomePageState extends State<HomePage> {
 
               AppSpacing.gapH28,
 
-              // 5. Recent Section Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    l10n?.recentlySaved ?? 'Đã lưu gần đây',
-                    style: TextStyle(
-                      color: textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => _onViewAllCards(context),
-                    borderRadius: AppRadius.r4,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      child: Text(
-                        l10n?.viewAll(24) ?? 'Xem tất cả (24)',
-                        style: const TextStyle(
-                          color: AppColors.linkColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+              // 5 + 6. Recent Section (dữ liệu thật đã lưu trên máy)
+              BlocBuilder<SavedCardsCubit, SavedCardsState>(
+                builder: (context, cardsState) {
+                  final cards = cardsState.cards;
+                  final recent = cards.take(_recentLimit).toList();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n?.recentlySaved ?? 'Đã lưu gần đây',
+                            style: TextStyle(
+                              color: textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (cards.isNotEmpty)
+                            InkWell(
+                              onTap: () => _onViewAllCards(context),
+                              borderRadius: AppRadius.r4,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                child: Text(
+                                  l10n?.viewAll(cards.length) ?? 'Xem tất cả (${cards.length})',
+                                  style: const TextStyle(
+                                    color: AppColors.linkColor,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-
-              AppSpacing.gapH12,
-
-              // 6. Recent cards list
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _recentCards.length,
-                itemBuilder: (context, index) {
-                  final card = _recentCards[index];
-                  return RecentCardTile(
-                    card: card,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(card.name),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
+                      AppSpacing.gapH12,
+                      if (cardsState.isLoading && cards.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(AppSpacing.s20),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (cards.isEmpty)
+                        SavedCardsEmptyView(
+                          message: l10n?.noSavedCards,
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s20),
+                        )
+                      else
+                        for (final card in recent) RecentCardTile(card: card),
+                    ],
                   );
                 },
               ),

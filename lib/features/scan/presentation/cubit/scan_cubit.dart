@@ -358,11 +358,12 @@ class ScanCubit extends Cubit<ScanState> {
       // 5. Tiền xử lý ảnh (Resize cạnh dài về 1500-2000px, cân bằng tương phản nếu tối) trong isolate
       final preprocessedPath = await OcrImagePreprocessor.preprocessImage(processedPath);
 
-      // 6. Chạy OCR Dual-Script (Latin + Japanese) TRÊN ẢNH ĐÃ TIỀN XỬ LÝ
+      // 6. Chạy OCR với chế độ ngôn ngữ đã chọn (Auto / VN / JP) TRÊN ẢNH ĐÃ TIỀN XỬ LÝ
       final result = await _ocrRepository.recognizeText(
         preprocessedPath,
         script: script,
         useDualScript: true,
+        languageMode: state.ocrLanguageMode,
       );
 
       // 7. Tự động bóc tách các trường thông tin (Name, Furigana, Title, Company, Phone, Email, Website...)
@@ -391,6 +392,11 @@ class ScanCubit extends Cubit<ScanState> {
   Future<void> close() async {
     await _ocrRepository.dispose();
     return super.close();
+  }
+
+  /// Cập nhật chế độ ngôn ngữ OCR (Auto, Tiếng Việt, Tiếng Nhật)
+  void setOcrLanguageMode(OcrLanguageMode mode) {
+    emit(state.copyWith(ocrLanguageMode: mode));
   }
 
   void updateCardInfo(BusinessCardInfo info) {

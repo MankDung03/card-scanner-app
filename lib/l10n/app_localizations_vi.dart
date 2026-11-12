@@ -246,4 +246,107 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cardSavedSuccess => 'Đã lưu danh thiếp thành công';
+
+  @override
+  String get cardSavedTitle => 'Đã lưu danh thiếp';
+
+  @override
+  String get cardSavedSubtitle => 'Đã lưu vào app trên máy này.';
+
+  @override
+  String get cardSaveFailed => 'Không thể lưu danh thiếp, vui lòng thử lại';
+
+  @override
+  String get optionalActions => 'Làm thêm (không bắt buộc)';
+
+  @override
+  String get saveToContacts => 'Lưu vào Danh bạ';
+
+  @override
+  String get addMeetingNote => 'Ghi chú gặp ở đâu';
+
+  @override
+  String get meetingNoteHint => 'VD: Gặp ở hội thảo tại Tokyo, 12/11';
+
+  @override
+  String get save => 'Lưu';
+
+  @override
+  String get noteSaved => 'Đã lưu ghi chú';
+
+  @override
+  String get scanAnotherCard => 'Scan danh thiếp khác';
+
+  @override
+  String get backToHome => 'Về trang chủ';
+
+  @override
+  String get unnamedCard => '(Chưa có tên)';
+
+  @override
+  String get noSavedCards => 'Chưa có danh thiếp nào. Hãy scan tấm đầu tiên!';
+
+  @override
+  String get savedCardsTitle => 'Danh thiếp đã lưu';
+
+  @override
+  String get deleteCardTitle => 'Xoá danh thiếp?';
+
+  @override
+  String get deleteCardMessage => 'Danh thiếp và ảnh sẽ bị xoá khỏi máy này.';
+
+  @override
+  String get delete => 'Xoá';
+
+  @override
+  String get cardDeleted => 'Đã xoá danh thiếp';
+
+  @override
+  String get searchCardPlaceholder => 'Tìm tên, công ty, SĐT, ghi chú...';
+
+  @override
+  String get filterAll => 'Tất cả';
+
+  @override
+  String get sortNewest => 'Mới nhất';
+
+  @override
+  String get sortOldest => 'Cũ nhất';
+
+  @override
+  String get sortNameAZ => 'Tên A-Z';
+
+  @override
+  String get filterHasNote => 'Có ghi chú';
+
+  @override
+  String get noSearchResults => 'Không tìm thấy danh thiếp nào';
+
+  @override
+  String get noSearchResultsDesc => 'Thử tìm với từ khoá khác hoặc xoá bộ lọc';
+
+  @override
+  String get clearSearch => 'Xoá tìm kiếm';
+
+  @override
+  String get scanCardAction => 'Quét thẻ mới';
+
+  @override
+  String cardsCount(int count) {
+    return '$count danh thiếp';
+  }
+
+  @override
+  String showingCardsCount(int filtered, int total) {
+    return 'Hiển thị $filtered / $total danh thiếp';
+  }
+
+  @override
+  String get copiedPhone => 'Đã sao chép số điện thoại';
+
+  @override
+  String get copiedEmail => 'Đã sao chép địa chỉ email';
+
+  @override
+  String get editNote => 'Sửa ghi chú';
 }
