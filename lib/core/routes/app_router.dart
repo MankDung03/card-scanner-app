@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/cards/presentation/pages/card_detail_page.dart';
 import '../../features/cards/presentation/pages/card_edit_page.dart';
 import '../../features/cards/presentation/pages/card_saved_page.dart';
+import '../../features/cards/presentation/pages/duplicates_page.dart';
+import '../../features/cards/presentation/pages/merge_cards_page.dart';
 import '../../features/cards/presentation/pages/saved_cards_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/scan/presentation/pages/camera_scan_page.dart';
@@ -32,6 +34,19 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.cardSaved.substring(1),
                 builder: (context, state) => CardSavedPage(cardId: state.extra as String?),
+              ),
+              GoRoute(
+                path: AppRoutes.duplicates.substring(1),
+                builder: (context, state) => const DuplicatesPage(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => MergeCardsPage(
+                      flaggedId: state.pathParameters['id']!,
+                      fromDetail: state.uri.queryParameters['from'] == 'detail',
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: AppRoutes.settings.substring(1),

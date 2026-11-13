@@ -20,6 +20,7 @@ import '../widgets/add_tag_dialog.dart';
 import '../widgets/card_face_view.dart';
 import '../widgets/card_image_viewer.dart';
 import '../widgets/card_share_sheet.dart';
+import '../widgets/duplicate_banner.dart';
 import '../widgets/meeting_info_bottom_sheet.dart';
 
 /// Màn chi tiết danh thiếp: ảnh 2 mặt, thông tin, gặp ở đâu/khi nào, tag, nút gọi/email/bản đồ.
@@ -226,6 +227,13 @@ class _CardDetailPageState extends State<CardDetailPage> {
                           onPressed: () => _onEdit(card),
                         ),
                 ),
+                // Thẻ đang bị nghi trùng (cờ còn hiệu lực) → mở thẳng màn so sánh và gộp
+                if (card?.duplicateOf != null && state.findById(card!.duplicateOf!) != null)
+                  DuplicateBanner(
+                    text: l10n?.dupTag ?? 'Có thể trùng',
+                    actionLabel: l10n?.compareMerge ?? 'So sánh và gộp',
+                    onTap: () => context.push(AppRoutes.mergePath(card.id, fromDetail: true)),
+                  ),
                 Expanded(
                   child: card == null
                       ? Center(child: Text(l10n?.cardNotFound ?? 'Không tìm thấy danh thiếp'))

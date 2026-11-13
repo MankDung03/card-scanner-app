@@ -195,9 +195,16 @@ class LocalCardRepository implements CardRepository {
     final cards = [...await _load()];
     final index = cards.indexWhere((c) => c.id == card.id);
     if (index == -1) throw StateError('Card ${card.id} not found');
+    final previous = cards[index];
     cards[index] = card;
     await _persist(cards);
     _cache = cards;
+    // Ảnh cũ bị thay (vd. gộp 2 thẻ chọn ảnh của thẻ kia) → xoá nếu không còn thẻ nào dùng
+    if (previous.frontImagePath != card.frontImagePath || previous.backImagePath != card.backImagePath) {
+      final stillUsed = _referencedImages(cards);
+      await _deleteUnused(previous.frontImagePath, stillUsed);
+      await _deleteUnused(previous.backImagePath, stillUsed);
+    }
     return card;
   }
 
@@ -221,7 +228,7 @@ class LocalCardRepository implements CardRepository {
           ? card.copyWith(frontImagePath: newPath, updatedAt: DateTime.now())
           : card.copyWith(backImagePath: newPath, updatedAt: DateTime.now()),
     );
-    await _deleteFile(oldPath);
+    await _deleteUnused(oldPath, _referencedImages(await _load()));
     return updated;
   }
 
@@ -233,11 +240,75 @@ class LocalCardRepository implements CardRepository {
     final removed = cards.removeAt(index);
     await _persist(cards);
     _cache = cards;
-    await _deleteFile(removed.frontImagePath);
-    await _deleteFile(removed.backImagePath);
+    // Ảnh có thể đã được chuyển sang thẻ khác (gộp 2 thẻ) → chỉ xoá khi không còn ai dùng
+    final stillUsed = _referencedImages(cards);
+    await _deleteUnused(removed.frontImagePath, stillUsed);
+    await _deleteUnused(removed.backImagePath, stillUsed);
+  }
+
+  @override
+  Future<List<SavedCard>> replaceAll(List<SavedCard> cards) async {
+    final old = await _load();
+    final imported = [for (final c in cards) await _importImages(c)];
+    await _persist(imported);
+    _cache = imported;
+
+    final stillUsed = _referencedImages(imported);
+    for (final c in old) {
+      await _deleteUnused(c.frontImagePath, stillUsed);
+      await _deleteUnused(c.backImagePath, stillUsed);
+    }
+    return _sorted(imported);
+  }
+
+  @override
+  Future<List<SavedCard>> upsertAll(List<SavedCard> cards) async {
+    final result = [...await _load()];
+    final replaced = <SavedCard>[];
+    for (final c in cards) {
+      final imported = await _importImages(c);
+      final index = result.indexWhere((e) => e.id == c.id);
+      if (index == -1) {
+        result.add(imported);
+      } else {
+        replaced.add(result[index]);
+        result[index] = imported;
+      }
+    }
+    await _persist(result);
+    _cache = result;
+
+    final stillUsed = _referencedImages(result);
+    for (final c in replaced) {
+      await _deleteUnused(c.frontImagePath, stillUsed);
+      await _deleteUnused(c.backImagePath, stillUsed);
+    }
+    return _sorted(result);
   }
 
   // ───────────────────────── File ảnh ─────────────────────────
+
+  /// Copy ảnh của thẻ (từ file nguồn bất kỳ) vào `cards/images/` với tên mới.
+  /// Ảnh nguồn không còn tồn tại → bỏ ảnh đó (thẻ vẫn được giữ).
+  Future<SavedCard> _importImages(SavedCard card) async {
+    final stamp = DateTime.now().microsecondsSinceEpoch;
+    return card.copyWith(
+      frontImagePath: await _copyImage(card.frontImagePath, '${card.id}_front_$stamp'),
+      backImagePath: await _copyImage(card.backImagePath, '${card.id}_back_$stamp'),
+    );
+  }
+
+  static Set<String> _referencedImages(List<SavedCard> cards) => {
+        for (final c in cards) ...[
+          if (c.frontImagePath != null) _normalize(c.frontImagePath!),
+          if (c.backImagePath != null) _normalize(c.backImagePath!),
+        ],
+      };
+
+  Future<void> _deleteUnused(String? path, Set<String> stillUsed) async {
+    if (path == null || stillUsed.contains(_normalize(path))) return;
+    await _deleteFile(path);
+  }
 
   Future<void> _deleteFile(String? path) async {
     if (path == null) return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -12,7 +13,9 @@ import '../../../../core/cubits/ocr_language_cubit.dart';
 import '../../../../core/widgets/capture_fab/capture_fab_cubit.dart';
 import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../cards/presentation/cubit/backup_cubit.dart';
 import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
+import '../../../cards/presentation/widgets/backup_restore_flow.dart';
 import '../../../cards/presentation/widgets/csv_export_dialog.dart';
 import '../../../scan/domain/entities/ocr_language_mode.dart';
 
@@ -116,6 +119,8 @@ class SettingsPage extends StatelessWidget {
     final themeMode = context.watch<AppThemeCubit>().state;
     final ocrMode = context.watch<OcrLanguageCubit>().state;
     final fabVisible = context.select((CaptureFabCubit c) => c.state.visible);
+    final lastBackup = context.watch<BackupCubit>().state;
+    final localeTag = Localizations.localeOf(context).toLanguageTag();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -145,16 +150,18 @@ class SettingsPage extends StatelessWidget {
                       _SettingRow(
                         icon: Icons.download_outlined,
                         title: l10n?.backupTitle ?? 'Sao lưu',
-                        subtitle: l10n?.backupDesc,
-                        comingSoon: true,
-                        onTap: () => _comingSoon(context),
+                        subtitle: lastBackup == null
+                            ? l10n?.backupDesc
+                            : l10n?.backupLastAt(
+                                DateFormat.yMd(localeTag).add_Hm().format(lastBackup),
+                              ),
+                        onTap: () => BackupRestoreFlow.backup(context),
                       ),
                       _SettingRow(
                         icon: Icons.upload_outlined,
                         title: l10n?.restoreTitle ?? 'Khôi phục từ bản sao lưu',
                         subtitle: l10n?.restoreDesc,
-                        comingSoon: true,
-                        onTap: () => _comingSoon(context),
+                        onTap: () => BackupRestoreFlow.restore(context),
                       ),
                       _SettingRow(
                         icon: Icons.table_chart_outlined,

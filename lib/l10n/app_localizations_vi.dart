@@ -15,6 +15,162 @@ class AppLocalizationsVi extends AppLocalizations {
   String get backAction => 'Quay lại';
 
   @override
+  String get backupNoCards => 'Chưa có danh thiếp nào để sao lưu';
+
+  @override
+  String get backupCreating => 'Đang tạo bản sao lưu…';
+
+  @override
+  String get backupFailed => 'Không tạo được bản sao lưu';
+
+  @override
+  String backupLastAt(String date) {
+    return 'Lần gần nhất: $date (dữ liệu và ảnh, file .zip)';
+  }
+
+  @override
+  String get restoreReading => 'Đang đọc bản sao lưu…';
+
+  @override
+  String get restoreRunning => 'Đang khôi phục…';
+
+  @override
+  String get restoreErrNotBackup =>
+      'File này không phải bản sao lưu của ứng dụng.';
+
+  @override
+  String get restoreErrVersion =>
+      'Bản sao lưu được tạo bằng phiên bản mới hơn. Hãy cập nhật ứng dụng rồi thử lại.';
+
+  @override
+  String get restoreErrCorrupted => 'File sao lưu bị hỏng hoặc không đọc được.';
+
+  @override
+  String get restoreFailed => 'Khôi phục thất bại, vui lòng thử lại.';
+
+  @override
+  String restoreBackupInfo(String date, int count) {
+    return 'Bản sao lưu ngày $date · $count danh thiếp';
+  }
+
+  @override
+  String get restoreModeMerge => 'Gộp với dữ liệu hiện có';
+
+  @override
+  String get restoreModeMergeDesc =>
+      'Giữ danh thiếp trên máy và thêm thẻ từ bản sao lưu. Thẻ có thể trùng sẽ được đánh dấu để bạn xem lại.';
+
+  @override
+  String get restoreModeReplace => 'Thay thế toàn bộ';
+
+  @override
+  String get restoreModeReplaceDesc =>
+      'Xoá toàn bộ danh thiếp trên máy, dùng nguyên bản sao lưu.';
+
+  @override
+  String get recommended => 'Khuyên dùng';
+
+  @override
+  String get restoreAction => 'Khôi phục';
+
+  @override
+  String get replaceConfirmTitle => 'Thay thế toàn bộ dữ liệu?';
+
+  @override
+  String replaceConfirmBody(int current, int incoming) {
+    return '$current danh thiếp trên máy sẽ bị xoá và thay bằng $incoming danh thiếp trong bản sao lưu. Không thể hoàn tác.';
+  }
+
+  @override
+  String get replaceAction => 'Thay thế';
+
+  @override
+  String get restoreDoneTitle => 'Đã khôi phục';
+
+  @override
+  String get summaryAdded => 'Thêm mới';
+
+  @override
+  String get summaryUpdated => 'Cập nhật';
+
+  @override
+  String get summaryKeptLocal => 'Giữ bản trên máy (mới hơn)';
+
+  @override
+  String get summarySkipped => 'Bỏ qua vì giống hệt';
+
+  @override
+  String get summaryFlagged => 'Có thể trùng';
+
+  @override
+  String get reviewNow => 'Xem lại';
+
+  @override
+  String get duplicatesTitle => 'Danh thiếp có thể trùng';
+
+  @override
+  String get duplicatesEmpty => 'Không còn danh thiếp nào cần xem lại';
+
+  @override
+  String get dupExisting => 'Đã có trên máy';
+
+  @override
+  String get dupNew => 'Thẻ mới thêm';
+
+  @override
+  String get dupReasonEmail => 'Trùng email';
+
+  @override
+  String get dupReasonMobile => 'Trùng số di động';
+
+  @override
+  String get dupReasonNameCompany => 'Trùng họ tên và công ty';
+
+  @override
+  String get dupReasonNamePhone => 'Trùng họ tên và số điện thoại';
+
+  @override
+  String get dupReasonUnknown => 'Có thể là cùng một người';
+
+  @override
+  String get keepBoth => 'Giữ cả hai';
+
+  @override
+  String get compareMerge => 'So sánh và gộp';
+
+  @override
+  String get keptBothMsg => 'Đã giữ cả hai danh thiếp';
+
+  @override
+  String get mergeHint =>
+      'Chọn nội dung muốn giữ cho từng mục. Danh thiếp còn lại sẽ bị xoá.';
+
+  @override
+  String mergeSameFields(int count) {
+    return '$count mục giống nhau ở cả hai';
+  }
+
+  @override
+  String get mergeTagsNote => 'Tag của cả hai danh thiếp đều được giữ';
+
+  @override
+  String get mergeSave => 'Gộp và lưu';
+
+  @override
+  String get mergedMsg => 'Đã gộp danh thiếp';
+
+  @override
+  String get mergeFailed => 'Không gộp được, vui lòng thử lại';
+
+  @override
+  String dupBanner(int count) {
+    return 'Có $count danh thiếp có thể bị trùng';
+  }
+
+  @override
+  String get dupTag => 'Có thể trùng';
+
+  @override
   String get navCards => 'Danh thiếp';
 
   @override

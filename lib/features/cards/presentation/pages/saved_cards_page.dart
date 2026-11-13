@@ -16,6 +16,7 @@ import '../cubit/card_sort_cubit.dart';
 import '../cubit/saved_cards_cubit.dart';
 import '../widgets/card_list_item.dart';
 import '../widgets/csv_export_dialog.dart';
+import '../widgets/duplicate_banner.dart';
 import '../widgets/meeting_note_bottom_sheet.dart';
 
 /// Màn hình danh sách toàn bộ danh thiếp đã lưu trên máy.
@@ -191,11 +192,22 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
             final query = _query(sort, availableTags);
             final filteredCards = query.apply(state.cards);
             final isFiltering = query.isFiltering;
+            final duplicatePairs = state.duplicatePairs;
+            final flaggedIds = {for (final p in duplicatePairs) p.$1.id};
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 header,
+
+                // 0. Có danh thiếp nghi trùng (sau khi khôi phục) → nhắc xem lại
+                if (duplicatePairs.isNotEmpty)
+                  DuplicateBanner(
+                    text: l10n?.dupBanner(duplicatePairs.length) ??
+                        'Có ${duplicatePairs.length} danh thiếp có thể bị trùng',
+                    actionLabel: l10n?.reviewNow ?? 'Xem lại',
+                    onTap: () => context.push(AppRoutes.duplicates),
+                  ),
 
                 // 1. Ô tìm kiếm
                 Padding(
@@ -296,7 +308,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                 Expanded(
                   child: filteredCards.isEmpty
                       ? _NoSearchResultsView(query: _searchQuery, onClear: _clearFilters)
-                      : _buildList(context, l10n, filteredCards, sort),
+                      : _buildList(context, l10n, filteredCards, sort, flaggedIds),
                 ),
               ],
             );
@@ -318,6 +330,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
     AppLocalizations? l10n,
     List<SavedCard> cards,
     CardSortOrder sort,
+    Set<String> flaggedIds,
   ) {
     // Danh sách phẳng gồm tiêu đề nhóm (_GroupHeader) và thẻ (SavedCard).
     // Các thẻ liền nhau giữa 2 tiêu đề ghép thành một khối trắng.
@@ -376,6 +389,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
             card: card,
             isFirst: isFirst,
             isLast: isLast,
+            possibleDuplicate: flaggedIds.contains(card.id),
             onTap: () => context.push(AppRoutes.cardDetailPath(card.id)),
             onEditNote: () => _editNote(context, card),
             onDelete: () async {

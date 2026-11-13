@@ -15,6 +15,158 @@ class AppLocalizationsJa extends AppLocalizations {
   String get backAction => '戻る';
 
   @override
+  String get backupNoCards => 'バックアップする名刺がありません';
+
+  @override
+  String get backupCreating => 'バックアップを作成中…';
+
+  @override
+  String get backupFailed => 'バックアップを作成できませんでした';
+
+  @override
+  String backupLastAt(String date) {
+    return '最終バックアップ：$date（データと画像を.zipで保存）';
+  }
+
+  @override
+  String get restoreReading => 'バックアップを読み込み中…';
+
+  @override
+  String get restoreRunning => '復元中…';
+
+  @override
+  String get restoreErrNotBackup => 'このファイルはアプリのバックアップではありません。';
+
+  @override
+  String get restoreErrVersion => '新しいバージョンで作成されたバックアップです。アプリを更新してからお試しください。';
+
+  @override
+  String get restoreErrCorrupted => 'バックアップファイルが壊れているか、読み込めません。';
+
+  @override
+  String get restoreFailed => '復元できませんでした。もう一度お試しください。';
+
+  @override
+  String restoreBackupInfo(String date, int count) {
+    return '$date のバックアップ・$count件';
+  }
+
+  @override
+  String get restoreModeMerge => '現在のデータと統合';
+
+  @override
+  String get restoreModeMergeDesc =>
+      '端末の名刺は残し、バックアップの名刺を追加します。重複の可能性がある名刺は後で確認できるよう印を付けます。';
+
+  @override
+  String get restoreModeReplace => 'すべて置き換える';
+
+  @override
+  String get restoreModeReplaceDesc => '端末の名刺をすべて削除し、バックアップの内容に置き換えます。';
+
+  @override
+  String get recommended => '推奨';
+
+  @override
+  String get restoreAction => '復元する';
+
+  @override
+  String get replaceConfirmTitle => 'すべてのデータを置き換えますか？';
+
+  @override
+  String replaceConfirmBody(int current, int incoming) {
+    return '端末の名刺$current件はすべて削除され、バックアップの$incoming件に置き換わります。元に戻せません。';
+  }
+
+  @override
+  String get replaceAction => '置き換える';
+
+  @override
+  String get restoreDoneTitle => '復元が完了しました';
+
+  @override
+  String get summaryAdded => '追加';
+
+  @override
+  String get summaryUpdated => '更新';
+
+  @override
+  String get summaryKeptLocal => '端末の方が新しいため変更なし';
+
+  @override
+  String get summarySkipped => '同一のためスキップ';
+
+  @override
+  String get summaryFlagged => '重複の可能性';
+
+  @override
+  String get reviewNow => '確認する';
+
+  @override
+  String get duplicatesTitle => '重複の可能性';
+
+  @override
+  String get duplicatesEmpty => '確認が必要な名刺はありません';
+
+  @override
+  String get dupExisting => '登録済み';
+
+  @override
+  String get dupNew => '追加された名刺';
+
+  @override
+  String get dupReasonEmail => 'メールが一致';
+
+  @override
+  String get dupReasonMobile => '携帯番号が一致';
+
+  @override
+  String get dupReasonNameCompany => '氏名と会社名が一致';
+
+  @override
+  String get dupReasonNamePhone => '氏名と電話番号が一致';
+
+  @override
+  String get dupReasonUnknown => '同一人物の可能性';
+
+  @override
+  String get keepBoth => '別の名刺として残す';
+
+  @override
+  String get compareMerge => '比較して統合';
+
+  @override
+  String get keptBothMsg => '両方の名刺を残しました';
+
+  @override
+  String get mergeHint => '項目ごとに残す内容を選んでください。もう一方の名刺は削除されます。';
+
+  @override
+  String mergeSameFields(int count) {
+    return '$count項目は両方で同じです';
+  }
+
+  @override
+  String get mergeTagsNote => 'タグは両方とも残します';
+
+  @override
+  String get mergeSave => '統合して保存';
+
+  @override
+  String get mergedMsg => '名刺を統合しました';
+
+  @override
+  String get mergeFailed => '統合できませんでした。もう一度お試しください。';
+
+  @override
+  String dupBanner(int count) {
+    return '重複の可能性がある名刺が$count件あります';
+  }
+
+  @override
+  String get dupTag => '重複の可能性';
+
+  @override
   String get navCards => '名刺一覧';
 
   @override

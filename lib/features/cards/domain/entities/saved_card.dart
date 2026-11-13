@@ -38,6 +38,10 @@ class SavedCard {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Có thể trùng người với danh thiếp có id này (gắn khi khôi phục bản sao lưu ở chế độ Gộp).
+  /// null = không bị nghi trùng. Thẻ được trỏ tới đã bị xoá thì coi như không còn trùng.
+  final String? duplicateOf;
+
   const SavedCard({
     required this.id,
     this.name,
@@ -60,6 +64,7 @@ class SavedCard {
     this.backImagePath,
     required this.createdAt,
     required this.updatedAt,
+    this.duplicateOf,
   });
 
   factory SavedCard.fromCardInfo(
@@ -145,6 +150,7 @@ class SavedCard {
     Object? frontImagePath = _unset,
     Object? backImagePath = _unset,
     DateTime? updatedAt,
+    Object? duplicateOf = _unset,
   }) {
     T? pick<T>(Object? value, T? current) => identical(value, _unset) ? current : value as T?;
 
@@ -170,6 +176,7 @@ class SavedCard {
       backImagePath: pick(backImagePath, this.backImagePath),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      duplicateOf: pick(duplicateOf, this.duplicateOf),
     );
   }
 
@@ -195,6 +202,7 @@ class SavedCard {
         'backImagePath': backImagePath,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        if (duplicateOf != null) 'duplicateOf': duplicateOf,
       };
 
   factory SavedCard.fromJson(Map<String, dynamic> json) {
@@ -221,6 +229,7 @@ class SavedCard {
       backImagePath: json['backImagePath'] as String?,
       createdAt: created,
       updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? created,
+      duplicateOf: json['duplicateOf'] as String?,
     );
   }
 

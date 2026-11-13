@@ -112,6 +112,288 @@ abstract class AppLocalizations {
   /// **'Quay lại'**
   String get backAction;
 
+  /// No description provided for @backupNoCards.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có danh thiếp nào để sao lưu'**
+  String get backupNoCards;
+
+  /// No description provided for @backupCreating.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang tạo bản sao lưu…'**
+  String get backupCreating;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không tạo được bản sao lưu'**
+  String get backupFailed;
+
+  /// No description provided for @backupLastAt.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lần gần nhất: {date} (dữ liệu và ảnh, file .zip)'**
+  String backupLastAt(String date);
+
+  /// No description provided for @restoreReading.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang đọc bản sao lưu…'**
+  String get restoreReading;
+
+  /// No description provided for @restoreRunning.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang khôi phục…'**
+  String get restoreRunning;
+
+  /// No description provided for @restoreErrNotBackup.
+  ///
+  /// In vi, this message translates to:
+  /// **'File này không phải bản sao lưu của ứng dụng.'**
+  String get restoreErrNotBackup;
+
+  /// No description provided for @restoreErrVersion.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bản sao lưu được tạo bằng phiên bản mới hơn. Hãy cập nhật ứng dụng rồi thử lại.'**
+  String get restoreErrVersion;
+
+  /// No description provided for @restoreErrCorrupted.
+  ///
+  /// In vi, this message translates to:
+  /// **'File sao lưu bị hỏng hoặc không đọc được.'**
+  String get restoreErrCorrupted;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khôi phục thất bại, vui lòng thử lại.'**
+  String get restoreFailed;
+
+  /// No description provided for @restoreBackupInfo.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bản sao lưu ngày {date} · {count} danh thiếp'**
+  String restoreBackupInfo(String date, int count);
+
+  /// No description provided for @restoreModeMerge.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gộp với dữ liệu hiện có'**
+  String get restoreModeMerge;
+
+  /// No description provided for @restoreModeMergeDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giữ danh thiếp trên máy và thêm thẻ từ bản sao lưu. Thẻ có thể trùng sẽ được đánh dấu để bạn xem lại.'**
+  String get restoreModeMergeDesc;
+
+  /// No description provided for @restoreModeReplace.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thay thế toàn bộ'**
+  String get restoreModeReplace;
+
+  /// No description provided for @restoreModeReplaceDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá toàn bộ danh thiếp trên máy, dùng nguyên bản sao lưu.'**
+  String get restoreModeReplaceDesc;
+
+  /// No description provided for @recommended.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khuyên dùng'**
+  String get recommended;
+
+  /// No description provided for @restoreAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khôi phục'**
+  String get restoreAction;
+
+  /// No description provided for @replaceConfirmTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thay thế toàn bộ dữ liệu?'**
+  String get replaceConfirmTitle;
+
+  /// No description provided for @replaceConfirmBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'{current} danh thiếp trên máy sẽ bị xoá và thay bằng {incoming} danh thiếp trong bản sao lưu. Không thể hoàn tác.'**
+  String replaceConfirmBody(int current, int incoming);
+
+  /// No description provided for @replaceAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thay thế'**
+  String get replaceAction;
+
+  /// No description provided for @restoreDoneTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã khôi phục'**
+  String get restoreDoneTitle;
+
+  /// No description provided for @summaryAdded.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm mới'**
+  String get summaryAdded;
+
+  /// No description provided for @summaryUpdated.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cập nhật'**
+  String get summaryUpdated;
+
+  /// No description provided for @summaryKeptLocal.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giữ bản trên máy (mới hơn)'**
+  String get summaryKeptLocal;
+
+  /// No description provided for @summarySkipped.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ qua vì giống hệt'**
+  String get summarySkipped;
+
+  /// No description provided for @summaryFlagged.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có thể trùng'**
+  String get summaryFlagged;
+
+  /// No description provided for @reviewNow.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xem lại'**
+  String get reviewNow;
+
+  /// No description provided for @duplicatesTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp có thể trùng'**
+  String get duplicatesTitle;
+
+  /// No description provided for @duplicatesEmpty.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không còn danh thiếp nào cần xem lại'**
+  String get duplicatesEmpty;
+
+  /// No description provided for @dupExisting.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã có trên máy'**
+  String get dupExisting;
+
+  /// No description provided for @dupNew.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thẻ mới thêm'**
+  String get dupNew;
+
+  /// No description provided for @dupReasonEmail.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trùng email'**
+  String get dupReasonEmail;
+
+  /// No description provided for @dupReasonMobile.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trùng số di động'**
+  String get dupReasonMobile;
+
+  /// No description provided for @dupReasonNameCompany.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trùng họ tên và công ty'**
+  String get dupReasonNameCompany;
+
+  /// No description provided for @dupReasonNamePhone.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trùng họ tên và số điện thoại'**
+  String get dupReasonNamePhone;
+
+  /// No description provided for @dupReasonUnknown.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có thể là cùng một người'**
+  String get dupReasonUnknown;
+
+  /// No description provided for @keepBoth.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giữ cả hai'**
+  String get keepBoth;
+
+  /// No description provided for @compareMerge.
+  ///
+  /// In vi, this message translates to:
+  /// **'So sánh và gộp'**
+  String get compareMerge;
+
+  /// No description provided for @keptBothMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã giữ cả hai danh thiếp'**
+  String get keptBothMsg;
+
+  /// No description provided for @mergeHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn nội dung muốn giữ cho từng mục. Danh thiếp còn lại sẽ bị xoá.'**
+  String get mergeHint;
+
+  /// No description provided for @mergeSameFields.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} mục giống nhau ở cả hai'**
+  String mergeSameFields(int count);
+
+  /// No description provided for @mergeTagsNote.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tag của cả hai danh thiếp đều được giữ'**
+  String get mergeTagsNote;
+
+  /// No description provided for @mergeSave.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gộp và lưu'**
+  String get mergeSave;
+
+  /// No description provided for @mergedMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã gộp danh thiếp'**
+  String get mergedMsg;
+
+  /// No description provided for @mergeFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không gộp được, vui lòng thử lại'**
+  String get mergeFailed;
+
+  /// No description provided for @dupBanner.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có {count} danh thiếp có thể bị trùng'**
+  String dupBanner(int count);
+
+  /// No description provided for @dupTag.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có thể trùng'**
+  String get dupTag;
+
   /// No description provided for @navCards.
   ///
   /// In vi, this message translates to:

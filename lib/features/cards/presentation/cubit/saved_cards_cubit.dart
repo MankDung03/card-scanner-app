@@ -5,6 +5,7 @@ import '../../../scan/domain/entities/business_card_info.dart';
 import '../../data/repositories/local_card_repository.dart';
 import '../../domain/entities/saved_card.dart';
 import '../../domain/repositories/card_repository.dart';
+import '../../domain/services/restore_planner.dart';
 
 class SavedCardsState {
   final List<SavedCard> cards;
@@ -22,6 +23,17 @@ class SavedCardsState {
       if (c.id == id) return c;
     }
     return null;
+  }
+
+  /// Các cặp (thẻ bị nghi trùng, thẻ đang có) cần người dùng xem lại.
+  /// Cờ trỏ tới thẻ đã bị xoá thì bỏ qua.
+  List<(SavedCard, SavedCard)> get duplicatePairs {
+    final pairs = <(SavedCard, SavedCard)>[];
+    for (final c in cards) {
+      final original = c.duplicateOf == null ? null : findById(c.duplicateOf!);
+      if (original != null) pairs.add((c, original));
+    }
+    return pairs;
   }
 
   SavedCardsState copyWith({List<SavedCard>? cards, bool? isLoading, bool? isSaving}) {
@@ -109,6 +121,47 @@ class SavedCardsCubit extends Cubit<SavedCardsState> {
     emit(state.copyWith(
       cards: state.cards.map((c) => c.id == updated.id ? updated : c).toList(),
     ));
+  }
+
+  /// Khôi phục từ bản sao lưu đã đọc. Ném lỗi nếu ghi thất bại (dữ liệu được nạp lại từ đĩa).
+  Future<RestoreSummary> restore(List<SavedCard> incoming, RestoreMode mode) async {
+    final plan = RestorePlanner.plan(existing: state.cards, incoming: incoming, mode: mode);
+    try {
+      final cards = mode == RestoreMode.replaceAll
+          ? await _repository.replaceAll(plan.toWrite)
+          : await _repository.upsertAll(plan.toWrite);
+      emit(state.copyWith(cards: cards));
+      return plan.summary;
+    } catch (e) {
+      debugPrint('SavedCardsCubit.restore error: $e');
+      await load();
+      rethrow;
+    }
+  }
+
+  /// "Giữ cả hai": bỏ cờ nghi trùng của thẻ.
+  Future<bool> keepBoth(String id) async {
+    final card = state.findById(id);
+    if (card == null) return false;
+    return updateCard(card.copyWith(duplicateOf: null));
+  }
+
+  /// "So sánh rồi gộp": ghi [merged] (giữ id của thẻ gốc) rồi xoá thẻ [removeId].
+  /// Ảnh được chọn từ thẻ bị xoá vẫn giữ lại vì repository chỉ xoá ảnh không còn ai dùng.
+  Future<bool> mergeCards({required SavedCard merged, required String removeId}) async {
+    try {
+      final saved = await _repository.update(merged.copyWith(duplicateOf: null, updatedAt: DateTime.now()));
+      await _repository.delete(removeId);
+      emit(state.copyWith(cards: [
+        for (final c in state.cards)
+          if (c.id == saved.id) saved else if (c.id != removeId) c,
+      ]));
+      return true;
+    } catch (e) {
+      debugPrint('SavedCardsCubit.mergeCards error: $e');
+      await load();
+      return false;
+    }
   }
 
   /// Xoá toàn bộ danh thiếp (kèm ảnh) khỏi máy. Trả về false nếu có thẻ xoá không được.

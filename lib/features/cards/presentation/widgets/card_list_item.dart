@@ -64,6 +64,9 @@ class CardListItem extends StatelessWidget {
   final SavedCard card;
   final bool isFirst;
   final bool isLast;
+
+  /// Hiện nhãn "Có thể trùng" (thẻ có cờ trùng còn hiệu lực)
+  final bool possibleDuplicate;
   final VoidCallback? onTap;
   final VoidCallback? onEditNote;
   final VoidCallback? onDelete;
@@ -73,6 +76,7 @@ class CardListItem extends StatelessWidget {
     required this.card,
     this.isFirst = true,
     this.isLast = true,
+    this.possibleDuplicate = false,
     this.onTap,
     this.onEditNote,
     this.onDelete,
@@ -163,6 +167,10 @@ class CardListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              if (possibleDuplicate) ...[
+                                AppSpacing.gapW6,
+                                _DuplicateTag(l10n?.dupTag ?? 'Có thể trùng'),
+                              ],
                               AppSpacing.gapW6,
                               Text(
                                 RecentCardTile.timeLabel(context, card.createdAt),
@@ -385,6 +393,33 @@ class _ContactPill extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Nhãn nhỏ màu cam "Có thể trùng".
+class _DuplicateTag extends StatelessWidget {
+  final String text;
+
+  const _DuplicateTag(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2E2210) : const Color(0xFFFEF3C7),
+        borderRadius: AppRadius.r4,
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

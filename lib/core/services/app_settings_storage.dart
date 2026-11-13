@@ -49,6 +49,13 @@ class AppSettingsStorage {
 
   static const _ocrLanguageKey = 'settings.ocr_language';
 
+  // ── Sao lưu ──
+  static const _lastBackupKey = 'settings.last_backup_at';
+
+  DateTime? get lastBackupAt => DateTime.tryParse(_prefs.getString(_lastBackupKey) ?? '');
+
+  Future<void> setLastBackupAt(DateTime value) => _prefs.setString(_lastBackupKey, value.toIso8601String());
+
   // ── Nút chụp nổi (kéo thả) ──
   static const _captureFabVisibleKey = 'settings.capture_fab.visible';
   static const _captureFabRightKey = 'settings.capture_fab.right';

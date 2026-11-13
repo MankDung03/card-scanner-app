@@ -15,4 +15,10 @@ class AppRoutes {
   /// Sửa danh thiếp: /cards/:id/edit
   static String cardEditPath(String id) => '$savedCards/$id/edit';
   static const String settings = '/settings';
+
+  /// Danh sách cặp danh thiếp có thể trùng; gộp một cặp: /duplicates/:flaggedId
+  static const String duplicates = '/duplicates';
+  /// [fromDetail]: mở từ màn chi tiết của thẻ bị nghi trùng → gộp xong thì chuyển sang chi tiết thẻ được giữ
+  static String mergePath(String flaggedId, {bool fromDetail = false}) =>
+      '$duplicates/$flaggedId${fromDetail ? '?from=detail' : ''}';
 }

@@ -15,6 +15,162 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backAction => 'Back';
 
   @override
+  String get backupNoCards => 'There are no cards to back up';
+
+  @override
+  String get backupCreating => 'Creating backup…';
+
+  @override
+  String get backupFailed => 'Couldn\'t create the backup';
+
+  @override
+  String backupLastAt(String date) {
+    return 'Last backup: $date (data and images as .zip)';
+  }
+
+  @override
+  String get restoreReading => 'Reading backup…';
+
+  @override
+  String get restoreRunning => 'Restoring…';
+
+  @override
+  String get restoreErrNotBackup => 'This file isn\'t a backup from this app.';
+
+  @override
+  String get restoreErrVersion =>
+      'This backup was made by a newer version. Update the app and try again.';
+
+  @override
+  String get restoreErrCorrupted =>
+      'The backup file is damaged or can\'t be read.';
+
+  @override
+  String get restoreFailed => 'Restore failed. Please try again.';
+
+  @override
+  String restoreBackupInfo(String date, int count) {
+    return 'Backup from $date · $count cards';
+  }
+
+  @override
+  String get restoreModeMerge => 'Merge with current data';
+
+  @override
+  String get restoreModeMergeDesc =>
+      'Keep the cards on this device and add the ones from the backup. Possible duplicates are marked for you to review.';
+
+  @override
+  String get restoreModeReplace => 'Replace everything';
+
+  @override
+  String get restoreModeReplaceDesc =>
+      'Delete all cards on this device and use the backup as is.';
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String get restoreAction => 'Restore';
+
+  @override
+  String get replaceConfirmTitle => 'Replace all data?';
+
+  @override
+  String replaceConfirmBody(int current, int incoming) {
+    return 'The $current cards on this device will be deleted and replaced with the $incoming cards in the backup. This can\'t be undone.';
+  }
+
+  @override
+  String get replaceAction => 'Replace';
+
+  @override
+  String get restoreDoneTitle => 'Restore complete';
+
+  @override
+  String get summaryAdded => 'Added';
+
+  @override
+  String get summaryUpdated => 'Updated';
+
+  @override
+  String get summaryKeptLocal => 'Kept device version (newer)';
+
+  @override
+  String get summarySkipped => 'Skipped (identical)';
+
+  @override
+  String get summaryFlagged => 'Possible duplicates';
+
+  @override
+  String get reviewNow => 'Review';
+
+  @override
+  String get duplicatesTitle => 'Possible duplicates';
+
+  @override
+  String get duplicatesEmpty => 'Nothing left to review';
+
+  @override
+  String get dupExisting => 'On this device';
+
+  @override
+  String get dupNew => 'Newly added';
+
+  @override
+  String get dupReasonEmail => 'Same email';
+
+  @override
+  String get dupReasonMobile => 'Same mobile number';
+
+  @override
+  String get dupReasonNameCompany => 'Same name and company';
+
+  @override
+  String get dupReasonNamePhone => 'Same name and phone';
+
+  @override
+  String get dupReasonUnknown => 'May be the same person';
+
+  @override
+  String get keepBoth => 'Keep both';
+
+  @override
+  String get compareMerge => 'Compare & merge';
+
+  @override
+  String get keptBothMsg => 'Kept both cards';
+
+  @override
+  String get mergeHint =>
+      'Choose what to keep for each field. The other card will be deleted.';
+
+  @override
+  String mergeSameFields(int count) {
+    return '$count fields are the same on both';
+  }
+
+  @override
+  String get mergeTagsNote => 'Tags from both cards are kept';
+
+  @override
+  String get mergeSave => 'Merge & save';
+
+  @override
+  String get mergedMsg => 'Cards merged';
+
+  @override
+  String get mergeFailed => 'Couldn\'t merge. Please try again.';
+
+  @override
+  String dupBanner(int count) {
+    return '$count cards may be duplicates';
+  }
+
+  @override
+  String get dupTag => 'Possible duplicate';
+
+  @override
   String get navCards => 'Cards';
 
   @override

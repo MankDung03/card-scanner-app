@@ -29,6 +29,8 @@ dependencies:
   gal: ^3.0.0
   flutter_contacts: ^2.6.0
   package_info_plus: ^10.2.2
+  archive: ^4.7.0
+  file_picker: ^13.3.3
 
 dev_dependencies:
   flutter_test:
