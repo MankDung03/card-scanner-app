@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/saved_card.dart';
 import '../../../scan/presentation/cubit/scan_cubit.dart';
@@ -13,6 +15,7 @@ import '../../domain/services/card_list_query.dart';
 import '../cubit/card_sort_cubit.dart';
 import '../cubit/saved_cards_cubit.dart';
 import '../widgets/card_list_item.dart';
+import '../widgets/csv_export_dialog.dart';
 import '../widgets/meeting_note_bottom_sheet.dart';
 
 /// Màn hình danh sách toàn bộ danh thiếp đã lưu trên máy.
@@ -141,207 +144,164 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textPrimary = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
-    final searchBg = isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9);
-    final searchBorder = isDark ? AppColors.darkBorder : AppColors.borderLight;
+    final textMuted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final accent = isDark ? const Color(0xFF93B4E0) : AppColors.navy;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary, size: 20),
-          onPressed: () => context.pop(),
-        ),
-        title: BlocBuilder<SavedCardsCubit, SavedCardsState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      // Nút chụp: nút nổi kéo thả của AppShell (tab Danh thiếp là màn gốc nên không có nút back)
+      child: Scaffold(
+        body: BlocBuilder<SavedCardsCubit, SavedCardsState>(
           builder: (context, state) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    l10n?.savedCardsTitle ?? 'Danh thiếp đã lưu',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+            final header = NavyHeaderBar(
+              title: l10n?.savedCardsTitle ?? 'Danh thiếp đã lưu',
+              subtitle: state.cards.isEmpty
+                  ? null
+                  : (l10n?.cardsCount(state.cards.length) ?? '${state.cards.length} danh thiếp'),
+              // Xuất toàn bộ danh thiếp ra CSV
+              trailing: state.cards.isEmpty
+                  ? null
+                  : NavyHeaderTextButton(
+                      icon: Icons.file_download_outlined,
+                      label: l10n?.exportCsv ?? 'Xuất CSV',
+                      onPressed: () => CsvExportDialog.show(context, state.cards),
                     ),
-                  ),
-                ),
-                if (state.cards.isNotEmpty) ...[
-                  AppSpacing.gapW8,
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.blueCardStart.withValues(alpha: 0.2)
-                          : const Color(0xFFEFF6FF),
-                      borderRadius: AppRadius.r12,
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.blueCardStart.withValues(alpha: 0.4)
-                            : const Color(0xFFBFDBFE),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      '${state.cards.length}',
-                      style: TextStyle(
-                        color: isDark ? const Color(0xFF93C5FD) : AppColors.blueCardStart,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
+            );
+
+            if (state.isLoading && state.cards.isEmpty) {
+              return Column(children: [header, const Expanded(child: Center(child: CircularProgressIndicator()))]);
+            }
+
+            if (state.cards.isEmpty) {
+              return Column(
+                children: [
+                  header,
+                  Expanded(
+                    child: SavedCardsEmptyView(
+                      message: l10n?.noSavedCards,
+                      onScanTap: () => _onScanNewCard(context),
                     ),
                   ),
                 ],
-              ],
-            );
-          },
-        ),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _onScanNewCard(context),
-        backgroundColor: AppColors.blueCardStart,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        icon: const Icon(Icons.camera_alt_rounded, size: 20),
-        label: Text(
-          l10n?.scanCardAction ?? 'Quét thẻ mới',
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-        ),
-      ),
-      body: BlocBuilder<SavedCardsCubit, SavedCardsState>(
-        builder: (context, state) {
-          if (state.isLoading && state.cards.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              );
+            }
 
-          if (state.cards.isEmpty) {
-            return SavedCardsEmptyView(
-              message: l10n?.noSavedCards,
-              onScanTap: () => _onScanNewCard(context),
-            );
-          }
+            final sort = context.watch<CardSortCubit>().state;
+            final availableTags = CardListQuery.tagsByUsage(state.cards);
+            final query = _query(sort, availableTags);
+            final filteredCards = query.apply(state.cards);
+            final isFiltering = query.isFiltering;
 
-          final sort = context.watch<CardSortCubit>().state;
-          final availableTags = CardListQuery.tagsByUsage(state.cards);
-          final query = _query(sort, availableTags);
-          final filteredCards = query.apply(state.cards);
-          final isFiltering = query.isFiltering;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Search Box
-              Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.s20, AppSpacing.sm, AppSpacing.s20, AppSpacing.sm),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: searchBg,
-                    borderRadius: AppRadius.r12,
-                    border: Border.all(color: searchBorder, width: 1.1),
-                  ),
+                // 1. Ô tìm kiếm
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.s16, AppSpacing.s16, AppSpacing.s16, AppSpacing.md),
                   child: TextField(
                     controller: _searchController,
                     style: TextStyle(color: textPrimary, fontSize: 14.5),
                     decoration: InputDecoration(
+                      isDense: true,
+                      filled: true,
+                      fillColor: isDark ? AppColors.darkSurface : AppColors.surface,
                       hintText: l10n?.searchCardPlaceholder ?? 'Tìm tên, công ty, SĐT, ghi chú...',
-                      hintStyle: TextStyle(color: textSecondary, fontSize: 14),
-                      prefixIcon: Icon(Icons.search_rounded, color: textSecondary, size: 20),
+                      hintStyle: TextStyle(color: textMuted, fontSize: 14),
+                      prefixIcon: Icon(Icons.search_rounded, color: textMuted, size: 20),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.cancel_rounded, size: 18),
-                              color: textSecondary,
+                              color: textMuted,
                               onPressed: () => _searchController.clear(),
                             )
                           : null,
-                      border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.r8,
+                        borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.r8,
+                        borderSide: BorderSide(color: accent, width: 1.4),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              // 2. Sắp xếp + bộ lọc (Có ghi chú, từng tag)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s20, vertical: 4),
-                child: Row(
-                  children: [
-                    _SortChip(
-                      label: _sortLabel(l10n, sort),
-                      tooltip: l10n?.sortBy ?? 'Sắp xếp theo',
-                      current: sort,
-                      labelOf: (o) => _sortLabel(l10n, o),
-                      onSelected: (o) => context.read<CardSortCubit>().setSort(o),
-                    ),
-                    AppSpacing.gapW8,
-                    _FilterChip(
-                      label: l10n?.filterHasNote ?? 'Có ghi chú',
-                      icon: Icons.sticky_note_2_outlined,
-                      isSelected: _hasNoteOnly,
-                      onTap: () => setState(() => _hasNoteOnly = !_hasNoteOnly),
-                    ),
-                    for (final tag in availableTags) ...[
+                // 2. Sắp xếp + bộ lọc (Có ghi chú, từng tag)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+                  child: Row(
+                    children: [
+                      _SortChip(
+                        label: _sortLabel(l10n, sort),
+                        tooltip: l10n?.sortBy ?? 'Sắp xếp theo',
+                        current: sort,
+                        labelOf: (o) => _sortLabel(l10n, o),
+                        onSelected: (o) => context.read<CardSortCubit>().setSort(o),
+                      ),
                       AppSpacing.gapW8,
                       _FilterChip(
-                        label: tag,
-                        icon: Icons.sell_outlined,
-                        isSelected: _selectedTags.contains(tag),
-                        onTap: () => _toggleTag(tag),
+                        label: l10n?.filterHasNote ?? 'Có ghi chú',
+                        icon: Icons.edit_note_rounded,
+                        isSelected: _hasNoteOnly,
+                        onTap: () => setState(() => _hasNoteOnly = !_hasNoteOnly),
                       ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // 3. Tóm tắt khi đang lọc
-              if (isFiltering)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s20, vertical: AppSpacing.xs),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          l10n?.showingCardsCount(filteredCards.length, state.cards.length) ??
-                              'Hiển thị ${filteredCards.length} / ${state.cards.length} danh thiếp',
-                          style: TextStyle(
-                            color: textSecondary,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      for (final tag in availableTags) ...[
+                        AppSpacing.gapW8,
+                        _FilterChip(
+                          label: tag,
+                          icon: Icons.sell_outlined,
+                          isSelected: _selectedTags.contains(tag),
+                          onTap: () => _toggleTag(tag),
                         ),
-                      ),
-                      InkWell(
-                        onTap: _clearFilters,
-                        child: Text(
-                          l10n?.clearFilters ?? 'Xoá bộ lọc',
-                          style: const TextStyle(
-                            color: AppColors.linkColor,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
 
-              AppSpacing.gapH4,
+                // 3. Tóm tắt khi đang lọc
+                if (isFiltering)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.s16, AppSpacing.sm, AppSpacing.sm, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n?.showingCardsCount(filteredCards.length, state.cards.length) ??
+                                'Hiển thị ${filteredCards.length} / ${state.cards.length} danh thiếp',
+                            style: TextStyle(color: textMuted, fontSize: 12.5),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _clearFilters,
+                          style: TextButton.styleFrom(
+                            foregroundColor: accent,
+                            minimumSize: const Size(0, 32),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                          ),
+                          child: Text(l10n?.clearFilters ?? 'Xoá bộ lọc'),
+                        ),
+                      ],
+                    ),
+                  ),
 
-              // 4. Danh sách (có tiêu đề nhóm khi sắp xếp theo công ty)
-              Expanded(
-                child: filteredCards.isEmpty
-                    ? _NoSearchResultsView(query: _searchQuery, onClear: _clearFilters)
-                    : _buildList(context, l10n, isDark, filteredCards, sort),
-              ),
-            ],
-          );
-        },
+                AppSpacing.gapH8,
+
+                // 4. Danh sách (có tiêu đề nhóm khi sắp xếp theo công ty)
+                Expanded(
+                  child: filteredCards.isEmpty
+                      ? _NoSearchResultsView(query: _searchQuery, onClear: _clearFilters)
+                      : _buildList(context, l10n, filteredCards, sort),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -356,12 +316,12 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
   Widget _buildList(
     BuildContext context,
     AppLocalizations? l10n,
-    bool isDark,
     List<SavedCard> cards,
     CardSortOrder sort,
   ) {
-    // Danh sách phẳng gồm tiêu đề nhóm (String?) và thẻ (SavedCard)
-    final items = <Object?>[];
+    // Danh sách phẳng gồm tiêu đề nhóm (_GroupHeader) và thẻ (SavedCard).
+    // Các thẻ liền nhau giữa 2 tiêu đề ghép thành một khối trắng.
+    final items = <Object>[];
     final headerCounts = <int, int>{};
     if (sort == CardSortOrder.companyAZ) {
       for (final group in CardListQuery.groupByCompany(cards)) {
@@ -374,12 +334,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s20,
-        AppSpacing.sm,
-        AppSpacing.s20,
-        80, // bottom padding cho FAB
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.s16, 0, AppSpacing.s16, 96), // chừa chỗ cho FAB
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
@@ -387,37 +342,40 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
           return _CompanyHeader(title: item.title, count: headerCounts[index] ?? 0, isFirst: index == 0);
         }
         final card = item as SavedCard;
+        final isFirst = index == 0 || items[index - 1] is _GroupHeader;
+        final isLast = index == items.length - 1 || items[index + 1] is _GroupHeader;
+
         return Dismissible(
           key: ValueKey(card.id),
           direction: DismissDirection.endToStart,
           confirmDismiss: (_) => _confirmDelete(context, card),
           onDismissed: (_) => _onDeleted(context, card),
           background: Container(
-            margin: const EdgeInsets.only(bottom: AppSpacing.md),
             padding: const EdgeInsets.only(right: AppSpacing.s20),
             alignment: Alignment.centerRight,
-            decoration: const BoxDecoration(
-              color: Color(0xFFDC2626),
-              borderRadius: AppRadius.r16,
+            decoration: BoxDecoration(
+              color: const Color(0xFFDC2626),
+              borderRadius: BorderRadius.vertical(
+                top: isFirst ? const Radius.circular(AppRadius.md) : Radius.zero,
+                bottom: isLast ? const Radius.circular(AppRadius.md) : Radius.zero,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
-                const SizedBox(width: 8),
+                const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22),
+                AppSpacing.gapW6,
                 Text(
                   l10n?.delete ?? 'Xoá',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14),
                 ),
               ],
             ),
           ),
           child: CardListItem(
             card: card,
+            isFirst: isFirst,
+            isLast: isLast,
             onTap: () => context.push(AppRoutes.cardDetailPath(card.id)),
             onEditNote: () => _editNote(context, card),
             onDelete: () async {
@@ -449,27 +407,53 @@ class _CompanyHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? AppColors.darkTextSecondary : const Color(0xFF475569);
+    final color = isDark ? AppColors.darkTextSecondary : AppColors.textTertiary;
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
     return Padding(
-      padding: EdgeInsets.fromLTRB(4, isFirst ? 2 : AppSpacing.md, 4, AppSpacing.sm),
+      padding: EdgeInsets.fromLTRB(2, isFirst ? 4 : AppSpacing.s16, 2, AppSpacing.sm),
       child: Row(
         children: [
-          Icon(Icons.business_outlined, size: 15, color: color),
-          AppSpacing.gapW6,
           Expanded(
             child: Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w700),
+              style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.3),
             ),
           ),
-          Text(
-            '$count',
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
-          ),
+          Text('$count', style: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
+    );
+  }
+}
+
+/// Khung chip dùng chung: bo 8, viền mảnh; chọn → nền navy nhạt, chữ navy.
+class _ChipFrame extends StatelessWidget {
+  final bool isSelected;
+  final Widget child;
+
+  const _ChipFrame({required this.isSelected, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      constraints: const BoxConstraints(minHeight: 34),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? (isDark ? AppColors.darkNavy : AppColors.navyTint)
+            : (isDark ? AppColors.darkSurface : AppColors.surface),
+        borderRadius: AppRadius.r8,
+        border: Border.all(
+          color: isSelected
+              ? (isDark ? const Color(0xFF93B4E0) : AppColors.navy)
+              : (isDark ? AppColors.darkBorder : AppColors.divider),
+        ),
+      ),
+      child: child,
     );
   }
 }
@@ -493,32 +477,25 @@ class _SortChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fg = isDark ? const Color(0xFF93C5FD) : AppColors.blueCardStart;
+    final fg = isDark ? AppColors.darkTextPrimary : AppColors.navy;
 
     return PopupMenuButton<CardSortOrder>(
+      useRootNavigator: true,
       tooltip: tooltip,
       initialValue: current,
       onSelected: onSelected,
       position: PopupMenuPosition.under,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.r12),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
       itemBuilder: (_) => [
         for (final o in CardSortOrder.values)
           CheckedPopupMenuItem(value: o, checked: o == current, child: Text(labelOf(o))),
       ],
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.blueCardStart.withValues(alpha: 0.25) : const Color(0xFFEFF6FF),
-          borderRadius: AppRadius.r16,
-          border: Border.all(
-            color: isDark ? AppColors.blueCardStart.withValues(alpha: 0.6) : const Color(0xFF93C5FD),
-            width: 1.1,
-          ),
-        ),
+      child: _ChipFrame(
+        isSelected: false,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.swap_vert_rounded, size: 15, color: fg),
+            Icon(Icons.swap_vert_rounded, size: 16, color: fg),
             const SizedBox(width: 4),
             Text(label, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w700)),
             Icon(Icons.arrow_drop_down_rounded, size: 18, color: fg),
@@ -545,48 +522,27 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isSelected
+        ? (isDark ? AppColors.darkTextPrimary : AppColors.navy)
+        : (isDark ? AppColors.darkTextMuted : AppColors.textMuted);
 
-    final selectedBg = isDark
-        ? AppColors.blueCardStart.withValues(alpha: 0.25)
-        : const Color(0xFFEFF6FF);
-    final selectedBorder = isDark
-        ? AppColors.blueCardStart.withValues(alpha: 0.6)
-        : const Color(0xFF93C5FD);
-    final selectedFg = isDark ? const Color(0xFF93C5FD) : AppColors.blueCardStart;
-
-    final unselectedBg = isDark ? AppColors.darkSurface : Colors.white;
-    final unselectedBorder = isDark ? AppColors.darkBorder : AppColors.borderLight;
-    final unselectedFg = isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B);
-
-    return Material(
-      color: Colors.transparent,
+    return Semantics(
+      button: true,
+      selected: isSelected,
       child: InkWell(
         onTap: onTap,
-        borderRadius: AppRadius.r16,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? selectedBg : unselectedBg,
-            borderRadius: AppRadius.r16,
-            border: Border.all(
-              color: isSelected ? selectedBorder : unselectedBorder,
-              width: 1.1,
-            ),
-          ),
+        borderRadius: AppRadius.r8,
+        child: _ChipFrame(
+          isSelected: isSelected,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: isSelected ? selectedFg : unselectedFg,
-              ),
+              Icon(isSelected ? Icons.check_rounded : icon, size: 15, color: fg),
               const SizedBox(width: 5),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? selectedFg : unselectedFg,
+                  color: fg,
                   fontSize: 12.5,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 ),
@@ -604,41 +560,27 @@ class _NoSearchResultsView extends StatelessWidget {
   final String query;
   final VoidCallback onClear;
 
-  const _NoSearchResultsView({
-    required this.query,
-    required this.onClear,
-  });
+  const _NoSearchResultsView({required this.query, required this.onClear});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final textMuted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final accent = isDark ? const Color(0xFF93B4E0) : AppColors.navy;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.s24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.search_off_rounded,
-                size: 32,
-                color: textSecondary,
-              ),
-            ),
-            AppSpacing.gapH16,
+            Icon(Icons.search_off_rounded, size: 40, color: textMuted),
+            AppSpacing.gapH12,
             Text(
               l10n?.noSearchResults ?? 'Không tìm thấy danh thiếp nào',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
               ),
@@ -649,16 +591,17 @@ class _NoSearchResultsView extends StatelessWidget {
                   ? '${l10n?.noSearchResultsDesc ?? "Thử tìm với từ khoá khác hoặc xoá bộ lọc"}\n("$query")'
                   : (l10n?.noSearchResultsDesc ?? 'Thử tìm với từ khoá khác hoặc xoá bộ lọc'),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: textSecondary),
+              style: TextStyle(fontSize: 13, color: textMuted, height: 1.5),
             ),
             AppSpacing.gapH16,
-            OutlinedButton.icon(
+            OutlinedButton(
               onPressed: onClear,
-              icon: const Icon(Icons.refresh_rounded, size: 16),
-              label: Text(l10n?.clearFilters ?? 'Xoá bộ lọc'),
               style: OutlinedButton.styleFrom(
-                shape: const RoundedRectangleBorder(borderRadius: AppRadius.r12),
+                foregroundColor: accent,
+                side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.r8),
               ),
+              child: Text(l10n?.clearFilters ?? 'Xoá bộ lọc'),
             ),
           ],
         ),
@@ -684,7 +627,7 @@ class SavedCardsEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B);
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
 
     return Padding(
       padding: padding,
@@ -692,53 +635,32 @@ class SavedCardsEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 76,
-              height: 76,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.04)
-                    : const Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.contact_mail_outlined,
-                size: 38,
-                color: color,
-              ),
-            ),
-            AppSpacing.gapH16,
+            Icon(Icons.contact_mail_outlined, size: 40, color: muted),
+            AppSpacing.gapH12,
             Text(
               message ?? 'Chưa có danh thiếp nào. Hãy scan tấm đầu tiên!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
-              ),
-            ),
-            AppSpacing.gapH6,
-            Text(
-              l10n?.offlineBadge ?? 'Xử lý ngay trên máy · không cần mạng',
-              style: TextStyle(
-                color: color,
-                fontSize: 12.5,
+                height: 1.5,
               ),
             ),
             if (onScanTap != null) ...[
+              AppSpacing.gapH6,
+              Text(l10n?.offlineBadge ?? 'Xử lý ngay trên máy · không cần mạng', style: TextStyle(color: muted, fontSize: 12.5)),
               AppSpacing.gapH20,
-              ElevatedButton.icon(
+              FilledButton.icon(
                 onPressed: onScanTap,
-                icon: const Icon(Icons.camera_alt_rounded, size: 18),
-                label: Text(
-                  l10n?.captureCardTitle ?? 'Chụp ảnh',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blueCardStart,
+                icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                label: Text(l10n?.captureCardTitle ?? 'Chụp ảnh'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.darkNavy : AppColors.navy,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: const RoundedRectangleBorder(borderRadius: AppRadius.r12),
+                  shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
             ],

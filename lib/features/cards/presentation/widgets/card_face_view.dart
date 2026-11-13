@@ -7,6 +7,7 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/saved_card.dart';
+import 'card_image_viewer.dart';
 
 /// Tỉ lệ danh thiếp chuẩn 91 × 55 mm
 const double kBusinessCardAspectRatio = 91 / 55;
@@ -37,7 +38,7 @@ class CardFaceView extends StatelessWidget {
     Widget child;
     if (hasImage) {
       child = GestureDetector(
-        onTap: () => CardImageViewer.open(context, file),
+        onTap: () => CardImageViewer.open(context, card: card, isFront: isFront),
         child: Hero(
           tag: file.path,
           child: Image.file(
@@ -212,53 +213,6 @@ class _EmptyFace extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Xem ảnh thẻ toàn màn hình, có thể phóng to / kéo.
-class CardImageViewer extends StatelessWidget {
-  final File file;
-
-  const CardImageViewer({super.key, required this.file});
-
-  static void open(BuildContext context, File file) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: false,
-        barrierColor: Colors.black,
-        pageBuilder: (_, __, ___) => CardImageViewer(file: file),
-        transitionsBuilder: (_, animation, __, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: InteractiveViewer(
-              maxScale: 5,
-              child: Center(
-                child: Hero(tag: file.path, child: Image.file(file, fit: BoxFit.contain)),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ),
         ],
       ),
     );

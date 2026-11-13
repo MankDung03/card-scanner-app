@@ -7,8 +7,10 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
+import '../../domain/entities/business_card_info.dart';
 import '../../domain/entities/card_ocr_result.dart';
 import '../../domain/entities/ocr_model.dart';
 import '../../domain/services/ocr_line_field_matcher.dart';
@@ -84,6 +86,7 @@ class _CardVerificationPageState extends State<CardVerificationPage>
 
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -181,169 +184,119 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0B0F19) : const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-            size: 20,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          l10n?.verificationTitle ?? 'Kiểm tra thông tin',
-          style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () => context.pushReplacement(AppRoutes.scanCamera),
-            child: Text(
-              l10n?.retake ?? 'Chụp lại',
-              style: const TextStyle(
-                color: Color(0xFF2563EB),
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: Column(
+          children: [
+            // 1. Header navy: [< Chụp lại]  Kiểm tra thông tin / Bước 3/3
+            NavyHeaderBar(
+              title: l10n?.verificationTitle ?? 'Kiểm tra thông tin',
+              subtitle: l10n?.stepProgress(3, 3) ?? 'Bước 3/3',
+              leading: NavyHeaderTextButton(
+                icon: Icons.chevron_left_rounded,
+                label: l10n?.retake ?? 'Chụp lại',
+                onPressed: () => context.pushReplacement(AppRoutes.scanCamera),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: BlocBuilder<ScanCubit, ScanState>(
-        builder: (context, state) {
-          final cardInfo = state.currentCardInfo;
-          final imagePath = state.lastProcessedImagePath ?? state.currentImagePath;
 
-          if (cardInfo == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+            Expanded(
+              child: BlocBuilder<ScanCubit, ScanState>(
+                builder: (context, state) {
+                  final cardInfo = state.currentCardInfo;
+                  final imagePath = state.lastProcessedImagePath ?? state.currentImagePath;
 
-          return Column(
-            children: [
-              Expanded(
-                child: NestedScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
-                          child: VerificationHeaderCard(
-                            cardInfo: cardInfo,
-                            imagePath: imagePath,
+                  if (cardInfo == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return NestedScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    headerSliverBuilder: (context, innerBoxIsScrolled) {
+                      return [
+                        // 2. Tóm tắt kết quả đọc
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                            child: VerificationHeaderCard(cardInfo: cardInfo, imagePath: imagePath),
                           ),
                         ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                          child: _buildSegmentedTabs(isDark, l10n),
+                        // 3. Chuyển chế độ: Theo mục / Trên ảnh
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: _buildSegmentedTabs(isDark, l10n),
+                          ),
                         ),
-                      ),
-                    ];
-                  },
-                  body: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // TAB 1: DANH SÁCH FORM THEO MỤC
-                      _buildFieldsList(context, l10n, isDark, cardInfo),
+                      ];
+                    },
+                    body: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildFieldsList(context, l10n, isDark, cardInfo),
+                        _buildOriginalTextTab(context, l10n, isDark, state),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
 
-                      // TAB 2: VĂN BẢN GỐC & ẢNH OCR
-                      _buildOriginalTextTab(context, l10n, isDark, state),
-                    ],
+            // 4. Nút lưu cố định ở đáy
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.surface,
+                border: Border(top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.icon(
+                    onPressed: context.select((SavedCardsCubit c) => c.state.isSaving) ||
+                            context.select((ScanCubit c) => c.state.currentCardInfo == null)
+                        ? null
+                        : () => _onSaveCard(context),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: isDark ? AppColors.darkNavy : AppColors.navy,
+                      foregroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                      textStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                    ),
+                    icon: const Icon(Icons.check_rounded, size: 20),
+                    label: Text(l10n?.saveCard ?? 'Lưu danh thiếp'),
                   ),
                 ),
               ),
-
-              // 4. Thanh nút hành động cố định ở chân trang: Lưu danh thiếp
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                  border: Border(
-                    top: BorderSide(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: context.select((SavedCardsCubit c) => c.state.isSaving)
-                          ? null
-                          : () => _onSaveCard(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
-                        foregroundColor: Colors.white,
-                        elevation: 3,
-                        shape: const RoundedRectangleBorder(borderRadius: AppRadius.r16),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.check_rounded, size: 20),
-                          AppSpacing.gapW8,
-                          Text(
-                            l10n?.saveCard ?? 'Lưu danh thiếp',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSegmentedTabs(bool isDark, AppLocalizations? l10n) {
     return Container(
-      height: 42,
+      height: 40,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-        borderRadius: AppRadius.r12,
+        color: isDark ? AppColors.darkSurfaceMuted : AppColors.divider,
+        borderRadius: AppRadius.r10,
       ),
       child: TabBar(
         controller: _tabController,
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         indicator: BoxDecoration(
-          color: isDark ? AppColors.blueCardStart : Colors.white,
-          borderRadius: BorderRadius.circular(9),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: isDark ? AppColors.darkSurface : Colors.white,
+          borderRadius: AppRadius.r8,
         ),
-        labelColor: isDark ? Colors.white : const Color(0xFF0F172A),
-        unselectedLabelColor: isDark ? Colors.white60 : const Color(0xFF64748B),
-        labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+        labelColor: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+        unselectedLabelColor: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
         tabs: [
           Tab(text: l10n?.byFieldsTab ?? 'Theo mục'),
           Tab(text: l10n?.onImageTab ?? 'Trên ảnh'),
@@ -356,320 +309,111 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     BuildContext context,
     AppLocalizations? l10n,
     bool isDark,
-    dynamic cardInfo,
+    BusinessCardInfo cardInfo,
   ) {
-    final notOnCard = l10n?.notOnCardPlaceholder ?? 'Không có trên thẻ — nhập nếu cần';
+    final empty = l10n?.notOnCardPlaceholder ?? 'Chưa nhập';
+
+    Widget field(String key, String label, String? value, {bool withAlternatives = false}) {
+      return VerificationFieldTile(
+        label: label,
+        value: value,
+        isNeedsReview: cardInfo.isFieldNeedsReview(key),
+        placeholder: empty,
+        onTap: () => _onEditField(
+          context,
+          key,
+          label,
+          value,
+          alternatives: withAlternatives ? (cardInfo.alternatives[key] ?? const []) : const [],
+        ),
+      );
+    }
+
+    final accent = isDark ? const Color(0xFF93B4E0) : AppColors.navy;
 
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: AppRadius.r16,
-          border: Border.all(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-            width: 1,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: AppRadius.r16,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 氏名
+          VerificationSection(
+            title: l10n?.sectionName ?? 'Họ tên',
             children: [
-            // 1. Họ tên
-            VerificationFieldTile(
-              icon: Icons.person_outline_rounded,
-              iconBgColor: const Color(0xFFE0F2FE),
-              iconColor: const Color(0xFF0284C7),
-              label: l10n?.fullName ?? 'Họ tên',
-              value: cardInfo.name,
-              isNeedsReview: cardInfo.isFieldNeedsReview('name'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'name',
-                l10n?.fullName ?? 'Họ tên',
-                cardInfo.name,
-                alternatives: cardInfo.alternatives['name'] ?? const [],
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 2. Furigana
-            VerificationFieldTile(
-              icon: Icons.text_fields_rounded,
-              iconBgColor: const Color(0xFFFEF3C7),
-              iconColor: const Color(0xFFD97706),
-              label: l10n?.furigana ?? 'Furigana',
-              value: cardInfo.furigana,
-              isNeedsReview: cardInfo.isFieldNeedsReview('furigana'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'furigana',
-                l10n?.furigana ?? 'Furigana',
-                cardInfo.furigana,
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 3. Chức vụ
-            VerificationFieldTile(
-              icon: Icons.work_outline_rounded,
-              iconBgColor: const Color(0xFFF3E8FF),
-              iconColor: const Color(0xFF9333EA),
-              label: l10n?.jobTitle ?? 'Chức vụ',
-              value: cardInfo.jobTitle,
-              isNeedsReview: cardInfo.isFieldNeedsReview('jobTitle'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'jobTitle',
-                l10n?.jobTitle ?? 'Chức vụ',
-                cardInfo.jobTitle,
-                alternatives: cardInfo.alternatives['jobTitle'] ?? const [],
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 4. Công ty
-            VerificationFieldTile(
-              icon: Icons.business_outlined,
-              iconBgColor: const Color(0xFFF3E8FF),
-              iconColor: const Color(0xFF9333EA),
-              label: l10n?.company ?? 'Công ty',
-              value: cardInfo.company,
-              isNeedsReview: cardInfo.isFieldNeedsReview('company'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'company',
-                l10n?.company ?? 'Công ty',
-                cardInfo.company,
-                alternatives: cardInfo.alternatives['company'] ?? const [],
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 5. Phòng ban
-            VerificationFieldTile(
-              icon: Icons.domain_outlined,
-              iconBgColor: const Color(0xFFF3E8FF),
-              iconColor: const Color(0xFF9333EA),
-              label: l10n?.department ?? 'Phòng ban',
-              value: cardInfo.department,
-              isNeedsReview: cardInfo.isFieldNeedsReview('department'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'department',
-                l10n?.department ?? 'Phòng ban',
-                cardInfo.department,
-                alternatives: cardInfo.alternatives['department'] ?? const [],
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 6. Điện thoại
-            VerificationFieldTile(
-              icon: Icons.phone_outlined,
-              iconBgColor: const Color(0xFFDCFCE7),
-              iconColor: const Color(0xFF16A34A),
-              label: l10n?.phone ?? 'Điện thoại',
-              value: cardInfo.phone,
-              isNeedsReview: cardInfo.isFieldNeedsReview('phone'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'phone',
-                l10n?.phone ?? 'Điện thoại',
-                cardInfo.phone,
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 7. Di động
-            VerificationFieldTile(
-              icon: Icons.phone_android_outlined,
-              iconBgColor: const Color(0xFFDCFCE7),
-              iconColor: const Color(0xFF16A34A),
-              label: l10n?.mobile ?? 'Di động',
-              value: cardInfo.mobile,
-              isNeedsReview: cardInfo.isFieldNeedsReview('mobile'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'mobile',
-                l10n?.mobile ?? 'Di động',
-                cardInfo.mobile,
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 8. FAX
-            VerificationFieldTile(
-              icon: Icons.print_outlined,
-              iconBgColor: const Color(0xFFDCFCE7),
-              iconColor: const Color(0xFF16A34A),
-              label: l10n?.fax ?? 'FAX',
-              value: cardInfo.fax,
-              isNeedsReview: cardInfo.isFieldNeedsReview('fax'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'fax',
-                l10n?.fax ?? 'FAX',
-                cardInfo.fax,
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 9. Email
-            VerificationFieldTile(
-              icon: Icons.email_outlined,
-              iconBgColor: const Color(0xFFDCFCE7),
-              iconColor: const Color(0xFF16A34A),
-              label: l10n?.email ?? 'Email',
-              value: cardInfo.email,
-              isNeedsReview: cardInfo.isFieldNeedsReview('email'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'email',
-                l10n?.email ?? 'Email',
-                cardInfo.email,
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 10. Website
-            VerificationFieldTile(
-              icon: Icons.language_rounded,
-              iconBgColor: const Color(0xFFE0F2FE),
-              iconColor: const Color(0xFF0284C7),
-              label: l10n?.website ?? 'Website',
-              value: cardInfo.website,
-              isNeedsReview: cardInfo.isFieldNeedsReview('website'),
-              placeholder: notOnCard,
-              onTap: () => _onEditField(
-                context,
-                'website',
-                l10n?.website ?? 'Website',
-                cardInfo.website,
-                alternatives: cardInfo.alternatives['website'] ?? const [],
-              ),
-            ),
-            _buildFieldDivider(isDark),
-
-            // 11. Địa chỉ
-            VerificationFieldTile(
-              icon: Icons.location_on_outlined,
-              iconBgColor: const Color(0xFFFEF3C7),
-              iconColor: const Color(0xFFD97706),
-              label: l10n?.address ?? 'Địa chỉ',
-              value: cardInfo.address,
-              isNeedsReview: cardInfo.isFieldNeedsReview('address'),
-              placeholder: notOnCard,
-              showDivider: false,
-              onTap: () => _onEditField(
-                context,
-                'address',
-                l10n?.address ?? 'Địa chỉ',
-                cardInfo.address,
-                alternatives: cardInfo.alternatives['address'] ?? const [],
-              ),
-            ),
-
-            // 12. Danh sách các dòng chưa được gán (Unmapped Lines)
-            if (cardInfo.unmappedLines.isNotEmpty) ...[
-              _buildFieldDivider(isDark),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline_rounded,
-                        size: 16, color: Color(0xFF0284C7)),
-                    AppSpacing.gapW8,
-                    Text(
-                      l10n?.unmappedLinesCount(cardInfo.unmappedLines.length) ??
-                          'Dòng chưa gán (${cardInfo.unmappedLines.length})',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white70 : const Color(0xFF334155),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ...cardInfo.unmappedLines.map((line) {
-                return Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF0F172A)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: AppRadius.r12,
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          line.text,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                        ),
-                      ),
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        icon: const Icon(Icons.add_circle_outline_rounded,
-                            size: 15, color: Color(0xFF0284C7)),
-                        label: Text(
-                          l10n?.assignTo ?? 'Gán vào...',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF0284C7),
-                          ),
-                        ),
-                        onPressed: () => _onAssignUnmappedLine(context, line),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              AppSpacing.gapH8,
+              field('name', l10n?.fullName ?? 'Họ tên', cardInfo.name, withAlternatives: true),
+              field('furigana', l10n?.furigana ?? 'Furigana', cardInfo.furigana),
             ],
-          ],
-        ),
-      ),
-    ),
-    );
-  }
+          ),
+          AppSpacing.gapH12,
 
-  Widget _buildFieldDivider(bool isDark) {
-    return Divider(
-      height: 1,
-      thickness: 0.8,
-      indent: 64,
-      color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+          // 会社情報
+          VerificationSection(
+            title: l10n?.sectionCompany ?? 'Thông tin công ty',
+            children: [
+              field('company', l10n?.company ?? 'Công ty', cardInfo.company, withAlternatives: true),
+              field('department', l10n?.department ?? 'Phòng ban', cardInfo.department, withAlternatives: true),
+              field('jobTitle', l10n?.jobTitle ?? 'Chức vụ', cardInfo.jobTitle, withAlternatives: true),
+            ],
+          ),
+          AppSpacing.gapH12,
+
+          // 連絡先
+          VerificationSection(
+            title: l10n?.sectionContact ?? 'Liên hệ',
+            children: [
+              field('phone', l10n?.phone ?? 'Điện thoại', cardInfo.phone),
+              field('mobile', l10n?.mobile ?? 'Di động', cardInfo.mobile),
+              field('fax', l10n?.fax ?? 'FAX', cardInfo.fax),
+              field('email', l10n?.email ?? 'Email', cardInfo.email),
+              field('website', l10n?.website ?? 'Website', cardInfo.website, withAlternatives: true),
+              field('address', l10n?.address ?? 'Địa chỉ', cardInfo.address, withAlternatives: true),
+            ],
+          ),
+
+          // Các dòng OCR chưa gán vào mục nào
+          if (cardInfo.unmappedLines.isNotEmpty) ...[
+            AppSpacing.gapH12,
+            VerificationSection(
+              title: l10n?.unmappedLinesCount(cardInfo.unmappedLines.length) ??
+                  'Dòng chưa gán (${cardInfo.unmappedLines.length})',
+              children: [
+                for (final line in cardInfo.unmappedLines)
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkBackground : AppColors.surfaceMuted,
+                      borderRadius: AppRadius.r8,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            line.text,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            foregroundColor: accent,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                          ),
+                          icon: const Icon(Icons.add_rounded, size: 16),
+                          label: Text(l10n?.assignTo ?? 'Gán vào...'),
+                          onPressed: () => _onAssignUnmappedLine(context, line),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 

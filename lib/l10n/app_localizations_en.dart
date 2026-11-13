@@ -9,6 +9,254 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get closeAction => 'Close';
+
+  @override
+  String get backAction => 'Back';
+
+  @override
+  String get navCards => 'Cards';
+
+  @override
+  String get captureFabLabel => 'Scan';
+
+  @override
+  String get fabHide => 'Hide this button';
+
+  @override
+  String get fabHiddenMsg =>
+      'Capture button hidden. Turn it back on in Settings.';
+
+  @override
+  String get sectionDisplay => 'Display';
+
+  @override
+  String get showCaptureFab => 'Show floating capture button';
+
+  @override
+  String get showCaptureFabDesc =>
+      'On the card list and card details. Drag to move, long-press to hide.';
+
+  @override
+  String get resetFabPosition => 'Reset button position';
+
+  @override
+  String get fabPositionReset => 'Button moved back to the bottom right';
+
+  @override
+  String get settingsPageTitle => 'Settings';
+
+  @override
+  String get homeAction => 'Home';
+
+  @override
+  String get sectionPrivacyData => 'Privacy & data';
+
+  @override
+  String get localOnlyTitle => 'Stored on this device only · No account';
+
+  @override
+  String get localOnlyBody => 'Card data is never sent to a server';
+
+  @override
+  String get backupTitle => 'Backup';
+
+  @override
+  String get backupDesc => 'Last backup: never (saves data and images as .zip)';
+
+  @override
+  String get restoreTitle => 'Restore from backup';
+
+  @override
+  String get restoreDesc => 'Choose a saved .zip file';
+
+  @override
+  String get csvBulkTitle => 'Export all as CSV';
+
+  @override
+  String cardsCountLong(int count) {
+    return '$count cards';
+  }
+
+  @override
+  String get duplicateCheckTitle => 'Check for duplicates when saving';
+
+  @override
+  String get duplicateCheckDesc => 'Matches by name, company and email';
+
+  @override
+  String get deleteAllTitle => 'Delete all data';
+
+  @override
+  String get deleteAllDesc => 'You\'ll be asked to confirm first';
+
+  @override
+  String get deleteAllConfirmTitle => 'Delete all cards?';
+
+  @override
+  String deleteAllConfirmBody(int count) {
+    return '$count cards and their images will be permanently deleted from this device. This can\'t be undone.';
+  }
+
+  @override
+  String get deleteAllDone => 'All data deleted';
+
+  @override
+  String get deleteAllFailed =>
+      'Some cards couldn\'t be deleted. Please try again.';
+
+  @override
+  String get displayLanguage => 'Display language';
+
+  @override
+  String get systemDefault => 'System default';
+
+  @override
+  String get ocrLanguageTitle => 'Preferred reading language';
+
+  @override
+  String get ocrLangAuto => 'Auto';
+
+  @override
+  String get ocrLangJa => '日本語';
+
+  @override
+  String get ocrLangLatin => 'English・Việt';
+
+  @override
+  String get sectionOther => 'Other';
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String get rateApp => 'Rate this app';
+
+  @override
+  String get versionLabel => 'Version';
+
+  @override
+  String get comingSoonTag => 'Soon';
+
+  @override
+  String get zoomHint => 'Pinch to zoom, double-tap to reset';
+
+  @override
+  String get saveImage => 'Save image';
+
+  @override
+  String get imageSaved => 'Image saved to your photos';
+
+  @override
+  String get imageSaveFailed => 'Couldn\'t save the image';
+
+  @override
+  String get galleryPermissionDenied => 'Permission to save photos was denied';
+
+  @override
+  String get shareSheetTitle => 'Export & Share';
+
+  @override
+  String thisCardSection(String name) {
+    return 'This card ($name)';
+  }
+
+  @override
+  String get saveToContactsDesc => 'Review and save in your Contacts app';
+
+  @override
+  String get shareVcard => 'Share as vCard (.vcf)';
+
+  @override
+  String get shareVcardDesc => 'LINE, email, Nearby Share, etc.';
+
+  @override
+  String get storageInfoTitle => 'About file storage';
+
+  @override
+  String get storageInfoBody =>
+      'Files are created on this device. Choose where to save them (Files, Google Drive, email…) from the share menu. Nothing is sent to a server.';
+
+  @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get csvDialogTitle => 'Export a CSV file?';
+
+  @override
+  String get csvTarget => 'Cards';
+
+  @override
+  String csvTargetValue(int count) {
+    return '$count cards (all)';
+  }
+
+  @override
+  String get csvFormat => 'Format';
+
+  @override
+  String get csvFormatValue => 'CSV (UTF-8, Excel compatible)';
+
+  @override
+  String get csvFileName => 'File name';
+
+  @override
+  String get csvDestination => 'Save to';
+
+  @override
+  String get csvDestinationValue => 'Choose in the share menu after export';
+
+  @override
+  String get csvPrivacyWarning =>
+      'Contains personal information. Be careful who you share it with.';
+
+  @override
+  String get exportAction => 'Export';
+
+  @override
+  String get exportFailed => 'Export failed';
+
+  @override
+  String get csvCreatedAt => 'Added on';
+
+  @override
+  String get tapToZoom => 'Tap to zoom';
+
+  @override
+  String cardsCount(int count) {
+    return '$count cards';
+  }
+
+  @override
+  String get savedComplete => 'Saved';
+
+  @override
+  String get viewDetails => 'Details';
+
+  @override
+  String get addTagAction => 'Add tag';
+
+  @override
+  String get sectionName => 'Name';
+
+  @override
+  String get sectionCompany => 'Company';
+
+  @override
+  String get sectionContact => 'Contact';
+
+  @override
+  String stepProgress(int current, int total) {
+    return 'Step $current/$total';
+  }
+
+  @override
+  String get backSideOptional => 'Back (optional)';
+
+  @override
+  String get cameraHint => 'Fit the card in the frame, in good light';
+
+  @override
   String get appName => 'Card Scanner';
 
   @override
@@ -332,11 +580,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanCardAction => 'Scan new card';
-
-  @override
-  String cardsCount(int count) {
-    return '$count cards';
-  }
 
   @override
   String showingCardsCount(int filtered, int total) {

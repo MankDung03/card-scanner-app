@@ -25,6 +25,10 @@ dependencies:
   google_mlkit_text_recognition: ^1.0.1
   url_launcher: ^6.3.3
   shared_preferences: ^2.5.6
+  share_plus: ^13.3.1
+  gal: ^3.0.0
+  flutter_contacts: ^2.6.0
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:

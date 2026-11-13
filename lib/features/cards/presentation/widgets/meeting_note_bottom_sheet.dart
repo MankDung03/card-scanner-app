@@ -14,6 +14,7 @@ class MeetingNoteBottomSheet extends StatefulWidget {
   static Future<String?> show(BuildContext context, {String? initialValue}) {
     return showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

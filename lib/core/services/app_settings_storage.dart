@@ -41,4 +41,37 @@ class AppSettingsStorage {
   Future<void> setCardSortOrder(String value) => _prefs.setString(_cardSortKey, value);
 
   static const _cardSortKey = 'settings.card_sort_order';
+
+  /// Ngôn ngữ ưu tiên khi đọc chữ (tên enum OcrLanguageMode); `null` = tự động
+  String? get ocrLanguage => _prefs.getString(_ocrLanguageKey);
+
+  Future<void> setOcrLanguage(String value) => _prefs.setString(_ocrLanguageKey, value);
+
+  static const _ocrLanguageKey = 'settings.ocr_language';
+
+  // ── Nút chụp nổi (kéo thả) ──
+  static const _captureFabVisibleKey = 'settings.capture_fab.visible';
+  static const _captureFabRightKey = 'settings.capture_fab.right';
+  static const _captureFabYKey = 'settings.capture_fab.y';
+
+  /// Mặc định hiện
+  bool get captureFabVisible => _prefs.getBool(_captureFabVisibleKey) ?? true;
+
+  Future<void> setCaptureFabVisible(bool value) => _prefs.setBool(_captureFabVisibleKey, value);
+
+  /// Mép đang bám: true = phải (mặc định)
+  bool get captureFabOnRight => _prefs.getBool(_captureFabRightKey) ?? true;
+
+  /// Vị trí dọc theo tỉ lệ 0 (trên cùng vùng cho phép) → 1 (dưới cùng); mặc định 1
+  double get captureFabY => _prefs.getDouble(_captureFabYKey) ?? 1.0;
+
+  Future<void> setCaptureFabPosition({required bool onRight, required double y}) async {
+    await _prefs.setBool(_captureFabRightKey, onRight);
+    await _prefs.setDouble(_captureFabYKey, y);
+  }
+
+  Future<void> resetCaptureFabPosition() async {
+    await _prefs.remove(_captureFabRightKey);
+    await _prefs.remove(_captureFabYKey);
+  }
 }

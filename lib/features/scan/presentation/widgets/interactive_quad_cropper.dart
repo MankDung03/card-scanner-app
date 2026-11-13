@@ -169,19 +169,13 @@ class _QuadOverlayPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawPath(outsideMask, darkMaskPaint);
 
-    // 2. Viền xanh ngọc nổi bật nối 4 góc
+    // 2. Viền trắng mảnh nối 4 góc
     final Paint borderPaint = Paint()
-      ..color = const Color(0xFF38BDF8)
-      ..strokeWidth = 2.2
+      ..color = Colors.white
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
       ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(quadPath, borderPaint);
-
-    // 3. Vùng sáng nhẹ bên trong tứ giác
-    final Paint fillPaint = Paint()
-      ..color = const Color(0xFF38BDF8).withValues(alpha: 0.08)
-      ..style = PaintingStyle.fill;
-    canvas.drawPath(quadPath, fillPaint);
   }
 
   @override

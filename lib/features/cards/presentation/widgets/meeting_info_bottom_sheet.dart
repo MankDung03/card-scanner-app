@@ -19,6 +19,7 @@ class MeetingInfoBottomSheet extends StatefulWidget {
   static Future<MeetingInfo?> show(BuildContext context, SavedCard card) {
     return showModalBottomSheet<MeetingInfo>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

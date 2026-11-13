@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class CameraViewfinderOverlay extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  /// Dòng hướng dẫn ngắn bên dưới khung ngắm.
+  final String hint;
   final Function(Rect cardRect)? onRectCalculated;
 
   const CameraViewfinderOverlay({
     super.key,
-    required this.title,
-    required this.subtitle,
+    required this.hint,
     this.onRectCalculated,
   });
 
+  /// Lưu ý: ScanCubit.captureAndCrop dùng đúng rect này để cắt ảnh,
+  /// đổi công thức ở đây sẽ đổi vùng được cắt.
   static Rect calculateCardRect(Size size) {
     const double marginHorizontal = 24.0;
     final double cardWidth = size.width - (marginHorizontal * 2);
@@ -41,47 +43,25 @@ class CameraViewfinderOverlay extends StatelessWidget {
         return Stack(
           fit: StackFit.expand,
           children: [
-            // 1. Lớp phủ làm mờ viền ngoài khung ngắm
+            // 1. Phủ tối vùng ngoài khung + 4 góc khung ngắm
             CustomPaint(
               size: size,
               painter: _ViewfinderPainter(cardRect: cardRect),
             ),
 
-            // 2. Text hướng dẫn bên dưới khung ngắm
+            // 2. Hướng dẫn bên dưới khung ngắm
             Positioned(
-              top: cardRect.bottom + 22,
-              left: 20,
-              right: 20,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.2,
-                      shadows: [
-                        Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 1)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    subtitle,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w400,
-                      shadows: const [
-                        Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 1)),
-                      ],
-                    ),
-                  ),
-                ],
+              top: cardRect.bottom + 24,
+              left: 24,
+              right: 24,
+              child: Text(
+                hint,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontSize: 13,
+                  height: 1.5,
+                ),
               ),
             ),
           ],
@@ -98,79 +78,70 @@ class _ViewfinderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const double cornerRadius = 12.0;
-    const double bracketLength = 26.0;
-    const double bracketWidth = 3.5;
+    const double cornerRadius = 8.0;
+    const double bracketLength = 28.0;
+    const double bracketWidth = 3.0;
+    // Góc vẽ lệch ra ngoài thẻ một chút để không che mép danh thiếp
+    const double inset = -6.0;
 
-    final RRect cardRRect = RRect.fromRectAndRadius(
-      cardRect,
-      const Radius.circular(cornerRadius),
+    final RRect cardRRect = RRect.fromRectAndRadius(cardRect, const Radius.circular(4));
+
+    // 1. Phủ tối vùng ngoài khung
+    final Path overlayPath = Path.combine(
+      PathOperation.difference,
+      Path()..addRect(Offset.zero & size),
+      Path()..addRRect(cardRRect),
     );
+    canvas.drawPath(overlayPath, Paint()..color = AppColors.scanChrome.withValues(alpha: 0.72));
 
-    // 1. Phủ mờ vùng ngoài khung
-    final Path backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    final Path cardPath = Path()..addRRect(cardRRect);
-    final Path overlayPath = Path.combine(PathOperation.difference, backgroundPath, cardPath);
-
-    final Paint dimPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.58)
-      ..style = PaintingStyle.fill;
-    canvas.drawPath(overlayPath, dimPaint);
-
-    // 2. Viền mờ bao quanh khung thẻ
-    final Paint borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.25)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawRRect(cardRRect, borderPaint);
-
-    // 3. 4 góc viền trắng nổi bật (Corner brackets)
+    // 2. 4 góc màu nhấn
     final Paint cornerPaint = Paint()
-      ..color = Colors.white
+      ..color = AppColors.scanAccent
       ..strokeWidth = bracketWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final double l = cardRect.left;
-    final double t = cardRect.top;
-    final double r = cardRect.right;
-    final double b = cardRect.bottom;
+    final Rect r = cardRect.inflate(-inset);
+    const radius = Radius.circular(cornerRadius);
 
-    // Top-Left corner
-    final Path tlPath = Path()
-      ..moveTo(l, t + bracketLength)
-      ..lineTo(l, t + cornerRadius)
-      ..arcToPoint(Offset(l + cornerRadius, t), radius: const Radius.circular(cornerRadius))
-      ..lineTo(l + bracketLength, t);
-    canvas.drawPath(tlPath, cornerPaint);
-
-    // Top-Right corner
-    final Path trPath = Path()
-      ..moveTo(r - bracketLength, t)
-      ..lineTo(r - cornerRadius, t)
-      ..arcToPoint(Offset(r, t + cornerRadius), radius: const Radius.circular(cornerRadius))
-      ..lineTo(r, t + bracketLength);
-    canvas.drawPath(trPath, cornerPaint);
-
-    // Bottom-Right corner
-    final Path brPath = Path()
-      ..moveTo(r, b - bracketLength)
-      ..lineTo(r, b - cornerRadius)
-      ..arcToPoint(Offset(r - cornerRadius, b), radius: const Radius.circular(cornerRadius))
-      ..lineTo(r - bracketLength, b);
-    canvas.drawPath(brPath, cornerPaint);
-
-    // Bottom-Left corner
-    final Path blPath = Path()
-      ..moveTo(l + bracketLength, b)
-      ..lineTo(l + cornerRadius, b)
-      ..arcToPoint(Offset(l, b - cornerRadius), radius: const Radius.circular(cornerRadius))
-      ..lineTo(l, b - bracketLength);
-    canvas.drawPath(blPath, cornerPaint);
+    // Top-Left
+    canvas.drawPath(
+      Path()
+        ..moveTo(r.left, r.top + bracketLength)
+        ..lineTo(r.left, r.top + cornerRadius)
+        ..arcToPoint(Offset(r.left + cornerRadius, r.top), radius: radius)
+        ..lineTo(r.left + bracketLength, r.top),
+      cornerPaint,
+    );
+    // Top-Right
+    canvas.drawPath(
+      Path()
+        ..moveTo(r.right - bracketLength, r.top)
+        ..lineTo(r.right - cornerRadius, r.top)
+        ..arcToPoint(Offset(r.right, r.top + cornerRadius), radius: radius)
+        ..lineTo(r.right, r.top + bracketLength),
+      cornerPaint,
+    );
+    // Bottom-Right
+    canvas.drawPath(
+      Path()
+        ..moveTo(r.right, r.bottom - bracketLength)
+        ..lineTo(r.right, r.bottom - cornerRadius)
+        ..arcToPoint(Offset(r.right - cornerRadius, r.bottom), radius: radius)
+        ..lineTo(r.right - bracketLength, r.bottom),
+      cornerPaint,
+    );
+    // Bottom-Left
+    canvas.drawPath(
+      Path()
+        ..moveTo(r.left + bracketLength, r.bottom)
+        ..lineTo(r.left + cornerRadius, r.bottom)
+        ..arcToPoint(Offset(r.left, r.bottom - cornerRadius), radius: radius)
+        ..lineTo(r.left, r.bottom - bracketLength),
+      cornerPaint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _ViewfinderPainter oldDelegate) {
-    return oldDelegate.cardRect != cardRect;
-  }
+  bool shouldRepaint(covariant _ViewfinderPainter oldDelegate) => oldDelegate.cardRect != cardRect;
 }

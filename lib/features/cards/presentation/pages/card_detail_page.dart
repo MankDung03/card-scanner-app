@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,12 +11,15 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../home/presentation/widgets/recent_card_tile.dart';
 import '../../domain/entities/saved_card.dart';
 import '../cubit/saved_cards_cubit.dart';
 import '../utils/contact_launcher.dart';
+import '../widgets/add_tag_dialog.dart';
 import '../widgets/card_face_view.dart';
+import '../widgets/card_image_viewer.dart';
+import '../widgets/card_share_sheet.dart';
 import '../widgets/meeting_info_bottom_sheet.dart';
 
 /// Màn chi tiết danh thiếp: ảnh 2 mặt, thông tin, gặp ở đâu/khi nào, tag, nút gọi/email/bản đồ.
@@ -67,6 +72,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
 
     final chosen = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -111,7 +117,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
   Future<void> _onAddTag(SavedCard card, List<String> suggestions) async {
     final tag = await showDialog<String>(
       context: context,
-      builder: (_) => _AddTagDialog(suggestions: suggestions),
+      builder: (_) => AddTagDialog(suggestions: suggestions),
     );
     final cleaned = SavedCard.clean(tag);
     if (cleaned == null || !mounted) return;
@@ -147,6 +153,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
   Future<void> _onPickImage(SavedCard card) async {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -193,63 +200,64 @@ class _CardDetailPageState extends State<CardDetailPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = _l10n;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textPrimary = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
 
     return BlocBuilder<SavedCardsCubit, SavedCardsState>(
       builder: (context, state) {
         final card = state.findById(widget.cardId);
 
-        return Scaffold(
-          backgroundColor: isDark ? AppColors.darkBackground : const Color(0xFFF3F5F9),
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            surfaceTintColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary, size: 20),
-              onPressed: () => context.pop(),
-            ),
-            title: Text(
-              l10n?.cardDetailTitle ?? 'Danh thiếp',
-              style: TextStyle(color: textPrimary, fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-            centerTitle: true,
-            actions: [
-              if (card != null)
-                TextButton(
-                  onPressed: () => _onEdit(card),
-                  child: Text(
-                    l10n?.edit ?? 'Sửa',
-                    style: const TextStyle(
-                      color: AppColors.linkColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: Scaffold(
+            body: Column(
+              children: [
+                // Header navy: [< Quay lại]  Chi tiết danh thiếp  [✎ Sửa]
+                NavyHeaderBar(
+                  title: l10n?.cardDetailTitle ?? 'Danh thiếp',
+                  leading: NavyHeaderTextButton(
+                    icon: Icons.chevron_left_rounded,
+                    label: l10n?.backAction ?? 'Quay lại',
+                    onPressed: () => context.pop(),
                   ),
+                  trailing: card == null
+                      ? null
+                      : NavyHeaderTextButton(
+                          icon: Icons.edit_outlined,
+                          label: l10n?.edit ?? 'Sửa',
+                          onPressed: () => _onEdit(card),
+                        ),
                 ),
-              AppSpacing.gapW8,
-            ],
+                Expanded(
+                  child: card == null
+                      ? Center(child: Text(l10n?.cardNotFound ?? 'Không tìm thấy danh thiếp'))
+                      : _buildBody(context, card, state),
+                ),
+              ],
+            ),
           ),
-          body: card == null
-              ? Center(child: Text(l10n?.cardNotFound ?? 'Không tìm thấy danh thiếp'))
-              : _buildBody(context, card, state, isDark),
         );
       },
     );
   }
 
-  Widget _buildBody(BuildContext context, SavedCard card, SavedCardsState state, bool isDark) {
+  Widget _buildBody(BuildContext context, SavedCard card, SavedCardsState state) {
     final l10n = _l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final localeTag = Localizations.localeOf(context).toLanguageTag();
-    final muted = isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B);
-    final hasImageOnSide = _showFront ? card.frontImagePath != null : card.backImagePath != null;
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final imagePath = _showFront ? card.frontImagePath : card.backImagePath;
+    final hasImageOnSide = imagePath != null && File(imagePath).existsSync();
     final tagSuggestions = {
       for (final c in state.cards) ...c.tags,
     }.where((t) => !card.tags.contains(t)).toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.s16, AppSpacing.sm, AppSpacing.s16, AppSpacing.s24),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.s16,
+        AppSpacing.s16,
+        AppSpacing.s16,
+        // Chừa chỗ cho nút chụp nổi để dòng cuối cuộn lên được, không bị nút che
+        96 + MediaQuery.paddingOf(context).bottom,
+      ),
       children: [
         // 1. Ảnh thẻ (mặt trước / mặt sau)
         Stack(
@@ -257,19 +265,20 @@ class _CardDetailPageState extends State<CardDetailPage> {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 220),
               child: CardFaceView(
-                key: ValueKey('${_showFront}_${_showFront ? card.frontImagePath : card.backImagePath}'),
+                key: ValueKey('${_showFront}_$imagePath'),
                 card: card,
                 isFront: _showFront,
                 onAddPhoto: () => _onPickImage(card),
               ),
             ),
+            // Đổi / thêm ảnh
             if (hasImageOnSide || _showFront)
               Positioned(
                 right: 8,
-                bottom: 8,
+                top: 8,
                 child: Material(
                   color: Colors.black.withValues(alpha: 0.45),
-                  shape: const CircleBorder(),
+                  borderRadius: AppRadius.r8,
                   child: IconButton(
                     tooltip: hasImageOnSide ? l10n?.changePhoto : l10n?.addPhoto,
                     visualDensity: VisualDensity.compact,
@@ -278,9 +287,36 @@ class _CardDetailPageState extends State<CardDetailPage> {
                   ),
                 ),
               ),
+            // Nút kính lúp: mở màn xem ảnh toàn màn hình (chạm vào ảnh cũng mở)
+            if (hasImageOnSide)
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: GestureDetector(
+                  onTap: () => CardImageViewer.open(context, card: card, isFront: _showFront),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.zoom_in_rounded, color: Colors.white, size: 15),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n?.tapToZoom ?? 'Chạm để phóng to',
+                          style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-        AppSpacing.gapH14,
+        AppSpacing.gapH12,
         Center(
           child: _SideToggle(
             showFront: _showFront,
@@ -289,21 +325,19 @@ class _CardDetailPageState extends State<CardDetailPage> {
             onChanged: (front) => setState(() => _showFront = front),
           ),
         ),
-        AppSpacing.gapH14,
+        AppSpacing.gapH16,
 
-        // 2. Người liên hệ
+        // 2. Tên + bảng công ty / phòng ban / chức vụ
         _Section(child: _ContactHeader(card: card)),
         AppSpacing.gapH12,
 
-        // 3. Nút hành động nhanh
+        // 3. Hành động nhanh
         Row(
           children: [
             Expanded(
               child: _QuickAction(
                 icon: Icons.call_outlined,
                 label: l10n?.call ?? 'Gọi',
-                fg: Colors.white,
-                bg: AppColors.blueCardStart,
                 onTap: (card.mobile ?? card.phone) == null ? null : () => _onCall(card),
               ),
             ),
@@ -312,8 +346,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
               child: _QuickAction(
                 icon: Icons.mail_outline_rounded,
                 label: l10n?.email ?? 'Email',
-                fg: const Color(0xFF15803D),
-                bg: const Color(0xFFDCFCE7),
                 onTap: card.email == null ? null : () => _launch(() => ContactLauncher.email(card.email!)),
               ),
             ),
@@ -322,8 +354,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
               child: _QuickAction(
                 icon: Icons.place_outlined,
                 label: l10n?.map ?? 'Bản đồ',
-                fg: const Color(0xFFB45309),
-                bg: const Color(0xFFFEF3C7),
                 onTap: card.address == null ? null : () => _launch(() => ContactLauncher.map(card.address!)),
               ),
             ),
@@ -332,107 +362,89 @@ class _CardDetailPageState extends State<CardDetailPage> {
               child: _QuickAction(
                 icon: Icons.ios_share_rounded,
                 label: l10n?.export ?? 'Xuất',
-                fg: const Color(0xFF7E22CE),
-                bg: const Color(0xFFF3E8FF),
-                onTap: () => _toast(l10n?.featureComingSoon ?? 'Chức năng sẽ được kích hoạt ở bước tiếp theo'),
+                onTap: () => CardShareSheet.show(context, card),
               ),
             ),
           ],
         ),
         AppSpacing.gapH12,
 
-        // 4. Thông tin liên hệ chi tiết
-        _buildInfoList(card, isDark),
+        // 4. Liên hệ
+        _buildInfoList(card),
         AppSpacing.gapH12,
 
-        // 5. Gặp ở đâu, khi nào + tag
+        // 5. Thông tin trao đổi · ghi chú · tag
         _Section(
-          padding: const EdgeInsets.fromLTRB(16, 6, 8, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n?.meetingSectionTitle ?? 'Gặp ở đâu, khi nào',
-                      style: TextStyle(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => _onEditMeeting(card),
-                    child: Text(
-                      l10n?.edit ?? 'Sửa',
-                      style: const TextStyle(color: AppColors.linkColor, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
+              _SectionTitle(
+                title: l10n?.meetingSectionTitle ?? 'Gặp ở đâu, khi nào',
+                actionLabel: l10n?.edit ?? 'Sửa',
+                onAction: () => _onEditMeeting(card),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Column(
+              AppSpacing.gapH10,
+              if (card.metAt != null || card.metPlace != null) ...[
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (card.metAt != null || card.metPlace != null) ...[
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          if (card.metAt != null)
-                            _InfoChip(
-                              icon: Icons.calendar_today_outlined,
-                              text: DateFormat.yMd(localeTag).format(card.metAt!),
-                              onTap: () => _onEditMeeting(card),
-                            ),
-                          if (card.metPlace != null)
-                            _InfoChip(
-                              icon: Icons.place_outlined,
-                              text: card.metPlace!,
-                              onTap: () => _onEditMeeting(card),
-                            ),
-                        ],
+                    Expanded(
+                      child: _LabeledValue(
+                        label: l10n?.metDateLabel ?? 'Ngày gặp',
+                        value: card.metAt == null ? '—' : DateFormat.yMd(localeTag).format(card.metAt!),
                       ),
-                      AppSpacing.gapH10,
-                    ],
-                    if (card.note != null) ...[
-                      Text(
-                        card.note!,
-                        style: TextStyle(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                          fontSize: 13.5,
-                          height: 1.45,
-                        ),
+                    ),
+                    AppSpacing.gapW12,
+                    Expanded(
+                      child: _LabeledValue(
+                        label: l10n?.metPlaceLabel ?? 'Nơi gặp',
+                        value: card.metPlace ?? '—',
                       ),
-                      AppSpacing.gapH12,
-                    ],
-                    if (card.metAt == null && card.metPlace == null && card.note == null) ...[
-                      InkWell(
-                        onTap: () => _onEditMeeting(card),
-                        child: Text(
-                          l10n?.meetingEmptyPrompt ?? 'Thêm ngày gặp, nơi gặp hoặc ghi chú để dễ nhớ hơn',
-                          style: TextStyle(color: muted, fontSize: 13),
-                        ),
-                      ),
-                      AppSpacing.gapH12,
-                    ],
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final tag in card.tags)
-                          _TagChip(label: tag, onTap: () => _onRemoveTag(card, tag)),
-                        _AddTagChip(
-                          label: l10n?.addTag ?? 'Tag',
-                          onTap: () => _onAddTag(card, tagSuggestions),
-                        ),
-                      ],
                     ),
                   ],
                 ),
+                AppSpacing.gapH12,
+              ],
+              if (card.note != null) ...[
+                InkWell(
+                  onTap: () => _onEditMeeting(card),
+                  borderRadius: AppRadius.r8,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted,
+                      borderRadius: AppRadius.r8,
+                    ),
+                    child: Text(
+                      card.note!,
+                      style: TextStyle(
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                        fontSize: 13.5,
+                        height: 1.55,
+                      ),
+                    ),
+                  ),
+                ),
+                AppSpacing.gapH12,
+              ],
+              if (card.metAt == null && card.metPlace == null && card.note == null) ...[
+                InkWell(
+                  onTap: () => _onEditMeeting(card),
+                  child: Text(
+                    l10n?.meetingEmptyPrompt ?? 'Thêm ngày gặp, nơi gặp hoặc ghi chú để dễ nhớ hơn',
+                    style: TextStyle(color: muted, fontSize: 13, height: 1.5),
+                  ),
+                ),
+                AppSpacing.gapH12,
+              ],
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final tag in card.tags) _TagChip(label: tag, onTap: () => _onRemoveTag(card, tag)),
+                  _AddTagChip(label: l10n?.addTag ?? 'Tag', onTap: () => _onAddTag(card, tagSuggestions)),
+                ],
               ),
             ],
           ),
@@ -450,17 +462,13 @@ class _CardDetailPageState extends State<CardDetailPage> {
     );
   }
 
-  Widget _buildInfoList(SavedCard card, bool isDark) {
+  Widget _buildInfoList(SavedCard card) {
     final l10n = _l10n;
-    const green = (Color(0xFFDCFCE7), Color(0xFF16A34A));
-    const blue = (Color(0xFFE0F2FE), Color(0xFF0284C7));
-    const amber = (Color(0xFFFEF3C7), Color(0xFFD97706));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final rows = <Widget>[
       if (card.phone != null)
         _InfoRow(
-          icon: Icons.call_outlined,
-          colors: green,
           label: l10n?.phone ?? 'Điện thoại',
           value: card.phone!,
           onTap: () => _launch(() => ContactLauncher.call(card.phone!)),
@@ -468,8 +476,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ),
       if (card.mobile != null)
         _InfoRow(
-          icon: Icons.smartphone_outlined,
-          colors: green,
           label: l10n?.mobile ?? 'Di động',
           value: card.mobile!,
           onTap: () => _launch(() => ContactLauncher.call(card.mobile!)),
@@ -477,16 +483,12 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ),
       if (card.fax != null)
         _InfoRow(
-          icon: Icons.print_outlined,
-          colors: green,
           label: l10n?.fax ?? 'FAX',
           value: card.fax!,
           onCopy: () => _copy(card.fax!),
         ),
       if (card.email != null)
         _InfoRow(
-          icon: Icons.mail_outline_rounded,
-          colors: green,
           label: l10n?.email ?? 'Email',
           value: card.email!,
           onTap: () => _launch(() => ContactLauncher.email(card.email!)),
@@ -494,8 +496,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ),
       if (card.website != null)
         _InfoRow(
-          icon: Icons.language_rounded,
-          colors: blue,
           label: l10n?.website ?? 'Website',
           value: card.website!,
           onTap: () => _launch(() => ContactLauncher.website(card.website!)),
@@ -503,8 +503,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ),
       if (card.fullAddress != null)
         _InfoRow(
-          icon: Icons.place_outlined,
-          colors: amber,
           label: l10n?.address ?? 'Địa chỉ',
           value: card.fullAddress!,
           onTap: card.address == null ? null : () => _launch(() => ContactLauncher.map(card.address!)),
@@ -513,18 +511,16 @@ class _CardDetailPageState extends State<CardDetailPage> {
     ];
     if (rows.isEmpty) return const SizedBox.shrink();
 
-    final divider = Divider(
-      height: 1,
-      thickness: 0.8,
-      indent: 60,
-      color: isDark ? AppColors.darkDivider : const Color(0xFFF1F5F9),
-    );
+    final divider = Divider(height: 1, thickness: 1, color: isDark ? AppColors.darkDivider : AppColors.divider);
     return _Section(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.fromLTRB(AppSpacing.s16, AppSpacing.xxl, AppSpacing.xs, AppSpacing.xs),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _SectionTitle(title: l10n?.sectionContact ?? 'Liên hệ'),
+          AppSpacing.gapH4,
           for (var i = 0; i < rows.length; i++) ...[
-            if (i > 0) divider,
+            if (i > 0) Padding(padding: const EdgeInsets.only(right: AppSpacing.xl), child: divider),
             rows[i],
           ],
         ],
@@ -539,19 +535,87 @@ class _Section extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
 
-  const _Section({required this.child, this.padding = const EdgeInsets.all(16)});
+  const _Section({required this.child, this.padding = const EdgeInsets.all(AppSpacing.s16)});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: AppRadius.r16,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: AppRadius.r10,
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.divider),
       ),
-      clipBehavior: Clip.antiAlias,
       padding: padding,
       child: child,
+    );
+  }
+}
+
+/// Tiêu đề khối, tuỳ chọn có nút chữ bên phải (vd. "Sửa").
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _SectionTitle({required this.title, this.actionLabel, this.onAction});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
+        if (actionLabel != null && onAction != null)
+          TextButton(
+            onPressed: onAction,
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? const Color(0xFF93B4E0) : AppColors.navy,
+              minimumSize: const Size(0, 28),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            child: Text(actionLabel!),
+          ),
+      ],
+    );
+  }
+}
+
+class _LabeledValue extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _LabeledValue({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, fontSize: 11.5)),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -574,26 +638,30 @@ class _SideToggle extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Widget segment(String label, bool selected, VoidCallback onTap) {
-      return GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
-          decoration: BoxDecoration(
-            color: selected ? (isDark ? AppColors.darkSurface : Colors.white) : Colors.transparent,
-            borderRadius: AppRadius.r8,
-            boxShadow: selected
-                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
-                : null,
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected
-                  ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
-                  : (isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B)),
+      return Semantics(
+        button: true,
+        selected: selected,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            constraints: const BoxConstraints(minWidth: 88, minHeight: 34),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: selected ? (isDark ? AppColors.darkSurface : Colors.white) : Colors.transparent,
+              borderRadius: AppRadius.r8,
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected
+                    ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
+                    : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+              ),
             ),
           ),
         ),
@@ -603,7 +671,7 @@ class _SideToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceMuted : const Color(0xFFE2E8F0),
+        color: isDark ? AppColors.darkSurfaceMuted : AppColors.divider,
         borderRadius: AppRadius.r10,
       ),
       child: Row(
@@ -617,6 +685,7 @@ class _SideToggle extends StatelessWidget {
   }
 }
 
+/// Furigana + tên lớn, bên dưới là bảng Công ty / Phòng ban / Chức vụ.
 class _ContactHeader extends StatelessWidget {
   final SavedCard card;
 
@@ -626,83 +695,86 @@ class _ContactHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B);
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final textPrimary = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
 
-    return Row(
+    final facts = <(String, String)>[
+      if (card.company != null && card.company != card.displayName) (l10n?.company ?? 'Công ty', card.company!),
+      if (card.department != null) (l10n?.department ?? 'Phòng ban', card.department!),
+      if (card.jobTitle != null) (l10n?.jobTitle ?? 'Chức vụ', card.jobTitle!),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SavedCardAvatar(card: card, size: 52),
-        AppSpacing.gapW14,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (card.furigana != null)
-                Text(card.furigana!, style: TextStyle(color: muted, fontSize: 11.5)),
-              Text(
-                card.displayName ?? l10n?.unnamedCard ?? '(Chưa có tên)',
-                style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
-                ),
-              ),
-              if (card.subtitle.isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(
-                  card.subtitle,
-                  style: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : const Color(0xFF475569),
-                    fontSize: 12.5,
-                  ),
-                ),
-              ],
-            ],
-          ),
+        if (card.furigana != null) Text(card.furigana!, style: TextStyle(color: muted, fontSize: 11.5)),
+        Text(
+          card.displayName ?? l10n?.unnamedCard ?? '(Chưa có tên)',
+          style: TextStyle(color: textPrimary, fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: 0.5),
         ),
+        if (facts.isNotEmpty) ...[
+          AppSpacing.gapH12,
+          for (final (label, value) in facts)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 72,
+                    child: Text(label, style: TextStyle(color: muted, fontSize: 12.5, height: 1.5)),
+                  ),
+                  Expanded(
+                    child: Text(
+                      value,
+                      style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w500, height: 1.45),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ],
     );
   }
 }
 
+/// Ô hành động nhanh: nền trắng viền mảnh, icon + chữ navy.
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color fg;
-  final Color bg;
   final VoidCallback? onTap;
 
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.fg,
-    required this.bg,
-    this.onTap,
-  });
+  const _QuickAction({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onTap != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isDark ? AppColors.darkTextPrimary : AppColors.navy;
+
     return Opacity(
-      opacity: enabled ? 1 : 0.4,
+      opacity: onTap != null ? 1 : 0.4,
       child: Material(
-        color: bg,
-        borderRadius: AppRadius.r14,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.r10,
+          side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          borderRadius: AppRadius.r14,
           child: SizedBox(
-            height: 68,
+            height: 64,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, color: fg, size: 21),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -713,45 +785,28 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
+/// Dòng liên hệ: nhãn nhỏ + giá trị (màu navy nếu chạm được) + nút sao chép.
 class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final (Color, Color) colors;
   final String label;
   final String value;
   final VoidCallback? onTap;
   final VoidCallback onCopy;
 
-  const _InfoRow({
-    required this.icon,
-    required this.colors,
-    required this.label,
-    required this.value,
-    required this.onCopy,
-    this.onTap,
-  });
+  const _InfoRow({required this.label, required this.value, required this.onCopy, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B);
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final linkColor = isDark ? const Color(0xFF93B4E0) : AppColors.navy;
 
     return InkWell(
       onTap: onTap,
       onLongPress: onCopy,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: isDark ? colors.$2.withValues(alpha: 0.18) : colors.$1,
-                borderRadius: AppRadius.r8,
-              ),
-              child: Icon(icon, color: colors.$2, size: 17),
-            ),
-            AppSpacing.gapW14,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -761,9 +816,12 @@ class _InfoRow extends StatelessWidget {
                   Text(
                     value,
                     style: TextStyle(
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                      color: onTap != null
+                          ? linkColor
+                          : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
                       fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
                     ),
                   ),
                 ],
@@ -781,69 +839,31 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final VoidCallback? onTap;
-
-  const _InfoChip({required this.icon, required this.text, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fg = isDark ? AppColors.darkTextSecondary : const Color(0xFF334155);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.r8,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          borderRadius: AppRadius.r8,
-          border: Border.all(color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: fg),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(text, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w500)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _TagChip extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
   const _TagChip({required this.label, required this.onTap});
 
-  static const _palette = [
-    (Color(0xFFDBEAFE), Color(0xFF1D4ED8)),
-    (Color(0xFFFEF3C7), Color(0xFFB45309)),
-    (Color(0xFFDCFCE7), Color(0xFF15803D)),
-    (Color(0xFFF3E8FF), Color(0xFF7E22CE)),
-    (Color(0xFFFCE7F3), Color(0xFFBE185D)),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    // Màu cố định theo nội dung tag (hash ổn định giữa các lần chạy)
-    final hash = label.codeUnits.fold<int>(0, (h, c) => (h * 31 + c) & 0x7fffffff);
-    final colors = _palette[hash % _palette.length];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.r16,
+      borderRadius: AppRadius.r4,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: colors.$1, borderRadius: AppRadius.r16),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkNavy : AppColors.navyTint,
+          borderRadius: AppRadius.r4,
+        ),
         child: Text(
           label,
-          style: TextStyle(color: colors.$2, fontSize: 12.5, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextPrimary : AppColors.navy,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -859,83 +879,18 @@ class _AddTagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fg = isDark ? AppColors.darkTextTertiary : const Color(0xFF64748B);
+    final fg = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.r16,
+      borderRadius: AppRadius.r4,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          borderRadius: AppRadius.r16,
-          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.borderLight),
+          borderRadius: AppRadius.r4,
+          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.divider),
         ),
-        child: Text('+ $label', style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600)),
+        child: Text('+ $label', style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600)),
       ),
-    );
-  }
-}
-
-class _AddTagDialog extends StatefulWidget {
-  final List<String> suggestions;
-
-  const _AddTagDialog({required this.suggestions});
-
-  @override
-  State<_AddTagDialog> createState() => _AddTagDialogState();
-}
-
-class _AddTagDialogState extends State<_AddTagDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.r16),
-      title: Text('+ ${l10n?.addTag ?? 'Tag'}'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            maxLength: 30,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(hintText: l10n?.tagHint ?? 'Tên tag'),
-            onSubmitted: (v) => Navigator.pop(context, v),
-          ),
-          if (widget.suggestions.isNotEmpty)
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final s in widget.suggestions.take(8))
-                  ActionChip(
-                    label: Text(s, style: const TextStyle(fontSize: 12.5)),
-                    visualDensity: VisualDensity.compact,
-                    onPressed: () => Navigator.pop(context, s),
-                  ),
-              ],
-            ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n?.cancel ?? 'Hủy'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, _controller.text),
-          child: Text(l10n?.save ?? 'Lưu'),
-        ),
-      ],
     );
   }
 }

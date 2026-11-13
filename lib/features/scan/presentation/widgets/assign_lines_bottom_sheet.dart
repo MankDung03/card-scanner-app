@@ -41,6 +41,7 @@ class AssignLinesBottomSheet extends StatefulWidget {
   }) {
     return showModalBottomSheet<AssignLinesResult>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

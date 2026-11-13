@@ -25,6 +25,19 @@ class AppColors {
   static const Color darkTextSecondary = Color(0xFFE2E8F0);
   static const Color darkTextTertiary = Color(0xFFCBD5E1);
 
+  // Japanese-style Navy (header + primary action)
+  static const Color navy = Color(0xFF1F3A5F);
+  static const Color navyPressed = Color(0xFF16304F);
+  static const Color darkNavy = Color(0xFF1A2E4A);
+  static const Color navyTint = Color(0xFFEEF2F7); // nền icon card phụ (light)
+  static const Color textMuted = Color(0xFF64748B); // chữ phụ xám kiểu JP
+  static const Color darkTextMuted = Color(0xFF94A3B8);
+
+  // Camera Scan Screen
+  static const Color scanChrome = Color(0xFF141B26); // nền tối của màn chụp
+  static const Color scanAccent = Color(0xFF34D399); // góc khung ngắm (xanh ngọc)
+  static const Color scanControlBg = Color(0x29FFFFFF); // nút tròn/vuông mờ trên nền tối
+
   // Primary Action Card (Chụp ảnh)
   static const Color blueCardStart = Color(0xFF2563EB);
   static const Color blueCardEnd = Color(0xFF1D4ED8);

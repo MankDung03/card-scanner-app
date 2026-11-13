@@ -111,6 +111,23 @@ class SavedCardsCubit extends Cubit<SavedCardsState> {
     ));
   }
 
+  /// Xoá toàn bộ danh thiếp (kèm ảnh) khỏi máy. Trả về false nếu có thẻ xoá không được.
+  Future<bool> deleteAll() async {
+    final ids = state.cards.map((c) => c.id).toList();
+    emit(state.copyWith(cards: const []));
+    var ok = true;
+    for (final id in ids) {
+      try {
+        await _repository.delete(id);
+      } catch (e) {
+        debugPrint('SavedCardsCubit.deleteAll error ($id): $e');
+        ok = false;
+      }
+    }
+    if (!ok) await load();
+    return ok;
+  }
+
   /// Xoá ngay trên UI (cần cho Dismissible), sau đó xoá trên đĩa; lỗi thì nạp lại.
   Future<void> delete(String id) async {
     emit(state.copyWith(cards: state.cards.where((c) => c.id != id).toList()));

@@ -9,36 +9,280 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appName => '名刺スキャン';
+  String get closeAction => '閉じる';
 
   @override
-  String get addCardTitle => '名刺を追加';
+  String get backAction => '戻る';
 
   @override
-  String get addCardSubtitle => '名刺の取り込み方法を選択してください';
+  String get navCards => '名刺一覧';
 
   @override
-  String get captureCardTitle => '撮影する';
+  String get captureFabLabel => '撮影';
 
   @override
-  String get captureCardSubtitle => 'カメラを起動、名刺枠に合わせます';
+  String get fabHide => '非表示にする';
 
   @override
-  String get galleryCardTitle => 'アルバムから選択';
+  String get fabHiddenMsg => '撮影ボタンを非表示にしました。設定からいつでも戻せます。';
 
   @override
-  String get galleryCardSubtitle => '端末内の名刺画像を使用します';
+  String get sectionDisplay => '表示';
 
   @override
-  String get recentlySaved => '最近保存した名刺';
+  String get showCaptureFab => '撮影ボタンを表示';
 
   @override
-  String viewAll(int count) {
-    return 'すべて見る ($count)';
+  String get showCaptureFabDesc => '名刺一覧・名刺の詳細に表示。ドラッグで移動、長押しで非表示にできます。';
+
+  @override
+  String get resetFabPosition => 'ボタンの位置をリセット';
+
+  @override
+  String get fabPositionReset => 'ボタンを右下に戻しました';
+
+  @override
+  String get settingsPageTitle => '設定';
+
+  @override
+  String get homeAction => 'ホーム';
+
+  @override
+  String get sectionPrivacyData => 'プライバシーとデータ';
+
+  @override
+  String get localOnlyTitle => '端末内のみに保存・アカウント不要';
+
+  @override
+  String get localOnlyBody => '名刺データはサーバーに送信されません';
+
+  @override
+  String get backupTitle => 'バックアップ';
+
+  @override
+  String get backupDesc => '最終バックアップ：未実施（データと画像を.zipで保存）';
+
+  @override
+  String get restoreTitle => 'バックアップから復元';
+
+  @override
+  String get restoreDesc => '保存した.zipファイルを選択';
+
+  @override
+  String get csvBulkTitle => 'CSVで一括出力';
+
+  @override
+  String cardsCountLong(int count) {
+    return '$count件の名刺';
   }
 
   @override
-  String get offlineBadge => '100% オンデバイス・完全オフライン';
+  String get duplicateCheckTitle => '保存時に重複をチェック';
+
+  @override
+  String get duplicateCheckDesc => '氏名・会社名・メールで照合します';
+
+  @override
+  String get deleteAllTitle => 'すべてのデータを削除';
+
+  @override
+  String get deleteAllDesc => '削除前に確認が表示されます';
+
+  @override
+  String get deleteAllConfirmTitle => 'すべての名刺を削除しますか？';
+
+  @override
+  String deleteAllConfirmBody(int count) {
+    return '$count件の名刺と画像がこの端末から完全に削除されます。元に戻せません。';
+  }
+
+  @override
+  String get deleteAllDone => 'すべてのデータを削除しました';
+
+  @override
+  String get deleteAllFailed => '一部の名刺を削除できませんでした。もう一度お試しください。';
+
+  @override
+  String get displayLanguage => '表示言語';
+
+  @override
+  String get systemDefault => '端末の設定';
+
+  @override
+  String get ocrLanguageTitle => '優先する読み取り言語';
+
+  @override
+  String get ocrLangAuto => '自動';
+
+  @override
+  String get ocrLangJa => '日本語';
+
+  @override
+  String get ocrLangLatin => 'English・Việt';
+
+  @override
+  String get sectionOther => 'その他';
+
+  @override
+  String get privacyPolicy => 'プライバシーポリシー';
+
+  @override
+  String get rateApp => 'アプリを評価する';
+
+  @override
+  String get versionLabel => 'バージョン';
+
+  @override
+  String get comingSoonTag => '準備中';
+
+  @override
+  String get zoomHint => 'ピンチで拡大・縮小、ダブルタップで元のサイズ';
+
+  @override
+  String get saveImage => '画像を保存';
+
+  @override
+  String get imageSaved => '画像を写真に保存しました';
+
+  @override
+  String get imageSaveFailed => '画像を保存できませんでした';
+
+  @override
+  String get galleryPermissionDenied => '写真への保存が許可されていません';
+
+  @override
+  String get shareSheetTitle => 'エクスポート・共有';
+
+  @override
+  String thisCardSection(String name) {
+    return 'この名刺（$name）';
+  }
+
+  @override
+  String get saveToContactsDesc => '連絡先アプリで内容を確認して保存します';
+
+  @override
+  String get shareVcard => 'vCard（.vcf）で共有';
+
+  @override
+  String get shareVcardDesc => 'LINE・メール・ニアバイシェア など';
+
+  @override
+  String get storageInfoTitle => '保存先について';
+
+  @override
+  String get storageInfoBody =>
+      'ファイルは端末内で作成され、共有メニューで保存先（ファイル・Google ドライブ・メールなど）を選べます。サーバーには送信されません。';
+
+  @override
+  String get exportCsv => 'CSV出力';
+
+  @override
+  String get csvDialogTitle => 'CSVファイルを出力しますか？';
+
+  @override
+  String get csvTarget => '対象';
+
+  @override
+  String csvTargetValue(int count) {
+    return '$count件の名刺（すべて）';
+  }
+
+  @override
+  String get csvFormat => '形式';
+
+  @override
+  String get csvFormatValue => 'CSV（UTF-8・Excel対応）';
+
+  @override
+  String get csvFileName => 'ファイル名';
+
+  @override
+  String get csvDestination => '保存先';
+
+  @override
+  String get csvDestinationValue => '出力後に表示される共有メニューで選択';
+
+  @override
+  String get csvPrivacyWarning => '個人情報が含まれます。共有先にご注意ください。';
+
+  @override
+  String get exportAction => '出力する';
+
+  @override
+  String get exportFailed => 'ファイルを出力できませんでした';
+
+  @override
+  String get csvCreatedAt => '登録日';
+
+  @override
+  String get tapToZoom => 'タップで拡大';
+
+  @override
+  String cardsCount(int count) {
+    return '$count枚の名刺';
+  }
+
+  @override
+  String get savedComplete => '保存完了';
+
+  @override
+  String get viewDetails => '詳細';
+
+  @override
+  String get addTagAction => 'タグを追加';
+
+  @override
+  String get sectionName => '氏名';
+
+  @override
+  String get sectionCompany => '会社情報';
+
+  @override
+  String get sectionContact => '連絡先';
+
+  @override
+  String stepProgress(int current, int total) {
+    return 'ステップ $current/$total';
+  }
+
+  @override
+  String get backSideOptional => '裏面（任意）';
+
+  @override
+  String get cameraHint => '明るい場所で、名刺を枠に合わせてください';
+
+  @override
+  String get appName => '名刺スキャン';
+
+  @override
+  String get addCardTitle => '名刺を登録する';
+
+  @override
+  String get addCardSubtitle => '撮影または写真を選ぶだけで、文字を自動で読み取ります。';
+
+  @override
+  String get captureCardTitle => 'カメラで撮影';
+
+  @override
+  String get captureCardSubtitle => '名刺を枠に合わせて撮影します';
+
+  @override
+  String get galleryCardTitle => '写真から選ぶ';
+
+  @override
+  String get galleryCardSubtitle => '保存済みの名刺画像を使います';
+
+  @override
+  String get recentlySaved => '最近登録した名刺';
+
+  @override
+  String viewAll(int count) {
+    return 'すべて見る（$count件）';
+  }
+
+  @override
+  String get offlineBadge => 'データはこの端末内にのみ保存されます';
 
   @override
   String get today => '今日';
@@ -92,31 +336,32 @@ class AppLocalizationsJa extends AppLocalizations {
   String get stepBackOptional => '2 - 裏面（任意）';
 
   @override
-  String get gallery => 'アルバム';
+  String get gallery => '写真';
 
   @override
   String get cropAction => 'トリミング';
 
   @override
-  String get cropTitle => '画像調整';
+  String get cropTitle => '範囲を調整';
 
   @override
-  String get changePhoto => '画像変更';
+  String get changePhoto => '写真を変更';
 
   @override
-  String get autoDetectedSuccess => '枠を自動認識しました · 必要に応じて4隅を調整';
+  String get autoDetectedSuccess =>
+      '名刺の範囲を自動で検出しました。ずれている場合は、四隅の丸をドラッグして調整してください。';
 
   @override
   String get rotate => '回転';
 
   @override
-  String get autoAlign => '自動調整';
+  String get autoAlign => '自動補正';
 
   @override
   String get addBackSide => '裏面を追加';
 
   @override
-  String get recognizeText => '文字認識を開始';
+  String get recognizeText => '文字を読み取る';
 
   @override
   String get cameraPermissionRequired => '名刺撮影のためカメラ権限を許可してください';
@@ -165,19 +410,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noTextDetected => '画像からテキストを検出できませんでした';
 
   @override
-  String get verificationTitle => '情報確認';
+  String get verificationTitle => '内容の確認';
 
   @override
   String get retake => '撮り直す';
 
   @override
   String detectedFieldsCount(int count) {
-    return '$count 項目を認識';
+    return '$count項目を読み取りました';
   }
 
   @override
   String needsReviewCount(int count) {
-    return '$count 項目要確認';
+    return '$count項目は確認してください';
   }
 
   @override
@@ -208,10 +453,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get department => '部署';
 
   @override
-  String get phone => '電話番号';
+  String get phone => '電話';
 
   @override
-  String get mobile => '携帯番号';
+  String get mobile => '携帯';
 
   @override
   String get fax => 'FAX';
@@ -226,10 +471,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get website => 'ウェブサイト';
 
   @override
-  String get notOnCardPlaceholder => '記載なし — 必要に応じて入力';
+  String get notOnCardPlaceholder => '未入力';
 
   @override
-  String get saveCard => '名刺を保存';
+  String get saveCard => 'この内容で保存する';
 
   @override
   String get editField => '項目を編集';
@@ -247,16 +492,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cardSavedTitle => '名刺を保存しました';
 
   @override
-  String get cardSavedSubtitle => 'この端末のアプリに保存しました。';
+  String get cardSavedSubtitle => 'この端末内にのみ保存されています。';
 
   @override
   String get cardSaveFailed => '名刺を保存できませんでした。もう一度お試しください';
 
   @override
-  String get optionalActions => 'その他（任意）';
+  String get optionalActions => 'あわせて行う（任意）';
 
   @override
-  String get saveToContacts => '連絡先に保存';
+  String get saveToContacts => '端末の連絡先に保存';
 
   @override
   String get addMeetingNote => '出会った場所をメモ';
@@ -271,7 +516,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noteSaved => 'メモを保存しました';
 
   @override
-  String get scanAnotherCard => '別の名刺をスキャン';
+  String get scanAnotherCard => '続けてスキャンする';
 
   @override
   String get backToHome => 'ホームに戻る';
@@ -283,7 +528,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noSavedCards => 'まだ名刺がありません。最初の1枚をスキャンしましょう！';
 
   @override
-  String get savedCardsTitle => '保存した名刺';
+  String get savedCardsTitle => '名刺一覧';
 
   @override
   String get deleteCardTitle => 'この名刺を削除しますか？';
@@ -328,11 +573,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scanCardAction => '新しい名刺をスキャン';
 
   @override
-  String cardsCount(int count) {
-    return '$count枚の名刺';
-  }
-
-  @override
   String showingCardsCount(int filtered, int total) {
     return '$total枚中 $filtered枚を表示';
   }
@@ -347,7 +587,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editNote => 'メモを編集';
 
   @override
-  String get cardDetailTitle => '名刺';
+  String get cardDetailTitle => '名刺の詳細';
 
   @override
   String get edit => '編集';
@@ -359,19 +599,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get map => '地図';
 
   @override
-  String get export => '書き出し';
+  String get export => '共有';
 
   @override
-  String get meetingSectionTitle => '出会った場所・日時';
+  String get meetingSectionTitle => '交換情報・メモ';
 
   @override
   String get meetingEmptyPrompt => '日付・場所・メモを追加して思い出しやすくしましょう';
 
   @override
-  String get metDateLabel => '日付';
+  String get metDateLabel => '名刺交換日';
 
   @override
-  String get metPlaceLabel => '場所';
+  String get metPlaceLabel => '交換場所';
 
   @override
   String get metPlaceHint => '例：ITエキスポ 東京';

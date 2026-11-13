@@ -2,6 +2,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../cubit/scan_cubit.dart';
@@ -23,6 +26,9 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
   bool _isInit = false;
   String? _initError;
   Rect _viewfinderRect = Rect.zero;
+
+  /// Luồng quét: 1 Chụp → 2 Cắt ảnh → 3 Xác nhận thông tin
+  static const int _totalSteps = 3;
 
   @override
   void initState() {
@@ -136,7 +142,7 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
     final scanCubit = context.read<ScanCubit>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.scanChrome,
       body: SafeArea(
         top: false,
         child: Stack(
@@ -156,7 +162,7 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
               )
             else
               Container(
-                color: const Color(0xFF0B0F19),
+                color: AppColors.scanChrome,
                 child: Center(
                   child: _initError != null
                       ? Padding(
@@ -188,55 +194,76 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
                 ),
               ),
 
+
             // 2. Viewfinder Overlay với khung 91x55mm
             CameraViewfinderOverlay(
-              title: l10n?.alignCardTitle ?? 'Đặt danh thiếp vừa khung',
-              subtitle: l10n?.alignCardSubtitle ?? 'Khung tỉ lệ 91 × 55 mm · giữ máy song song với thẻ',
+              hint: l10n?.cameraHint ?? 'Đặt danh thiếp vừa khung, ở nơi đủ sáng',
               onRectCalculated: (rect) {
                 _viewfinderRect = rect;
               },
             ),
 
-            // 3. Header Top Bar
+            // 3. Header: [× Đóng]  Bước 1/3  [Flash]  +  segmented Mặt trước / Mặt sau
             SafeArea(
               child: Align(
                 alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: BlocBuilder<ScanCubit, ScanState>(
-                    builder: (context, state) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Nút Đóng X
-                              _buildCircleIconButton(
-                                icon: Icons.close_rounded,
-                                onTap: () => context.pop(),
-                              ),
-
-                              // Segmented Switch [ Mặt trước | Mặt sau ]
-                              SideSegmentedControl(
-                                currentSide: state.currentSide,
-                                frontLabel: l10n?.frontSide ?? 'Mặt trước',
-                                backLabel: l10n?.backSide ?? 'Mặt sau',
-                                onSideChanged: (side) => scanCubit.setSide(side),
-                              ),
-
-                              // Nút Flash
-                              _buildCircleIconButton(
-                                icon: state.isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                                color: state.isFlashOn ? Colors.amber : Colors.white,
-                                onTap: () => scanCubit.toggleFlash(_cameraController),
-                              ),
-                            ],
+                child: BlocBuilder<ScanCubit, ScanState>(
+                  builder: (context, state) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 56,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton.icon(
+                                      onPressed: () => context.pop(),
+                                      style: TextButton.styleFrom(foregroundColor: Colors.white),
+                                      icon: const Icon(Icons.close_rounded, size: 20),
+                                      label: Text(
+                                        l10n?.closeAction ?? 'Đóng',
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  l10n?.stepProgress(1, _totalSteps) ?? 'Bước 1/$_totalSteps',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: _FlashButton(
+                                      isOn: state.isFlashOn,
+                                      onTap: () => scanCubit.toggleFlash(_cameraController),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                        AppSpacing.gapH8,
+                        SideSegmentedControl(
+                          currentSide: state.currentSide,
+                          frontLabel: l10n?.frontSide ?? 'Mặt trước',
+                          backLabel: l10n?.backSideOptional ?? 'Mặt sau (tuỳ chọn)',
+                          onSideChanged: (side) => scanCubit.setSide(side),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -245,13 +272,12 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
             Align(
               alignment: Alignment.bottomCenter,
               child: BlocBuilder<ScanCubit, ScanState>(
+                buildWhen: (prev, curr) => prev.isProcessing != curr.isProcessing,
                 builder: (context, state) {
                   return CameraBottomBar(
-                    currentSide: state.currentSide,
-                    stepFrontLabel: l10n?.stepFront ?? '1 - Mặt trước',
-                    stepBackLabel: l10n?.stepBackOptional ?? '2 - Mặt sau (tuỳ chọn)',
                     galleryLabel: l10n?.gallery ?? 'Thư viện',
                     cropLabel: l10n?.cropAction ?? 'Cắt ảnh',
+                    shutterLabel: l10n?.captureCardTitle ?? 'Chụp ảnh',
                     isProcessing: state.isProcessing,
                     onShutter: () => _onShutterPressed(context),
                     onGallery: () => _onGalleryPressed(context),
@@ -265,26 +291,36 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
       ),
     );
   }
+}
 
-  Widget _buildCircleIconButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    Color color = Colors.white,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.45),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+/// Nút flash vuông bo góc; bật → nền trắng, icon tối.
+class _FlashButton extends StatelessWidget {
+  final bool isOn;
+  final VoidCallback onTap;
+
+  const _FlashButton({required this.isOn, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      toggled: isOn,
+      label: 'Flash',
+      child: Material(
+        color: isOn ? Colors.white : AppColors.scanControlBg,
+        borderRadius: AppRadius.r10,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: AppRadius.r10,
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(
+              isOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+              color: isOn ? AppColors.textPrimary : Colors.white,
+              size: 20,
+            ),
           ),
-          child: Icon(icon, color: color, size: 20),
         ),
       ),
     );

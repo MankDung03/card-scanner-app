@@ -100,6 +100,468 @@ abstract class AppLocalizations {
     Locale('vi')
   ];
 
+  /// No description provided for @closeAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đóng'**
+  String get closeAction;
+
+  /// No description provided for @backAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quay lại'**
+  String get backAction;
+
+  /// No description provided for @navCards.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp'**
+  String get navCards;
+
+  /// No description provided for @captureFabLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chụp'**
+  String get captureFabLabel;
+
+  /// No description provided for @fabHide.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ẩn nút này'**
+  String get fabHide;
+
+  /// No description provided for @fabHiddenMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã ẩn nút chụp. Có thể bật lại trong Cài đặt.'**
+  String get fabHiddenMsg;
+
+  /// No description provided for @sectionDisplay.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiển thị'**
+  String get sectionDisplay;
+
+  /// No description provided for @showCaptureFab.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hiện nút chụp nổi'**
+  String get showCaptureFab;
+
+  /// No description provided for @showCaptureFabDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ở danh sách và chi tiết danh thiếp. Kéo để đổi vị trí, nhấn giữ để ẩn.'**
+  String get showCaptureFabDesc;
+
+  /// No description provided for @resetFabPosition.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đặt lại vị trí nút'**
+  String get resetFabPosition;
+
+  /// No description provided for @fabPositionReset.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã đưa nút về góc phải dưới'**
+  String get fabPositionReset;
+
+  /// No description provided for @settingsPageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cài đặt'**
+  String get settingsPageTitle;
+
+  /// No description provided for @homeAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trang chủ'**
+  String get homeAction;
+
+  /// No description provided for @sectionPrivacyData.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quyền riêng tư & dữ liệu'**
+  String get sectionPrivacyData;
+
+  /// No description provided for @localOnlyTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chỉ lưu trên máy · Không cần tài khoản'**
+  String get localOnlyTitle;
+
+  /// No description provided for @localOnlyBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dữ liệu danh thiếp không được gửi lên máy chủ'**
+  String get localOnlyBody;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sao lưu'**
+  String get backupTitle;
+
+  /// No description provided for @backupDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lần gần nhất: chưa có (lưu dữ liệu và ảnh thành file .zip)'**
+  String get backupDesc;
+
+  /// No description provided for @restoreTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khôi phục từ bản sao lưu'**
+  String get restoreTitle;
+
+  /// No description provided for @restoreDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn file .zip đã sao lưu'**
+  String get restoreDesc;
+
+  /// No description provided for @csvBulkTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất CSV toàn bộ'**
+  String get csvBulkTitle;
+
+  /// No description provided for @cardsCountLong.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp'**
+  String cardsCountLong(int count);
+
+  /// No description provided for @duplicateCheckTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Kiểm tra trùng khi lưu'**
+  String get duplicateCheckTitle;
+
+  /// No description provided for @duplicateCheckDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'So khớp theo họ tên, công ty, email'**
+  String get duplicateCheckDesc;
+
+  /// No description provided for @deleteAllTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá toàn bộ dữ liệu'**
+  String get deleteAllTitle;
+
+  /// No description provided for @deleteAllDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sẽ hỏi xác nhận trước khi xoá'**
+  String get deleteAllDesc;
+
+  /// No description provided for @deleteAllConfirmTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá toàn bộ danh thiếp?'**
+  String get deleteAllConfirmTitle;
+
+  /// No description provided for @deleteAllConfirmBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp và ảnh sẽ bị xoá vĩnh viễn khỏi máy này. Không thể hoàn tác.'**
+  String deleteAllConfirmBody(int count);
+
+  /// No description provided for @deleteAllDone.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã xoá toàn bộ dữ liệu'**
+  String get deleteAllDone;
+
+  /// No description provided for @deleteAllFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có danh thiếp chưa xoá được, vui lòng thử lại'**
+  String get deleteAllFailed;
+
+  /// No description provided for @displayLanguage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngôn ngữ hiển thị'**
+  String get displayLanguage;
+
+  /// No description provided for @systemDefault.
+  ///
+  /// In vi, this message translates to:
+  /// **'Theo máy'**
+  String get systemDefault;
+
+  /// No description provided for @ocrLanguageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngôn ngữ ưu tiên khi đọc chữ'**
+  String get ocrLanguageTitle;
+
+  /// No description provided for @ocrLangAuto.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động'**
+  String get ocrLangAuto;
+
+  /// No description provided for @ocrLangJa.
+  ///
+  /// In vi, this message translates to:
+  /// **'日本語'**
+  String get ocrLangJa;
+
+  /// No description provided for @ocrLangLatin.
+  ///
+  /// In vi, this message translates to:
+  /// **'English・Việt'**
+  String get ocrLangLatin;
+
+  /// No description provided for @sectionOther.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khác'**
+  String get sectionOther;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chính sách bảo mật'**
+  String get privacyPolicy;
+
+  /// No description provided for @rateApp.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đánh giá ứng dụng'**
+  String get rateApp;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phiên bản'**
+  String get versionLabel;
+
+  /// No description provided for @comingSoonTag.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sắp có'**
+  String get comingSoonTag;
+
+  /// No description provided for @zoomHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chụm 2 ngón để phóng to/thu nhỏ, chạm đúp để về kích thước gốc'**
+  String get zoomHint;
+
+  /// No description provided for @saveImage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu ảnh'**
+  String get saveImage;
+
+  /// No description provided for @imageSaved.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu ảnh vào thư viện ảnh'**
+  String get imageSaved;
+
+  /// No description provided for @imageSaveFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không lưu được ảnh'**
+  String get imageSaveFailed;
+
+  /// No description provided for @galleryPermissionDenied.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa được cấp quyền lưu ảnh'**
+  String get galleryPermissionDenied;
+
+  /// No description provided for @shareSheetTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất · Chia sẻ'**
+  String get shareSheetTitle;
+
+  /// No description provided for @thisCardSection.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh thiếp này ({name})'**
+  String thisCardSection(String name);
+
+  /// No description provided for @saveToContactsDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mở ứng dụng Danh bạ để kiểm tra rồi lưu'**
+  String get saveToContactsDesc;
+
+  /// No description provided for @shareVcard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chia sẻ dạng vCard (.vcf)'**
+  String get shareVcard;
+
+  /// No description provided for @shareVcardDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'LINE, Zalo, email…'**
+  String get shareVcardDesc;
+
+  /// No description provided for @storageInfoTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Về nơi lưu file'**
+  String get storageInfoTitle;
+
+  /// No description provided for @storageInfoBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'File được tạo ngay trên máy. Bạn chọn nơi lưu (Tệp, Google Drive, email…) trong menu chia sẻ. Không gửi lên máy chủ nào.'**
+  String get storageInfoBody;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất CSV'**
+  String get exportCsv;
+
+  /// No description provided for @csvDialogTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất file CSV?'**
+  String get csvDialogTitle;
+
+  /// No description provided for @csvTarget.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đối tượng'**
+  String get csvTarget;
+
+  /// No description provided for @csvTargetValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp (tất cả)'**
+  String csvTargetValue(int count);
+
+  /// No description provided for @csvFormat.
+  ///
+  /// In vi, this message translates to:
+  /// **'Định dạng'**
+  String get csvFormat;
+
+  /// No description provided for @csvFormatValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'CSV (UTF-8 · mở được bằng Excel)'**
+  String get csvFormatValue;
+
+  /// No description provided for @csvFileName.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên file'**
+  String get csvFileName;
+
+  /// No description provided for @csvDestination.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nơi lưu'**
+  String get csvDestination;
+
+  /// No description provided for @csvDestinationValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn trong menu chia sẻ sau khi xuất'**
+  String get csvDestinationValue;
+
+  /// No description provided for @csvPrivacyWarning.
+  ///
+  /// In vi, this message translates to:
+  /// **'File chứa thông tin cá nhân. Hãy cẩn thận khi chia sẻ.'**
+  String get csvPrivacyWarning;
+
+  /// No description provided for @exportAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xuất'**
+  String get exportAction;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không xuất được file'**
+  String get exportFailed;
+
+  /// No description provided for @csvCreatedAt.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngày thêm'**
+  String get csvCreatedAt;
+
+  /// No description provided for @tapToZoom.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chạm để phóng to'**
+  String get tapToZoom;
+
+  /// No description provided for @cardsCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp'**
+  String cardsCount(int count);
+
+  /// No description provided for @savedComplete.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu'**
+  String get savedComplete;
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi tiết'**
+  String get viewDetails;
+
+  /// No description provided for @addTagAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm tag'**
+  String get addTagAction;
+
+  /// No description provided for @sectionName.
+  ///
+  /// In vi, this message translates to:
+  /// **'Họ tên'**
+  String get sectionName;
+
+  /// No description provided for @sectionCompany.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thông tin công ty'**
+  String get sectionCompany;
+
+  /// No description provided for @sectionContact.
+  ///
+  /// In vi, this message translates to:
+  /// **'Liên hệ'**
+  String get sectionContact;
+
+  /// No description provided for @stepProgress.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bước {current}/{total}'**
+  String stepProgress(int current, int total);
+
+  /// No description provided for @backSideOptional.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mặt sau (tuỳ chọn)'**
+  String get backSideOptional;
+
+  /// No description provided for @cameraHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đặt danh thiếp vừa khung, ở nơi đủ sáng'**
+  String get cameraHint;
+
   /// No description provided for @appName.
   ///
   /// In vi, this message translates to:
@@ -289,7 +751,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoDetectedSuccess.
   ///
   /// In vi, this message translates to:
-  /// **'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp'**
+  /// **'Đã tự nhận khung danh thiếp. Nếu chưa khớp, kéo các chấm ở 4 góc để chỉnh lại.'**
   String get autoDetectedSuccess;
 
   /// No description provided for @rotate.
@@ -717,12 +1179,6 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Quét thẻ mới'**
   String get scanCardAction;
-
-  /// No description provided for @cardsCount.
-  ///
-  /// In vi, this message translates to:
-  /// **'{count} danh thiếp'**
-  String cardsCount(int count);
 
   /// No description provided for @showingCardsCount.
   ///

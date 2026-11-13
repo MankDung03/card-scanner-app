@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
@@ -21,28 +23,28 @@ class CardCropPage extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF0F172A),
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (bottomSheetContext) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.camera_alt_outlined, color: Colors.white),
-                  title: Text(l10n?.captureCardTitle ?? 'Chụp lại', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: Text(l10n?.captureCardTitle ?? 'Chụp lại', style: const TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(bottomSheetContext);
                     context.pushReplacement(AppRoutes.scanCamera);
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library_outlined, color: Colors.white),
-                  title: Text(l10n?.gallery ?? 'Chọn từ thư viện', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  leading: const Icon(Icons.image_outlined),
+                  title: Text(l10n?.gallery ?? 'Chọn từ thư viện', style: const TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () async {
                     Navigator.pop(bottomSheetContext);
                     await scanCubit.pickFromGallery();
@@ -160,178 +162,184 @@ class CardCropPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scanCubit = context.read<ScanCubit>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B0F19),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          l10n?.cropTitle ?? 'Căn chỉnh ảnh',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () => _onChangePhoto(context),
-            child: Text(
-              l10n?.changePhoto ?? 'Đổi ảnh',
-              style: const TextStyle(
-                color: Color(0xFF38BDF8),
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: Column(
+          children: [
+            // 1. Header navy: [< Quay lại]  Căn chỉnh ảnh / Bước 2/3  [Đổi ảnh]
+            NavyHeaderBar(
+              title: l10n?.cropTitle ?? 'Căn chỉnh ảnh',
+              subtitle: l10n?.stepProgress(2, 3) ?? 'Bước 2/3',
+              leading: NavyHeaderTextButton(
+                icon: Icons.chevron_left_rounded,
+                label: l10n?.backAction ?? 'Quay lại',
+                onPressed: () => context.pop(),
+              ),
+              trailing: NavyHeaderTextButton(
+                label: l10n?.changePhoto ?? 'Đổi ảnh',
+                onPressed: () => _onChangePhoto(context),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        child: BlocBuilder<ScanCubit, ScanState>(
-          builder: (context, state) {
-            final imagePath = state.currentImagePath;
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s20),
-              child: Column(
-                children: [
-                  AppSpacing.gapH10,
+            Expanded(
+              child: SafeArea(
+                top: false,
+                child: BlocBuilder<ScanCubit, ScanState>(
+                  builder: (context, state) {
+                    final imagePath = state.currentImagePath;
 
-                  // 1. Canvas chỉnh góc 4 điểm tương tác
-                  Expanded(
-                    child: Center(
-                      child: imagePath != null
-                          ? InteractiveQuadCropper(
-                              imagePath: imagePath,
-                              rotationAngle: state.rotationAngle,
-                              aspectRatio: (state.imageWidth != null && state.imageHeight != null)
-                                  ? (state.rotationAngle % 180 != 0
-                                      ? state.imageHeight! / state.imageWidth!
-                                      : state.imageWidth! / state.imageHeight!)
-                                  : null,
-                              corners: state.cornerPoints,
-                              onCornerChanged: (index, newOffset) {
-                                scanCubit.updateCorner(index, newOffset);
-                              },
-                            )
-                          : Center(
-                              child: Text(
-                                l10n?.noCardImage ?? 'Chưa có ảnh danh thiếp',
-                                style: const TextStyle(color: Colors.white54),
+                    return Padding(
+                      padding: const EdgeInsets.all(AppSpacing.s16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // 2. Khung tối chứa ảnh + 4 góc kéo được
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(AppSpacing.s16),
+                              decoration: const BoxDecoration(
+                                color: AppColors.scanChrome,
+                                borderRadius: AppRadius.r10,
+                              ),
+                              child: Center(
+                                child: imagePath != null
+                                    ? InteractiveQuadCropper(
+                                        imagePath: imagePath,
+                                        rotationAngle: state.rotationAngle,
+                                        aspectRatio: (state.imageWidth != null && state.imageHeight != null)
+                                            ? (state.rotationAngle % 180 != 0
+                                                ? state.imageHeight! / state.imageWidth!
+                                                : state.imageWidth! / state.imageHeight!)
+                                            : null,
+                                        corners: state.cornerPoints,
+                                        onCornerChanged: (index, newOffset) {
+                                          scanCubit.updateCorner(index, newOffset);
+                                        },
+                                      )
+                                    : Text(
+                                        l10n?.noCardImage ?? 'Chưa có ảnh danh thiếp',
+                                        style: const TextStyle(color: Colors.white54),
+                                      ),
                               ),
                             ),
-                    ),
-                  ),
-
-                  AppSpacing.gapH16,
-
-                  // 1b. Đã có 2 mặt → cho chuyển qua lại để căn chỉnh từng mặt
-                  if (state.hasBothSides) ...[
-                    SideSegmentedControl(
-                      currentSide: state.currentSide,
-                      frontLabel: '${l10n?.frontSide ?? 'Mặt trước'} ✓',
-                      backLabel: '${l10n?.backSide ?? 'Mặt sau'} ✓',
-                      onSideChanged: scanCubit.setSide,
-                    ),
-                    AppSpacing.gapH12,
-                  ],
-
-                  // 2. Huy hiệu trạng thái đã tự nhận diện
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF064E3B),
-                      borderRadius: AppRadius.r24,
-                      border: Border.all(color: const Color(0xFF059669), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check_rounded,
-                          color: Color(0xFF34D399),
-                          size: 16,
-                        ),
-                        AppSpacing.gapW8,
-                        Flexible(
-                          child: Text(
-                            l10n?.autoDetectedSuccess ?? 'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp',
-                            style: const TextStyle(
-                              color: Color(0xFF34D399),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  AppSpacing.gapH24,
+                          AppSpacing.gapH12,
 
-                  // 3. Thanh công cụ: Xoay, Tự động, Thêm mặt sau
-                  CropBottomToolbar(
-                    rotateLabel: l10n?.rotate ?? 'Xoay',
-                    autoLabel: l10n?.autoAlign ?? 'Tự động',
-                    addBackLabel: l10n?.addBackSide ?? 'Thêm mặt sau',
-                    onRotate: () => scanCubit.rotateImage(),
-                    onAuto: () => scanCubit.resetCropCorners(),
-                    onAddBack: () {
-                      scanCubit.setSide(CardSide.back);
-                      context.pushReplacement(AppRoutes.scanCamera);
-                    },
-                  ),
+                          // 2b. Đã có 2 mặt → chuyển qua lại để căn chỉnh từng mặt
+                          if (state.hasBothSides) ...[
+                            Center(
+                              child: SideSegmentedControl(
+                                currentSide: state.currentSide,
+                                frontLabel: '${l10n?.frontSide ?? 'Mặt trước'} ✓',
+                                backLabel: '${l10n?.backSide ?? 'Mặt sau'} ✓',
+                                onSideChanged: scanCubit.setSide,
+                                onLightBackground: !isDark,
+                              ),
+                            ),
+                            AppSpacing.gapH12,
+                          ],
 
-                  AppSpacing.gapH14,
+                          // 3. Ghi chú hướng dẫn
+                          _CropInfoNote(
+                            text: l10n?.autoDetectedSuccess ?? 'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp',
+                          ),
 
-                  // 4. Nút hành động chính: Nhận dạng chữ (OCR)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () => _onRecognizeText(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blueCardStart,
-                        foregroundColor: Colors.white,
-                        elevation: 4,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: AppRadius.r16,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.text_fields_rounded, size: 20),
-                          AppSpacing.gapW10,
-                          Text(
-                            l10n?.recognizeText ?? 'Nhận dạng chữ',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.2,
+                          AppSpacing.gapH16,
+
+                          // 4. Công cụ: Xoay · Tự động · Thêm mặt sau
+                          CropBottomToolbar(
+                            rotateLabel: l10n?.rotate ?? 'Xoay',
+                            autoLabel: l10n?.autoAlign ?? 'Tự động',
+                            addBackLabel: l10n?.addBackSide ?? 'Thêm mặt sau',
+                            onRotate: () => scanCubit.rotateImage(),
+                            onAuto: () => scanCubit.resetCropCorners(),
+                            onAddBack: () {
+                              scanCubit.setSide(CardSide.back);
+                              context.pushReplacement(AppRoutes.scanCamera);
+                            },
+                          ),
+
+                          AppSpacing.gapH12,
+
+                          // 5. Nút chính: Nhận dạng chữ (OCR)
+                          SizedBox(
+                            height: 52,
+                            child: FilledButton(
+                              onPressed: () => _onRecognizeText(context),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: isDark ? AppColors.darkNavy : AppColors.navy,
+                                foregroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      l10n?.recognizeText ?? 'Nhận dạng chữ',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ),
+                                  AppSpacing.gapW8,
+                                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-
-                  AppSpacing.gapH16,
-                ],
+                    );
+                  },
+                ),
               ),
-            );
-          },
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+/// Ô ghi chú (i) nền nhạt, chữ nhỏ nhiều dòng.
+class _CropInfoNote extends StatelessWidget {
+  final String text;
+
+  const _CropInfoNote({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceMuted : AppColors.navyTint,
+        borderRadius: AppRadius.r8,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: isDark ? AppColors.darkTextMuted : AppColors.navy,
+          ),
+          AppSpacing.gapW8,
+          Expanded(
+            child: Text(text, style: TextStyle(color: fg, fontSize: 12.5, height: 1.5)),
+          ),
+        ],
       ),
     );
   }

@@ -9,6 +9,254 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
+  String get closeAction => 'Đóng';
+
+  @override
+  String get backAction => 'Quay lại';
+
+  @override
+  String get navCards => 'Danh thiếp';
+
+  @override
+  String get captureFabLabel => 'Chụp';
+
+  @override
+  String get fabHide => 'Ẩn nút này';
+
+  @override
+  String get fabHiddenMsg => 'Đã ẩn nút chụp. Có thể bật lại trong Cài đặt.';
+
+  @override
+  String get sectionDisplay => 'Hiển thị';
+
+  @override
+  String get showCaptureFab => 'Hiện nút chụp nổi';
+
+  @override
+  String get showCaptureFabDesc =>
+      'Ở danh sách và chi tiết danh thiếp. Kéo để đổi vị trí, nhấn giữ để ẩn.';
+
+  @override
+  String get resetFabPosition => 'Đặt lại vị trí nút';
+
+  @override
+  String get fabPositionReset => 'Đã đưa nút về góc phải dưới';
+
+  @override
+  String get settingsPageTitle => 'Cài đặt';
+
+  @override
+  String get homeAction => 'Trang chủ';
+
+  @override
+  String get sectionPrivacyData => 'Quyền riêng tư & dữ liệu';
+
+  @override
+  String get localOnlyTitle => 'Chỉ lưu trên máy · Không cần tài khoản';
+
+  @override
+  String get localOnlyBody => 'Dữ liệu danh thiếp không được gửi lên máy chủ';
+
+  @override
+  String get backupTitle => 'Sao lưu';
+
+  @override
+  String get backupDesc =>
+      'Lần gần nhất: chưa có (lưu dữ liệu và ảnh thành file .zip)';
+
+  @override
+  String get restoreTitle => 'Khôi phục từ bản sao lưu';
+
+  @override
+  String get restoreDesc => 'Chọn file .zip đã sao lưu';
+
+  @override
+  String get csvBulkTitle => 'Xuất CSV toàn bộ';
+
+  @override
+  String cardsCountLong(int count) {
+    return '$count danh thiếp';
+  }
+
+  @override
+  String get duplicateCheckTitle => 'Kiểm tra trùng khi lưu';
+
+  @override
+  String get duplicateCheckDesc => 'So khớp theo họ tên, công ty, email';
+
+  @override
+  String get deleteAllTitle => 'Xoá toàn bộ dữ liệu';
+
+  @override
+  String get deleteAllDesc => 'Sẽ hỏi xác nhận trước khi xoá';
+
+  @override
+  String get deleteAllConfirmTitle => 'Xoá toàn bộ danh thiếp?';
+
+  @override
+  String deleteAllConfirmBody(int count) {
+    return '$count danh thiếp và ảnh sẽ bị xoá vĩnh viễn khỏi máy này. Không thể hoàn tác.';
+  }
+
+  @override
+  String get deleteAllDone => 'Đã xoá toàn bộ dữ liệu';
+
+  @override
+  String get deleteAllFailed => 'Có danh thiếp chưa xoá được, vui lòng thử lại';
+
+  @override
+  String get displayLanguage => 'Ngôn ngữ hiển thị';
+
+  @override
+  String get systemDefault => 'Theo máy';
+
+  @override
+  String get ocrLanguageTitle => 'Ngôn ngữ ưu tiên khi đọc chữ';
+
+  @override
+  String get ocrLangAuto => 'Tự động';
+
+  @override
+  String get ocrLangJa => '日本語';
+
+  @override
+  String get ocrLangLatin => 'English・Việt';
+
+  @override
+  String get sectionOther => 'Khác';
+
+  @override
+  String get privacyPolicy => 'Chính sách bảo mật';
+
+  @override
+  String get rateApp => 'Đánh giá ứng dụng';
+
+  @override
+  String get versionLabel => 'Phiên bản';
+
+  @override
+  String get comingSoonTag => 'Sắp có';
+
+  @override
+  String get zoomHint =>
+      'Chụm 2 ngón để phóng to/thu nhỏ, chạm đúp để về kích thước gốc';
+
+  @override
+  String get saveImage => 'Lưu ảnh';
+
+  @override
+  String get imageSaved => 'Đã lưu ảnh vào thư viện ảnh';
+
+  @override
+  String get imageSaveFailed => 'Không lưu được ảnh';
+
+  @override
+  String get galleryPermissionDenied => 'Chưa được cấp quyền lưu ảnh';
+
+  @override
+  String get shareSheetTitle => 'Xuất · Chia sẻ';
+
+  @override
+  String thisCardSection(String name) {
+    return 'Danh thiếp này ($name)';
+  }
+
+  @override
+  String get saveToContactsDesc => 'Mở ứng dụng Danh bạ để kiểm tra rồi lưu';
+
+  @override
+  String get shareVcard => 'Chia sẻ dạng vCard (.vcf)';
+
+  @override
+  String get shareVcardDesc => 'LINE, Zalo, email…';
+
+  @override
+  String get storageInfoTitle => 'Về nơi lưu file';
+
+  @override
+  String get storageInfoBody =>
+      'File được tạo ngay trên máy. Bạn chọn nơi lưu (Tệp, Google Drive, email…) trong menu chia sẻ. Không gửi lên máy chủ nào.';
+
+  @override
+  String get exportCsv => 'Xuất CSV';
+
+  @override
+  String get csvDialogTitle => 'Xuất file CSV?';
+
+  @override
+  String get csvTarget => 'Đối tượng';
+
+  @override
+  String csvTargetValue(int count) {
+    return '$count danh thiếp (tất cả)';
+  }
+
+  @override
+  String get csvFormat => 'Định dạng';
+
+  @override
+  String get csvFormatValue => 'CSV (UTF-8 · mở được bằng Excel)';
+
+  @override
+  String get csvFileName => 'Tên file';
+
+  @override
+  String get csvDestination => 'Nơi lưu';
+
+  @override
+  String get csvDestinationValue => 'Chọn trong menu chia sẻ sau khi xuất';
+
+  @override
+  String get csvPrivacyWarning =>
+      'File chứa thông tin cá nhân. Hãy cẩn thận khi chia sẻ.';
+
+  @override
+  String get exportAction => 'Xuất';
+
+  @override
+  String get exportFailed => 'Không xuất được file';
+
+  @override
+  String get csvCreatedAt => 'Ngày thêm';
+
+  @override
+  String get tapToZoom => 'Chạm để phóng to';
+
+  @override
+  String cardsCount(int count) {
+    return '$count danh thiếp';
+  }
+
+  @override
+  String get savedComplete => 'Đã lưu';
+
+  @override
+  String get viewDetails => 'Chi tiết';
+
+  @override
+  String get addTagAction => 'Thêm tag';
+
+  @override
+  String get sectionName => 'Họ tên';
+
+  @override
+  String get sectionCompany => 'Thông tin công ty';
+
+  @override
+  String get sectionContact => 'Liên hệ';
+
+  @override
+  String stepProgress(int current, int total) {
+    return 'Bước $current/$total';
+  }
+
+  @override
+  String get backSideOptional => 'Mặt sau (tuỳ chọn)';
+
+  @override
+  String get cameraHint => 'Đặt danh thiếp vừa khung, ở nơi đủ sáng';
+
+  @override
   String get appName => 'Scan Danh Thiếp';
 
   @override
@@ -107,7 +355,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get autoDetectedSuccess =>
-      'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp';
+      'Đã tự nhận khung danh thiếp. Nếu chưa khớp, kéo các chấm ở 4 góc để chỉnh lại.';
 
   @override
   String get rotate => 'Xoay';
@@ -330,11 +578,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get scanCardAction => 'Quét thẻ mới';
-
-  @override
-  String cardsCount(int count) {
-    return '$count danh thiếp';
-  }
 
   @override
   String showingCardsCount(int filtered, int total) {

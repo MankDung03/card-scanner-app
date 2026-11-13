@@ -24,8 +24,12 @@ class ScanCubit extends Cubit<ScanState> {
   final ImagePicker _picker = ImagePicker();
   final OcrRepository _ocrRepository;
 
-  ScanCubit({OcrRepository? ocrRepository})
+  /// Đọc ngôn ngữ OCR người dùng chọn trong Cài đặt ở thời điểm quét; không truyền = tự động.
+  final OcrLanguageMode Function()? _languageMode;
+
+  ScanCubit({OcrRepository? ocrRepository, OcrLanguageMode Function()? languageMode})
       : _ocrRepository = ocrRepository ?? MlKitOcrRepository(),
+        _languageMode = languageMode,
         super(const ScanState());
 
   /// Chuyển mặt đang thao tác. Căn chỉnh (4 góc + xoay) của mặt cũ được lưu lại,
@@ -427,13 +431,13 @@ class ScanCubit extends Cubit<ScanState> {
     // 5. Tiền xử lý ảnh (Resize cạnh dài về 1500-2000px, cân bằng tương phản nếu tối) trong isolate
     final preprocessedPath = await OcrImagePreprocessor.preprocessImage(processedPath);
 
-    // 6. Chạy OCR TRÊN ẢNH ĐÃ TIỀN XỬ LÝ. Luôn dùng chế độ Tự động: chạy cả Latin + Japanese
+    // 6. Chạy OCR TRÊN ẢNH ĐÃ TIỀN XỬ LÝ theo ngôn ngữ chọn trong Cài đặt (mặc định Tự động: chạy cả Latin + Japanese
     //    rồi tự nhận biết thẻ tiếng Việt hay tiếng Nhật (xem MlKitOcrRepository).
     final result = await _ocrRepository.recognizeText(
       preprocessedPath,
       script: script,
       useDualScript: true,
-      languageMode: OcrLanguageMode.auto,
+      languageMode: _languageMode?.call() ?? OcrLanguageMode.auto,
     );
 
     return (result, preprocessedPath);
