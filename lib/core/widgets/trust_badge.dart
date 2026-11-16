@@ -22,12 +22,16 @@ class TrustBadge extends StatelessWidget {
             size: 16,
           ),
           AppSpacing.gapW6,
-          Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
+          // Flexible: câu dài (tiếng Việt / chữ to) xuống dòng thay vì tràn ngang
+          Flexible(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

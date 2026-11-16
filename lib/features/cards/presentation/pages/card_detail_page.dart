@@ -661,14 +661,18 @@ class _SideToggle extends StatelessWidget {
               color: selected ? (isDark ? AppColors.darkSurface : Colors.white) : Colors.transparent,
               borderRadius: AppRadius.r8,
             ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected
-                    ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
-                    : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected
+                      ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
+                      : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+                ),
               ),
             ),
           ),
@@ -684,9 +688,10 @@ class _SideToggle extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        // Flexible: màn hẹp / chữ to thì 2 ô co lại (nhãn tự thu nhỏ) thay vì tràn
         children: [
-          segment(frontLabel, showFront, () => onChanged(true)),
-          segment(backLabel, !showFront, () => onChanged(false)),
+          Flexible(child: segment(frontLabel, showFront, () => onChanged(true))),
+          Flexible(child: segment(backLabel, !showFront, () => onChanged(false))),
         ],
       ),
     );

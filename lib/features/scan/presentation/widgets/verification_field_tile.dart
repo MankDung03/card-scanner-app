@@ -58,13 +58,14 @@ class VerificationFieldTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          // Wrap: nhãn dài + tag "Kiểm tra lại" tự xuống dòng thay vì tràn ngang
+          Wrap(
+            spacing: 6,
+            runSpacing: 2,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(label, style: TextStyle(color: labelColor, fontSize: 12, fontWeight: FontWeight.w600)),
-              if (isNeedsReview) ...[
-                AppSpacing.gapW6,
-                _ReviewTag(text: l10n?.needsReviewTag ?? 'Kiểm tra lại'),
-              ],
+              if (isNeedsReview) _ReviewTag(text: l10n?.needsReviewTag ?? 'Kiểm tra lại'),
             ],
           ),
           AppSpacing.gapH6,

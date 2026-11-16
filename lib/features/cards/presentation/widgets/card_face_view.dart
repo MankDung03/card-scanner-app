@@ -95,7 +95,10 @@ class _RenderedCard extends StatelessWidget {
       if (card.fax != null) 'FAX ${card.fax}',
     ].join('   ');
 
-    return LayoutBuilder(
+    // Thẻ mô phỏng tấm danh thiếp thật (tỉ lệ cố định 91:55, chữ đã co theo bề rộng thẻ)
+    // → không phóng to thêm theo cỡ chữ hệ thống, giống ảnh chụp thẻ.
+    return MediaQuery.withNoTextScaling(
+      child: LayoutBuilder(
       builder: (context, constraints) {
         // Co giãn chữ theo bề rộng thẻ
         final s = constraints.maxWidth / 320;
@@ -176,6 +179,7 @@ class _RenderedCard extends StatelessWidget {
           ),
         );
       },
+      ),
     );
   }
 }

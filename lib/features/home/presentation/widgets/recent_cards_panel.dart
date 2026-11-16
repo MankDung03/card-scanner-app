@@ -58,17 +58,23 @@ class RecentCardsPanel extends StatelessWidget {
                     style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
+                // Flexible + FittedBox: "Xem tất cả (24)" chữ to thì thu nhỏ thay vì đẩy tràn tiêu đề
                 if (viewAllLabel != null && onViewAll != null)
-                  TextButton(
-                    onPressed: onViewAll,
-                    style: TextButton.styleFrom(
-                      foregroundColor: link,
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      minimumSize: const Size(0, 32),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: TextButton(
+                        onPressed: onViewAll,
+                        style: TextButton.styleFrom(
+                          foregroundColor: link,
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          minimumSize: const Size(0, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                        ),
+                        child: Text(viewAllLabel!),
+                      ),
                     ),
-                    child: Text(viewAllLabel!),
                   ),
               ],
             ),

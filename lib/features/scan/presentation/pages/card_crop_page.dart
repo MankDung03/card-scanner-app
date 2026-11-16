@@ -198,6 +198,7 @@ class CardCropPage extends StatelessWidget {
                         children: [
                           // 2. Khung tối chứa ảnh + 4 góc kéo được
                           Expanded(
+                            flex: 3,
                             child: Container(
                               padding: const EdgeInsets.all(AppSpacing.s16),
                               decoration: const BoxDecoration(
@@ -229,38 +230,51 @@ class CardCropPage extends StatelessWidget {
 
                           AppSpacing.gapH12,
 
-                          // 2b. Đã có 2 mặt → chuyển qua lại để căn chỉnh từng mặt
-                          if (state.hasBothSides) ...[
-                            Center(
-                              child: SideSegmentedControl(
-                                currentSide: state.currentSide,
-                                frontLabel: '${l10n?.frontSide ?? 'Mặt trước'} ✓',
-                                backLabel: '${l10n?.backSide ?? 'Mặt sau'} ✓',
-                                onSideChanged: scanCubit.setSide,
-                                onLightBackground: !isDark,
+                          // Nút gạt mặt thẻ + ghi chú + công cụ: tối đa ~40% chiều cao, cuộn được
+                          // (màn thấp / chữ to thì nhóm này cao hơn chỗ trống → không được tràn)
+                          Flexible(
+                            flex: 2,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // 2b. Đã có 2 mặt → chuyển qua lại để căn chỉnh từng mặt
+                                  if (state.hasBothSides) ...[
+                                    Center(
+                                      child: SideSegmentedControl(
+                                        currentSide: state.currentSide,
+                                        frontLabel: '${l10n?.frontSide ?? 'Mặt trước'} ✓',
+                                        backLabel: '${l10n?.backSide ?? 'Mặt sau'} ✓',
+                                        onSideChanged: scanCubit.setSide,
+                                        onLightBackground: !isDark,
+                                      ),
+                                    ),
+                                    AppSpacing.gapH12,
+                                  ],
+
+                                  // 3. Ghi chú hướng dẫn
+                                  _CropInfoNote(
+                                    text: l10n?.autoDetectedSuccess ??
+                                        'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp',
+                                  ),
+
+                                  AppSpacing.gapH16,
+
+                                  // 4. Công cụ: Xoay · Tự động · Thêm mặt sau
+                                  CropBottomToolbar(
+                                    rotateLabel: l10n?.rotate ?? 'Xoay',
+                                    autoLabel: l10n?.autoAlign ?? 'Tự động',
+                                    addBackLabel: l10n?.addBackSide ?? 'Thêm mặt sau',
+                                    onRotate: () => scanCubit.rotateImage(),
+                                    onAuto: () => scanCubit.resetCropCorners(),
+                                    onAddBack: () {
+                                      scanCubit.setSide(CardSide.back);
+                                      context.pushReplacement(AppRoutes.scanCamera);
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
-                            AppSpacing.gapH12,
-                          ],
-
-                          // 3. Ghi chú hướng dẫn
-                          _CropInfoNote(
-                            text: l10n?.autoDetectedSuccess ?? 'Đã tự nhận khung thẻ · kéo 4 góc nếu chưa khớp',
-                          ),
-
-                          AppSpacing.gapH16,
-
-                          // 4. Công cụ: Xoay · Tự động · Thêm mặt sau
-                          CropBottomToolbar(
-                            rotateLabel: l10n?.rotate ?? 'Xoay',
-                            autoLabel: l10n?.autoAlign ?? 'Tự động',
-                            addBackLabel: l10n?.addBackSide ?? 'Thêm mặt sau',
-                            onRotate: () => scanCubit.rotateImage(),
-                            onAuto: () => scanCubit.resetCropCorners(),
-                            onAddBack: () {
-                              scanCubit.setSide(CardSide.back);
-                              context.pushReplacement(AppRoutes.scanCamera);
-                            },
                           ),
 
                           AppSpacing.gapH12,

@@ -189,16 +189,25 @@ class _FabVisual extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 3),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: (isDark ? AppColors.darkBackground : Colors.white).withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: TextStyle(color: navy, fontSize: 11, fontWeight: FontWeight.w700),
+              // Nhãn nằm trong khoảng cố định còn lại của hitSize (80 - 56 - 3 = 21px).
+              // Cỡ chữ hệ thống lớn → chữ tự thu nhỏ cho vừa, thay vì làm tràn khung
+              // (kích thước nút phải cố định để tính vùng kéo / hút mép chính xác).
+              SizedBox(
+                height: DraggableCaptureFab.hitSize.height - DraggableCaptureFab.buttonSize - 3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: (isDark ? AppColors.darkBackground : Colors.white).withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: TextStyle(color: navy, fontSize: 11, fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -51,7 +51,8 @@ class CardShareSheet extends StatelessWidget {
 
     return SafeArea(
       top: false,
-      child: Padding(
+      // Cuộn được: màn thấp / chữ to thì nội dung cao hơn màn hình
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(AppSpacing.s16, 0, AppSpacing.s16, AppSpacing.s16),
         child: Column(
           mainAxisSize: MainAxisSize.min,

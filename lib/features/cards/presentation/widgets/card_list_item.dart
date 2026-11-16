@@ -167,10 +167,6 @@ class CardListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (possibleDuplicate) ...[
-                                AppSpacing.gapW6,
-                                _DuplicateTag(l10n?.dupTag ?? 'Có thể trùng'),
-                              ],
                               AppSpacing.gapW6,
                               Text(
                                 RecentCardTile.timeLabel(context, card.createdAt),
@@ -182,6 +178,11 @@ class CardListItem extends StatelessWidget {
                               ),
                             ],
                           ),
+                          // Nhãn nằm dòng riêng: cùng hàng với tên + ngày thì màn hẹp / chữ to sẽ tràn
+                          if (possibleDuplicate) ...[
+                            const SizedBox(height: 3),
+                            _DuplicateTag(l10n?.dupTag ?? 'Có thể trùng'),
+                          ],
                           if (subtitle.isNotEmpty) ...[
                             const SizedBox(height: 2),
                             Text(
@@ -383,8 +384,8 @@ class _ContactPill extends StatelessWidget {
           children: [
             Icon(icon, size: 13, color: fg),
             const SizedBox(width: 4),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200),
+            // Co theo chỗ trống thật của dòng (màn hẹp chỉ còn ~180px), không dùng chiều rộng cố định
+            Flexible(
               child: Text(
                 text,
                 maxLines: 1,

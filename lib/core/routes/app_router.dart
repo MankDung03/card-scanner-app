@@ -17,9 +17,19 @@ import 'app_routes.dart';
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-  static final GoRouter router = GoRouter(
-    navigatorKey: rootNavigatorKey,
-    initialLocation: AppRoutes.home,
+  static final GoRouter router = create(navigatorKey: rootNavigatorKey);
+
+  /// Tạo router với đầy đủ route + khung (menu dưới, nút chụp nổi).
+  /// App dùng một instance [router]; test tạo instance riêng để mở thẳng một màn bất kỳ.
+  static GoRouter create({
+    GlobalKey<NavigatorState>? navigatorKey,
+    String initialLocation = AppRoutes.home,
+    Object? initialExtra,
+  }) =>
+      GoRouter(
+    navigatorKey: navigatorKey,
+    initialLocation: initialLocation,
+    initialExtra: initialExtra,
     routes: [
       // Mọi màn nằm trong khung có menu dưới + nút chụp nổi (xem AppShell).
       // Hộp thoại / bảng trượt mở bằng root navigator → nằm trên khung.

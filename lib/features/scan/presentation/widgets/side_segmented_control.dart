@@ -32,18 +32,23 @@ class SideSegmentedControl extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        // Flexible: màn hẹp / chữ to thì 2 ô co lại (nhãn tự thu nhỏ) thay vì tràn
         children: [
-          _Segment(
-            label: frontLabel,
-            isSelected: currentSide == CardSide.front,
-            onLight: onLightBackground,
-            onTap: () => onSideChanged(CardSide.front),
+          Flexible(
+            child: _Segment(
+              label: frontLabel,
+              isSelected: currentSide == CardSide.front,
+              onLight: onLightBackground,
+              onTap: () => onSideChanged(CardSide.front),
+            ),
           ),
-          _Segment(
-            label: backLabel,
-            isSelected: currentSide == CardSide.back,
-            onLight: onLightBackground,
-            onTap: () => onSideChanged(CardSide.back),
+          Flexible(
+            child: _Segment(
+              label: backLabel,
+              isSelected: currentSide == CardSide.back,
+              onLight: onLightBackground,
+              onTap: () => onSideChanged(CardSide.back),
+            ),
           ),
         ],
       ),
@@ -77,14 +82,18 @@ class _Segment extends StatelessWidget {
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: AppRadius.r8,
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected
-                  ? AppColors.textPrimary
-                  : (onLight ? AppColors.textMuted : Colors.white.withValues(alpha: 0.8)),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? AppColors.textPrimary
+                    : (onLight ? AppColors.textMuted : Colors.white.withValues(alpha: 0.8)),
+              ),
             ),
           ),
         ),

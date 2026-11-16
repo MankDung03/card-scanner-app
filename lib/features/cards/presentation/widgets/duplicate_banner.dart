@@ -27,10 +27,26 @@ class DuplicateBanner extends StatelessWidget {
             children: [
               Icon(Icons.warning_amber_rounded, size: 18, color: fg),
               AppSpacing.gapW8,
+              // Nội dung chiếm phần lớn, nút chữ tối đa ~1/3; chữ to thì "…" thay vì tràn
               Expanded(
-                child: Text(text, style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w600)),
+                flex: 2,
+                child: Text(
+                  text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
               ),
-              Text(actionLabel, style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w700)),
+              AppSpacing.gapW8,
+              Flexible(
+                child: Text(
+                  actionLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w700),
+                ),
+              ),
               Icon(Icons.chevron_right_rounded, size: 18, color: fg),
             ],
           ),
