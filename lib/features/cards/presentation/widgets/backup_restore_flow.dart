@@ -17,6 +17,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/services/card_backup_service.dart';
 import '../../domain/services/restore_planner.dart';
 import '../cubit/backup_cubit.dart';
+import '../utils/card_share_service.dart';
 import '../cubit/saved_cards_cubit.dart';
 
 /// Luồng Sao lưu / Khôi phục (gọi từ Cài đặt).
@@ -61,6 +62,7 @@ class BackupRestoreFlow {
       final result = await SharePlus.instance.share(ShareParams(
         files: [XFile(zip.path, mimeType: 'application/zip')],
         subject: zip.uri.pathSegments.last,
+        sharePositionOrigin: CardShareService.shareOrigin(),
       ));
       // Android không phải lúc nào cũng báo kết quả → chỉ bỏ qua khi người dùng huỷ rõ ràng
       if (result.status != ShareResultStatus.dismissed) {

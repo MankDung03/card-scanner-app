@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show Offset, PlatformDispatcher, Rect;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as fc;
@@ -17,12 +18,21 @@ enum SaveImageResult { saved, permissionDenied, failed }
 class CardShareService {
   CardShareService._();
 
+  /// Điểm neo của menu chia sẻ: iPad BẮT BUỘC có (thiếu là crash), iPhone / Android bỏ qua.
+  /// Neo ở giữa màn hình vì lúc gọi, bottom sheet chứa nút bấm thường đã đóng.
+  static Rect shareOrigin() {
+    final view = PlatformDispatcher.instance.views.first;
+    final size = view.physicalSize / view.devicePixelRatio;
+    return Rect.fromCenter(center: size.center(Offset.zero), width: 1, height: 1);
+  }
+
   /// Ghi vCard ra file tạm rồi mở menu chia sẻ.
   static Future<void> shareVCard(SavedCard card) async {
     final file = await _writeTemp(CardExport.vCardFileName(card), CardExport.toVCard(card));
     await SharePlus.instance.share(ShareParams(
       files: [XFile(file.path, mimeType: 'text/x-vcard')],
       subject: card.displayName,
+      sharePositionOrigin: shareOrigin(),
     ));
   }
 
@@ -32,6 +42,7 @@ class CardShareService {
     await SharePlus.instance.share(ShareParams(
       files: [XFile(file.path, mimeType: 'text/csv')],
       subject: fileName,
+      sharePositionOrigin: shareOrigin(),
     ));
   }
 
