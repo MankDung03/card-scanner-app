@@ -914,4 +914,58 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get emptyValue => '(trống)';
+
+  @override
+  String get csvOtherColumn => 'Khác';
+
+  @override
+  String get otherFieldsSection => 'Trường khác';
+
+  @override
+  String get addCustomField => 'Thêm trường';
+
+  @override
+  String get newCustomFieldOption => 'Tạo trường mới';
+
+  @override
+  String get noteTargetOption => 'Thêm vào Ghi chú';
+
+  @override
+  String get standardFieldsGroup => 'Trường chuẩn';
+
+  @override
+  String get customFieldLabel => 'Tên trường';
+
+  @override
+  String get customFieldValue => 'Nội dung';
+
+  @override
+  String get customFieldLabelHint => 'VD: LINE, 資格';
+
+  @override
+  String get editCustomField => 'Sửa trường';
+
+  @override
+  String get deleteCustomField => 'Xoá trường';
+
+  @override
+  String get labelSuggestions => 'Gợi ý';
+
+  @override
+  String unassignedDialogTitle(int count) {
+    return 'Còn $count dòng chưa gán';
+  }
+
+  @override
+  String get unassignedDialogBody =>
+      'Dòng bỏ qua không mất: vẫn được lưu trong văn bản gốc và tìm kiếm được. Tick các dòng muốn gán rồi chọn Quay lại gán.';
+
+  @override
+  String get skipUnassigned => 'Bỏ qua';
+
+  @override
+  String get backToAssign => 'Quay lại gán';
+
+  @override
+  String get ocrTextSection => 'Văn bản gốc (OCR)';
 }

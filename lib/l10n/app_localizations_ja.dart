@@ -901,4 +901,58 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get emptyValue => '（空）';
+
+  @override
+  String get csvOtherColumn => 'その他';
+
+  @override
+  String get otherFieldsSection => 'その他の項目';
+
+  @override
+  String get addCustomField => '項目を追加';
+
+  @override
+  String get newCustomFieldOption => '新しい項目を作成';
+
+  @override
+  String get noteTargetOption => 'メモに追加';
+
+  @override
+  String get standardFieldsGroup => '標準項目';
+
+  @override
+  String get customFieldLabel => '項目名';
+
+  @override
+  String get customFieldValue => '内容';
+
+  @override
+  String get customFieldLabelHint => '例: LINE、資格';
+
+  @override
+  String get editCustomField => '項目を編集';
+
+  @override
+  String get deleteCustomField => '項目を削除';
+
+  @override
+  String get labelSuggestions => '候補';
+
+  @override
+  String unassignedDialogTitle(int count) {
+    return '未割り当ての行が$count件あります';
+  }
+
+  @override
+  String get unassignedDialogBody =>
+      'スキップした行は消えません。読み取りテキストに保存され、検索もできます。割り当てたい行にチェックを入れて「戻って割り当て」を押してください。';
+
+  @override
+  String get skipUnassigned => 'スキップ';
+
+  @override
+  String get backToAssign => '戻って割り当て';
+
+  @override
+  String get ocrTextSection => '読み取りテキスト（OCR）';
 }

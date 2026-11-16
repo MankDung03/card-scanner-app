@@ -32,7 +32,8 @@ class _MemoryRepo implements CardRepository {
   @override
   Future<List<SavedCard>> upsertAll(List<SavedCard> c) async => throw UnimplementedError();
   @override
-  Future<SavedCard> saveFromScan(BusinessCardInfo info, {String? frontImagePath, String? backImagePath}) =>
+  Future<SavedCard> saveFromScan(BusinessCardInfo info,
+      {String? frontImagePath, String? backImagePath, String? ocrTextFront, String? ocrTextBack}) =>
       throw UnimplementedError();
   @override
   Future<SavedCard> setImage(SavedCard card, {required bool isFront, required String sourcePath}) =>

@@ -10,6 +10,8 @@ abstract class CardRepository {
     BusinessCardInfo info, {
     String? frontImagePath,
     String? backImagePath,
+    String? ocrTextFront,
+    String? ocrTextBack,
   });
 
   Future<SavedCard> update(SavedCard card);

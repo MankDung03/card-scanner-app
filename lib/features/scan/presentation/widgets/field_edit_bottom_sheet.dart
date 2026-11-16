@@ -8,6 +8,9 @@ class FieldEditBottomSheet extends StatefulWidget {
   final String label;
   final String? initialValue;
   final List<String> alternatives;
+
+  /// Ô nhập nhiều dòng (ghi chú)
+  final bool multiline;
   final Function(String newValue) onSaved;
 
   const FieldEditBottomSheet({
@@ -15,6 +18,7 @@ class FieldEditBottomSheet extends StatefulWidget {
     required this.label,
     required this.initialValue,
     this.alternatives = const [],
+    this.multiline = false,
     required this.onSaved,
   });
 
@@ -23,6 +27,7 @@ class FieldEditBottomSheet extends StatefulWidget {
     required String label,
     required String? initialValue,
     List<String> alternatives = const [],
+    bool multiline = false,
     required Function(String newValue) onSaved,
   }) {
     return showModalBottomSheet(
@@ -34,6 +39,7 @@ class FieldEditBottomSheet extends StatefulWidget {
         label: label,
         initialValue: initialValue,
         alternatives: alternatives,
+        multiline: multiline,
         onSaved: onSaved,
       ),
     );
@@ -158,7 +164,9 @@ class _FieldEditBottomSheetState extends State<FieldEditBottomSheet> {
           TextField(
             controller: _controller,
             autofocus: true,
-            maxLines: widget.label.contains('Địa chỉ') ? 3 : 1,
+            minLines: 1,
+            maxLines: widget.multiline ? 6 : (widget.label.contains('Địa chỉ') ? 3 : 1),
+            keyboardType: widget.multiline ? TextInputType.multiline : null,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,

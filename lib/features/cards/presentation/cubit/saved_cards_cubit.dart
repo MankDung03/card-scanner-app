@@ -68,6 +68,8 @@ class SavedCardsCubit extends Cubit<SavedCardsState> {
     BusinessCardInfo info, {
     String? frontImagePath,
     String? backImagePath,
+    String? ocrTextFront,
+    String? ocrTextBack,
   }) async {
     if (state.isSaving) return null;
     emit(state.copyWith(isSaving: true));
@@ -76,6 +78,8 @@ class SavedCardsCubit extends Cubit<SavedCardsState> {
         info,
         frontImagePath: frontImagePath,
         backImagePath: backImagePath,
+        ocrTextFront: ocrTextFront,
+        ocrTextBack: ocrTextBack,
       );
       emit(state.copyWith(cards: [card, ...state.cards], isSaving: false));
       return card;

@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../entities/business_card_result.dart';
 import '../entities/ocr_model.dart';
+import 'vietnamese_unicode.dart';
 
 /// Chấm điểm và phân tách các trường theo Heuristic thông minh
 class HeuristicFieldScorer {
@@ -22,6 +23,70 @@ class HeuristicFieldScorer {
     'engineering', 'technology', 'technologies', 'solutions', 'consulting',
     'services', 'systems', 'ventures',
   ];
+
+  /// [lower] (đã chữ thường) có chứa từ khoá [kw] không.
+  ///
+  /// Khớp đúng nguyên văn trước. Nếu OCR làm MẤT DẤU ("giam doc kinh doanh") thì thử so không dấu,
+  /// nhưng chỉ với từ khoá tiếng Việt có dấu, NHIỀU CHỮ và có ranh giới từ — từ khoá ngắn một chữ
+  /// như "ban", "số", "phòng" bỏ dấu dễ trùng nhầm ("bán", "so") nên không áp dụng.
+  static bool _hasKeyword(String lower, String kw) {
+    if (lower.contains(kw)) return true;
+    final folded = _foldedKeywords[kw];
+    if (folded == null) return false;
+    return folded.hasMatch(VietnameseUnicode.stripDiacritics(lower));
+  }
+
+  /// Dòng nối tiếp tên công ty in trên 2 dòng, hoặc null.
+  ///
+  /// Điều kiện (tất cả): chưa được dùng, nằm NGAY dưới dòng công ty (khoảng trống < 0.8 chiều cao dòng),
+  /// cùng cột (lệch trái ít / chồng ngang), cỡ chữ gần bằng (0.7–1.3), không chứa @ / URL / quá nhiều số;
+  /// VÀ có dấu hiệu nối: bắt đầu bằng "&", "-", "và", "and", "・"; hoặc dòng công ty kết thúc lửng
+  /// ("&", "-", "và", "and", ","); hoặc cả hai dòng đều VIẾT HOA (kiểu logo pháp nhân).
+  static OcrLine? _companyContinuation(OcrLine company, List<OcrLine> lines) {
+    final c = company.boundingBox;
+    final companyText = company.normalizedText.trim();
+    final endsOpen = RegExp(r'(&|-|,|\bvà|\band)$', caseSensitive: false).hasMatch(companyText);
+    bool isUpper(String s) => s == s.toUpperCase() && s != s.toLowerCase();
+
+    OcrLine? best;
+    double bestGap = double.infinity;
+    for (final l in lines) {
+      if (l == company || l.isConsumed) continue;
+      final r = l.boundingBox;
+      final gap = r.top - c.bottom;
+      if (gap < -c.height * 0.3 || gap > c.height * 0.8) continue;
+      final ratio = r.height / max(1.0, c.height);
+      if (ratio < 0.7 || ratio > 1.3) continue;
+      final overlapX = min(r.right, c.right) - max(r.left, c.left);
+      if (overlapX <= 0 && (r.left - c.left).abs() > c.height * 2) continue;
+
+      final text = l.normalizedText.trim();
+      if (text.isEmpty || text.contains('@') || RegExp(r'www\.|https?://').hasMatch(text.toLowerCase())) continue;
+      if (RegExp(r'\d').allMatches(text).length >= 4) continue;
+
+      // Không nuốt nhầm phòng ban / địa chỉ / họ tên ("PHÒNG KINH DOANH", "NGUYỄN VĂN A")
+      final lower = text.toLowerCase();
+      if (_departmentKeywords.any((kw) => _hasKeyword(lower, kw))) continue;
+      if (_addressKeywords.any((kw) => _hasKeyword(lower, kw))) continue;
+      if (_vietnameseSurnames.any((s) => lower.startsWith('$s '))) continue;
+
+      final startsJoined = RegExp(r'^(&|-|・|và\b|and\b)', caseSensitive: false).hasMatch(text);
+      if (!(startsJoined || endsOpen || (isUpper(companyText) && isUpper(text)))) continue;
+
+      if (gap < bestGap) {
+        bestGap = gap;
+        best = l;
+      }
+    }
+    return best;
+  }
+
+  /// Từ khoá có dấu, nhiều chữ → regex không dấu có ranh giới từ (dựng một lần)
+  static final Map<String, RegExp> _foldedKeywords = {
+    for (final kw in [..._titleKeywords, ..._companyTier1Keywords, ..._departmentKeywords, ..._addressKeywords])
+      if (kw.contains(' ') && VietnameseUnicode.stripDiacritics(kw) != kw)
+        kw: RegExp('(^|[^a-z0-9])${RegExp.escape(VietnameseUnicode.stripDiacritics(kw))}(\$|[^a-z0-9])'),
+  };
 
   // Danh sách gộp tất cả từ khóa công ty để phạt trừ điểm trường Họ tên
   static List<String> get _companyKeywords => [
@@ -119,7 +184,7 @@ class HeuristicFieldScorer {
       bool matchedTitleKw = false;
 
       for (final kw in _titleKeywords) {
-        if (lower.contains(kw)) {
+        if (_hasKeyword(lower, kw)) {
           matchedTitleKw = true;
           // Điểm cao cho từ khóa chức danh thực thụ
           score += (kw.length >= 5) ? 100 : 80;
@@ -176,7 +241,7 @@ class HeuristicFieldScorer {
 
       // 1. Quét Tier 1: Pháp nhân chính thống (Điểm vượt trội >= 120)
       for (final kw in _companyTier1Keywords) {
-        if (lower.contains(kw)) {
+        if (_hasKeyword(lower, kw)) {
           isTier1 = true;
           score += 120;
           if (lower.startsWith(kw) || lower.endsWith(kw)) score += 30;
@@ -209,6 +274,12 @@ class HeuristicFieldScorer {
 
     if (bestCompanyLine != null) {
       var companyName = bestCompanyLine.normalizedText.trim();
+      // Tên công ty in trên nhiều dòng ("CÔNG TY TNHH PHÁT TRIỂN" / "& ĐẦU TƯ GIA KHÁNH") → nối dòng tiếp theo
+      final continuation = _companyContinuation(bestCompanyLine, availableLines);
+      if (continuation != null) {
+        companyName = '$companyName ${continuation.normalizedText.trim()}';
+        continuation.isConsumed = true;
+      }
       companyAlternatives.add(companyName);
 
       // Nếu có dòng brand (ví dụ VIB) ở gần, kết hợp thành "Ngân hàng Quốc Tế VIB"
@@ -239,7 +310,11 @@ class HeuristicFieldScorer {
       company = FieldValue(
         value: companyName,
         confidence: maxCompanyScore >= 120 ? 0.98 : 0.75,
-        sourceLineIds: [bestCompanyLine.id, if (brandLine != null) brandLine.id],
+        sourceLineIds: [
+          bestCompanyLine.id,
+          if (continuation != null) continuation.id,
+          if (brandLine != null) brandLine.id,
+        ],
         alternatives: companyAlternatives,
       );
       bestCompanyLine.isConsumed = true;
@@ -256,7 +331,7 @@ class HeuristicFieldScorer {
 
       double score = 0;
       for (final kw in _departmentKeywords) {
-        if (lower.contains(kw)) {
+        if (_hasKeyword(lower, kw)) {
           score += 50;
           break;
         }
@@ -295,7 +370,7 @@ class HeuristicFieldScorer {
 
       bool hasAddrKeyword = false;
       for (final kw in _addressKeywords) {
-        if (lower.contains(kw)) {
+        if (_hasKeyword(lower, kw)) {
           hasAddrKeyword = true;
           break;
         }
@@ -308,7 +383,11 @@ class HeuristicFieldScorer {
     }
 
     if (addressLines.isNotEmpty) {
-      final combinedAddress = addressLines.map((l) => l.normalizedText.trim()).join(', ');
+      // Dòng địa chỉ trên thẻ thường đã kết thúc bằng dấu phẩy → bỏ trước khi nối để không thành ",,"
+      final combinedAddress = addressLines
+          .map((l) => l.normalizedText.trim().replaceFirst(RegExp(r'[,、，\s]+$'), ''))
+          .where((t) => t.isNotEmpty)
+          .join(', ');
       address = FieldValue(
         value: combinedAddress,
         confidence: 0.92,

@@ -1,4 +1,5 @@
 import '../../../scan/domain/entities/business_card_info.dart';
+import '../../../scan/domain/entities/custom_field.dart';
 
 /// Giá trị mặc định cho [SavedCard.copyWith] để phân biệt "không đổi" với "xoá về null".
 const Object _unset = Object();
@@ -18,6 +19,14 @@ class SavedCard {
   final String? website;
   final String? address;
   final String? postalCode;
+
+  /// Thông tin ngoài 12 trường chuẩn, người dùng tự đặt tên (VD: LINE, 資格)
+  final List<CustomField> customFields;
+
+  /// Toàn bộ chữ OCR đọc được từ mặt trước / mặt sau (kể cả dòng không gán vào đâu).
+  /// Dùng để tìm kiếm và xem lại; null với thẻ nhập tay hoặc lưu trước khi có tính năng này.
+  final String? ocrTextFront;
+  final String? ocrTextBack;
 
   /// Ghi chú "gặp ở đâu" (nội dung tự do)
   final String? note;
@@ -56,6 +65,9 @@ class SavedCard {
     this.website,
     this.address,
     this.postalCode,
+    this.customFields = const [],
+    this.ocrTextFront,
+    this.ocrTextBack,
     this.note,
     this.metAt,
     this.metPlace,
@@ -73,9 +85,15 @@ class SavedCard {
     required DateTime now,
     String? frontImagePath,
     String? backImagePath,
+    String? ocrTextFront,
+    String? ocrTextBack,
   }) {
     return SavedCard(
       id: id,
+      customFields: cleanFields(info.customFields),
+      note: clean(info.note),
+      ocrTextFront: clean(ocrTextFront),
+      ocrTextBack: clean(ocrTextBack),
       name: clean(info.name),
       furigana: clean(info.furigana),
       jobTitle: clean(info.jobTitle),
@@ -143,6 +161,9 @@ class SavedCard {
     Object? website = _unset,
     Object? address = _unset,
     Object? postalCode = _unset,
+    List<CustomField>? customFields,
+    Object? ocrTextFront = _unset,
+    Object? ocrTextBack = _unset,
     Object? note = _unset,
     Object? metAt = _unset,
     Object? metPlace = _unset,
@@ -168,6 +189,9 @@ class SavedCard {
       website: pick(website, this.website),
       address: pick(address, this.address),
       postalCode: pick(postalCode, this.postalCode),
+      customFields: customFields ?? this.customFields,
+      ocrTextFront: pick(ocrTextFront, this.ocrTextFront),
+      ocrTextBack: pick(ocrTextBack, this.ocrTextBack),
       note: pick(note, this.note),
       metAt: pick(metAt, this.metAt),
       metPlace: pick(metPlace, this.metPlace),
@@ -194,6 +218,9 @@ class SavedCard {
         'website': website,
         'address': address,
         'postalCode': postalCode,
+        if (customFields.isNotEmpty) 'customFields': customFields.map((f) => f.toJson()).toList(),
+        if (ocrTextFront != null) 'ocrTextFront': ocrTextFront,
+        if (ocrTextBack != null) 'ocrTextBack': ocrTextBack,
         'note': note,
         'metAt': metAt?.toIso8601String(),
         'metPlace': metPlace,
@@ -221,6 +248,9 @@ class SavedCard {
       website: json['website'] as String?,
       address: json['address'] as String?,
       postalCode: json['postalCode'] as String?,
+      customFields: CustomField.listFromJson(json['customFields']),
+      ocrTextFront: json['ocrTextFront'] as String?,
+      ocrTextBack: json['ocrTextBack'] as String?,
       note: json['note'] as String?,
       metAt: DateTime.tryParse(json['metAt'] as String? ?? ''),
       metPlace: json['metPlace'] as String?,
@@ -237,5 +267,18 @@ class SavedCard {
   static String? clean(String? value) {
     final trimmed = value?.trim();
     return (trimmed == null || trimmed.isEmpty) ? null : trimmed;
+  }
+
+  /// Bỏ trường tuỳ chỉnh có tên / giá trị rỗng, trim cả hai.
+  static List<CustomField> cleanFields(List<CustomField> fields) => [
+        for (final f in fields)
+          if (f.label.trim().isNotEmpty && f.value.trim().isNotEmpty)
+            CustomField(label: f.label.trim(), value: f.value.trim()),
+      ];
+
+  /// Chữ OCR của cả hai mặt (mặt trước trước), null nếu không có.
+  String? get ocrText {
+    final parts = [ocrTextFront, ocrTextBack].whereType<String>().where((s) => s.trim().isNotEmpty);
+    return parts.isEmpty ? null : parts.join('\n\n');
   }
 }

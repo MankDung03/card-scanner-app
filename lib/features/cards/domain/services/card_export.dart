@@ -1,3 +1,4 @@
+import '../../../scan/domain/services/custom_field_labels.dart';
 import '../entities/saved_card.dart';
 
 /// Chuyển danh thiếp sang vCard / CSV (Dart thuần, không phụ thuộc UI hay plugin).
@@ -33,11 +34,27 @@ class CardExport {
       // ADR: hộp thư;mở rộng;đường;thành phố;vùng;mã bưu chính;quốc gia
       lines.add('ADR;TYPE=WORK:;;${_esc(card.address ?? '')};;;${_esc(zip)};');
     }
-    final note = card.note?.trim();
+    for (final f in card.customFields) {
+      final type = CustomFieldLabels.socialTypes[f.label];
+      if (type != null && !f.value.contains('\n')) {
+        lines.add('X-SOCIALPROFILE;TYPE=$type:${_esc(f.value)}');
+      }
+    }
+    final note = combinedNote(card);
     if (note != null && note.isNotEmpty) lines.add('NOTE:${_esc(note)}');
 
     lines.add('END:VCARD');
     return '${lines.map(_fold).join('\r\n')}\r\n';
+  }
+
+  /// Ghi chú khi xuất ra ngoài (vCard NOTE, ghi chú trong Danh bạ): ghi chú của người dùng
+  /// rồi tới các trường tuỳ chỉnh dạng "LINE: abc123" — app danh bạ nào cũng hiển thị được.
+  static String? combinedNote(SavedCard card) {
+    final parts = [
+      if (card.note?.trim().isNotEmpty ?? false) card.note!.trim(),
+      for (final f in card.customFields) f.format(),
+    ];
+    return parts.isEmpty ? null : parts.join('\n');
   }
 
   /// Tên file .vcf an toàn cho hệ thống file, vd. "山田太郎.vcf".
@@ -103,6 +120,7 @@ class CardExport {
           date(c.metAt),
           c.metPlace ?? '',
           c.note ?? '',
+          c.customFields.map((f) => f.format(lineSeparator: ' / ')).join('; '),
           c.tags.join(' / '),
           date(c.createdAt),
         ],
@@ -111,8 +129,8 @@ class CardExport {
   }
 
   /// Số cột của [toCsv]: Họ tên, Furigana, Công ty, Phòng ban, Chức vụ, Điện thoại, Di động,
-  /// FAX, Email, Website, Mã bưu chính, Địa chỉ, Ngày gặp, Nơi gặp, Ghi chú, Tag, Ngày thêm.
-  static const int csvColumnCount = 17;
+  /// FAX, Email, Website, Mã bưu chính, Địa chỉ, Ngày gặp, Nơi gặp, Ghi chú, Khác (trường tuỳ chỉnh), Tag, Ngày thêm.
+  static const int csvColumnCount = 18;
 
   /// "meishi_20261112.csv"
   static String csvFileName(DateTime now) =>

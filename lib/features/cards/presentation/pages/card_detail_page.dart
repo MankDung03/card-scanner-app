@@ -381,6 +381,12 @@ class _CardDetailPageState extends State<CardDetailPage> {
         _buildInfoList(card),
         AppSpacing.gapH12,
 
+        // 4b. Trường khác (tuỳ chỉnh)
+        if (card.customFields.isNotEmpty) ...[
+          _buildCustomFields(card),
+          AppSpacing.gapH12,
+        ],
+
         // 5. Thông tin trao đổi · ghi chú · tag
         _Section(
           child: Column(
@@ -457,7 +463,14 @@ class _CardDetailPageState extends State<CardDetailPage> {
             ],
           ),
         ),
-        AppSpacing.gapH16,
+        AppSpacing.gapH12,
+
+        // 5b. Chữ OCR gốc (kể cả dòng không gán vào trường nào)
+        if (card.ocrText != null) ...[
+          _buildOcrText(card),
+          AppSpacing.gapH12,
+        ],
+        AppSpacing.gapH4,
 
         // 6. Footer
         Text(
@@ -467,6 +480,95 @@ class _CardDetailPageState extends State<CardDetailPage> {
           style: TextStyle(color: muted, fontSize: 12),
         ),
       ],
+    );
+  }
+
+  Widget _buildCustomFields(SavedCard card) {
+    final l10n = _l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final divider = Divider(height: 1, thickness: 1, color: isDark ? AppColors.darkDivider : AppColors.divider);
+    final fields = card.customFields;
+    return _Section(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.s16, AppSpacing.xxl, AppSpacing.xs, AppSpacing.xs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SectionTitle(
+            title: l10n?.otherFieldsSection ?? 'Trường khác',
+            actionLabel: l10n?.edit ?? 'Sửa',
+            onAction: () => _onEdit(card),
+          ),
+          AppSpacing.gapH4,
+          for (var i = 0; i < fields.length; i++) ...[
+            if (i > 0) Padding(padding: const EdgeInsets.only(right: AppSpacing.xl), child: divider),
+            _InfoRow(label: fields[i].label, value: fields[i].value, onCopy: () => _copy(fields[i].value)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOcrText(SavedCard card) {
+    final l10n = _l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final text = card.ocrText!;
+    return _Section(
+      padding: EdgeInsets.zero,
+      child: Theme(
+        // Bỏ đường kẻ mặc định của ExpansionTile
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          key: const ValueKey('ocr-text'),
+          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16),
+          childrenPadding: const EdgeInsets.fromLTRB(AppSpacing.s16, 0, AppSpacing.s16, AppSpacing.s16),
+          title: Text(
+            l10n?.ocrTextSection ?? 'Văn bản gốc (OCR)',
+            style: TextStyle(
+              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          children: [
+            for (final (label, value) in [
+              if (card.ocrTextFront != null) (l10n?.frontSide ?? 'Mặt trước', card.ocrTextFront!),
+              if (card.ocrTextBack != null) (l10n?.backSide ?? 'Mặt sau', card.ocrTextBack!),
+            ]) ...[
+              if (card.ocrTextFront != null && card.ocrTextBack != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Text(label, style: TextStyle(color: muted, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                ),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted,
+                  borderRadius: AppRadius.r8,
+                ),
+                child: SelectableText(
+                  value,
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                onPressed: () => _copy(text),
+                icon: const Icon(Icons.copy_rounded, size: 16),
+                label: Text(l10n?.copyRawText ?? 'Sao chép toàn bộ text'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

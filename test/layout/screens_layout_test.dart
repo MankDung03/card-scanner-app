@@ -12,6 +12,11 @@ import 'package:app_scanner_card/features/cards/presentation/cubit/saved_cards_c
 import 'package:app_scanner_card/features/cards/presentation/widgets/card_share_sheet.dart';
 import 'package:app_scanner_card/features/cards/presentation/widgets/csv_export_dialog.dart';
 import 'package:app_scanner_card/features/scan/domain/entities/business_card_info.dart';
+import 'package:app_scanner_card/features/scan/domain/entities/custom_field.dart';
+import 'package:app_scanner_card/features/scan/domain/entities/ocr_model.dart';
+import 'package:app_scanner_card/features/scan/presentation/widgets/assign_lines_bottom_sheet.dart';
+import 'package:app_scanner_card/features/scan/presentation/widgets/custom_field_editor_sheet.dart';
+import 'package:app_scanner_card/features/scan/presentation/widgets/unassigned_lines_dialog.dart';
 import 'package:app_scanner_card/features/scan/presentation/cubit/scan_cubit.dart';
 import 'package:app_scanner_card/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +36,17 @@ import '../helpers/memory_card_repository.dart';
 void main() {
   // Dữ liệu "khó": tên / công ty / email dài, có ghi chú, tag, cặp nghi trùng
   final t = DateTime(2026, 11, 1);
+  // Dòng OCR chưa gán: dài, nhiều mặt, có cả dòng rác
+  OcrLine line(String id, String text, double top) =>
+      OcrLine(id: id, text: text, normalizedText: text, boundingBox: Rect.fromLTWH(10, top, 300, 24));
+  final unmapped = [
+    line('f_1', 'Innovation for a connected world — trusted partner since 1987', 10),
+    line('f_2', '一級建築士', 40),
+    line('f_3', '宅地建物取引士 第123456号 東京都知事登録', 70),
+    line('f_4', '・', 100),
+    line('b_1', 'LINE ID: kentaro.hasegawa.global-technology-solutions', 10),
+  ];
+
   final cards = [
     SavedCard(
       id: 'long',
@@ -50,6 +66,13 @@ void main() {
       metPlace: 'Japan IT Week 東京ビッグサイト',
       metAt: t,
       tags: ['顧客', '展示会', 'Khách hàng tiềm năng'],
+      customFields: const [
+        CustomField(label: 'LINE', value: 'kentaro.hasegawa.global-technology-solutions'),
+        CustomField(label: '資格', value: '一級建築士\n宅地建物取引士\nプロジェクトマネージャ試験 合格'),
+        CustomField(label: 'Mã số thuế doanh nghiệp đăng ký tại Việt Nam', value: '0101234567-001'),
+      ],
+      ocrTextFront: '長谷川 健太郎\n株式会社グローバル・テクノロジー・ソリューションズ・ジャパン\nInnovation for a connected world',
+      ocrTextBack: 'Kentaro Hasegawa\nGlobal Technology Solutions Japan Inc.',
       createdAt: t,
       updatedAt: t,
     ),
@@ -86,7 +109,7 @@ void main() {
     final saved = SavedCardsCubit(repository: MemoryCardRepository(cards));
     await saved.load();
     final scan = ScanCubit()
-      ..updateCardInfo(const BusinessCardInfo(
+      ..updateCardInfo(BusinessCardInfo(
         name: '長谷川 健太郎',
         furigana: 'はせがわ けんたろう',
         company: '株式会社グローバル・テクノロジー・ソリューションズ・ジャパン',
@@ -94,7 +117,13 @@ void main() {
         jobTitle: 'シニアアカウントエグゼクティブ',
         email: 'kentaro.hasegawa.enterprise-sales@global-technology-solutions.example.co.jp',
         address: '東京都千代田区千代田1-1-1 グローバルタワー 25階',
-        reviewFlags: {'furigana': true, 'address': true},
+        reviewFlags: const {'furigana': true, 'address': true},
+        note: 'IT展示会で名刺交換。来月のデモ日程を調整。資料を送付済み。',
+        customFields: const [
+          CustomField(label: '資格', value: '一級建築士\n宅地建物取引士'),
+          CustomField(label: 'Mã số thuế doanh nghiệp đăng ký tại Việt Nam', value: '0101234567-001'),
+        ],
+        unmappedLines: unmapped,
       ));
     addTearDown(saved.close);
     addTearDown(scan.close);
@@ -159,5 +188,67 @@ void main() {
 
   testWidgets('không tràn layout: hộp xác nhận xuất CSV', (tester) async {
     await expectNoLayoutOverflow(tester, build: (c) => host(c, Center(child: CsvExportDialog(cards: cards))));
+  });
+
+  // ───────── Trường tuỳ chỉnh / dòng chưa gán ─────────
+  final labels = ['Mã số thuế doanh nghiệp đăng ký tại Việt Nam', 'LINE', 'X', 'Instagram', 'LinkedIn', '内線', '資格'];
+  final info = BusinessCardInfo(
+    name: '長谷川 健太郎',
+    note: 'IT展示会で名刺交換。来月のデモ日程を調整。',
+    customFields: const [CustomField(label: '資格', value: '一級建築士')],
+    unmappedLines: unmapped,
+  );
+  final lineTexts = unmapped.take(3).map((l) => l.text).toList();
+
+  testWidgets('không tràn layout: sheet gán dòng (chưa chọn đích)', (tester) async {
+    await expectNoLayoutOverflow(
+      tester,
+      build: (c) => host(c, AssignLinesBottomSheet(lines: lineTexts, cardInfo: info, labelSuggestions: labels)),
+    );
+  });
+
+  testWidgets('không tràn layout: sheet gán dòng → Tạo trường mới', (tester) async {
+    await expectNoLayoutOverflow(
+      tester,
+      build: (c) => host(
+        c,
+        AssignLinesBottomSheet(
+          lines: lineTexts,
+          cardInfo: info,
+          labelSuggestions: labels,
+          initialTarget: AssignTarget.custom,
+        ),
+      ),
+    );
+  });
+
+  testWidgets('không tràn layout: sheet gán dòng → Ghi chú (đã có giá trị → Thay thế / Nối thêm)', (tester) async {
+    await expectNoLayoutOverflow(
+      tester,
+      build: (c) => host(
+        c,
+        AssignLinesBottomSheet(lines: lineTexts, cardInfo: info, initialTarget: AssignTarget.note),
+      ),
+    );
+  });
+
+  testWidgets('không tràn layout: sheet sửa trường tuỳ chỉnh', (tester) async {
+    await expectNoLayoutOverflow(
+      tester,
+      build: (c) => host(
+        c,
+        CustomFieldEditorSheet(
+          initial: const CustomField(label: '資格', value: '一級建築士\n宅地建物取引士\nプロジェクトマネージャ試験 合格'),
+          suggestions: labels,
+        ),
+      ),
+    );
+  });
+
+  testWidgets('không tràn layout: hộp hỏi dòng chưa gán khi lưu', (tester) async {
+    await expectNoLayoutOverflow(
+      tester,
+      build: (c) => host(c, Center(child: UnassignedLinesDialog(lines: unmapped))),
+    );
   });
 }

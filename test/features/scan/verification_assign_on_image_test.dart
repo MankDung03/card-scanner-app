@@ -84,7 +84,7 @@ void main() {
     Future<void> scrollSheetTo(String label) => tester.scrollUntilVisible(
           find.widgetWithText(RadioListTile<String>, label),
           80,
-          scrollable: find.descendant(of: find.byType(BottomSheet), matching: find.byType(Scrollable)).last,
+          scrollable: find.descendant(of: find.byType(BottomSheet), matching: find.byType(Scrollable)).first,
         );
 
     await tester.tap(find.text('Trên ảnh'));

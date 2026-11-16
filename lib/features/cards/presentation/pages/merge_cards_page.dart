@@ -12,6 +12,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/widgets/navy_header_bar.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../scan/domain/services/custom_field_labels.dart';
 import '../../domain/entities/saved_card.dart';
 import '../cubit/saved_cards_cubit.dart';
 
@@ -111,6 +112,11 @@ class _MergeCardsPageState extends State<MergeCardsPage> {
       frontImagePath: v('frontImagePath'),
       backImagePath: v('backImagePath'),
       tags: {...original.tags, ...flagged.tags}.toList(),
+      // Trường tuỳ chỉnh: lấy hợp của cả hai, bỏ mục trùng cả tên lẫn giá trị
+      customFields: CustomFieldLabels.union(original.customFields, flagged.customFields),
+      // Chữ OCR gốc đi theo ảnh của mặt được chọn
+      ocrTextFront: (_useNew['frontImagePath'] ?? false) ? flagged.ocrTextFront : original.ocrTextFront,
+      ocrTextBack: (_useNew['backImagePath'] ?? false) ? flagged.ocrTextBack : original.ocrTextBack,
     );
   }
 

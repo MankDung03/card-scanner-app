@@ -81,7 +81,16 @@ class CardDuplicateMatcher {
     return null;
   }
 
-  /// Mọi trường nội dung giống nhau sau khi chuẩn hoá (không so ảnh, ngày tạo, id).
+  /// Cùng tập trường tuỳ chỉnh (không tính thứ tự, so tên + giá trị sau chuẩn hoá).
+  static bool _sameCustomFields(SavedCard a, SavedCard b) {
+    Set<String> keys(SavedCard c) => {
+          for (final f in c.customFields) '${text(f.label)?.toLowerCase()}\u0000${text(f.value)}',
+        };
+    final ka = keys(a), kb = keys(b);
+    return ka.length == kb.length && ka.containsAll(kb);
+  }
+
+  /// Mọi trường nội dung giống nhau sau khi chuẩn hoá (không so ảnh, ngày tạo, id, chữ OCR gốc).
   static bool isIdentical(SavedCard a, SavedCard b) {
     String? t(String? v) => text(v);
     final sameTags = {...a.tags.map(text)}.difference({...b.tags.map(text)}).isEmpty &&
@@ -108,6 +117,7 @@ class CardDuplicateMatcher {
         t(a.note) == t(b.note) &&
         t(a.metPlace) == t(b.metPlace) &&
         sameMetAt &&
+        _sameCustomFields(a, b) &&
         sameTags;
   }
 

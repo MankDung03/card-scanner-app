@@ -47,6 +47,7 @@ class _CsvExportDialogState extends State<CsvExportDialog> {
       l10n?.metDateLabel ?? 'Ngày gặp',
       l10n?.metPlaceLabel ?? 'Nơi gặp',
       l10n?.noteLabel ?? 'Ghi chú',
+      l10n?.csvOtherColumn ?? 'Khác',
       l10n?.addTag ?? 'Tag',
       l10n?.csvCreatedAt ?? 'Ngày thêm',
     ];

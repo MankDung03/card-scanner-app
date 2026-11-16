@@ -1,7 +1,11 @@
+import 'vietnamese_unicode.dart';
+
 /// Lớp chuẩn hóa văn bản OCR trước khi đưa vào các bộ lọc Regex và Heuristic
 class TextNormalizer {
   /// Chuẩn hóa toàn bộ một dòng văn bản OCR
-  static String normalize(String input) {
+  static String normalize(String rawInput) {
+    // Ghép dấu tổ hợp (NFD) về ký tự dựng sẵn trước mọi xử lý: "o" + mũ + sắc → "ố"
+    final input = VietnameseUnicode.compose(rawInput);
     if (input.isEmpty) return '';
 
     final buffer = StringBuffer();

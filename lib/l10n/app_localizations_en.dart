@@ -917,4 +917,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyValue => '(empty)';
+
+  @override
+  String get csvOtherColumn => 'Other';
+
+  @override
+  String get otherFieldsSection => 'Other fields';
+
+  @override
+  String get addCustomField => 'Add field';
+
+  @override
+  String get newCustomFieldOption => 'Create new field';
+
+  @override
+  String get noteTargetOption => 'Add to note';
+
+  @override
+  String get standardFieldsGroup => 'Standard fields';
+
+  @override
+  String get customFieldLabel => 'Field name';
+
+  @override
+  String get customFieldValue => 'Value';
+
+  @override
+  String get customFieldLabelHint => 'e.g. LINE, 資格';
+
+  @override
+  String get editCustomField => 'Edit field';
+
+  @override
+  String get deleteCustomField => 'Delete field';
+
+  @override
+  String get labelSuggestions => 'Suggestions';
+
+  @override
+  String unassignedDialogTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines not assigned',
+      one: '1 line not assigned',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unassignedDialogBody =>
+      'Skipped lines are not lost: they stay in the original text and remain searchable. Tick the lines you want to assign, then tap Go back & assign.';
+
+  @override
+  String get skipUnassigned => 'Skip';
+
+  @override
+  String get backToAssign => 'Go back & assign';
+
+  @override
+  String get ocrTextSection => 'Original text (OCR)';
 }

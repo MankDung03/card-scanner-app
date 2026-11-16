@@ -1785,6 +1785,108 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'(trống)'**
   String get emptyValue;
+
+  /// No description provided for @csvOtherColumn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khác'**
+  String get csvOtherColumn;
+
+  /// No description provided for @otherFieldsSection.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trường khác'**
+  String get otherFieldsSection;
+
+  /// No description provided for @addCustomField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm trường'**
+  String get addCustomField;
+
+  /// No description provided for @newCustomFieldOption.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tạo trường mới'**
+  String get newCustomFieldOption;
+
+  /// No description provided for @noteTargetOption.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm vào Ghi chú'**
+  String get noteTargetOption;
+
+  /// No description provided for @standardFieldsGroup.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trường chuẩn'**
+  String get standardFieldsGroup;
+
+  /// No description provided for @customFieldLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên trường'**
+  String get customFieldLabel;
+
+  /// No description provided for @customFieldValue.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nội dung'**
+  String get customFieldValue;
+
+  /// No description provided for @customFieldLabelHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'VD: LINE, 資格'**
+  String get customFieldLabelHint;
+
+  /// No description provided for @editCustomField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa trường'**
+  String get editCustomField;
+
+  /// No description provided for @deleteCustomField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xoá trường'**
+  String get deleteCustomField;
+
+  /// No description provided for @labelSuggestions.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gợi ý'**
+  String get labelSuggestions;
+
+  /// No description provided for @unassignedDialogTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Còn {count} dòng chưa gán'**
+  String unassignedDialogTitle(int count);
+
+  /// No description provided for @unassignedDialogBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dòng bỏ qua không mất: vẫn được lưu trong văn bản gốc và tìm kiếm được. Tick các dòng muốn gán rồi chọn Quay lại gán.'**
+  String get unassignedDialogBody;
+
+  /// No description provided for @skipUnassigned.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ qua'**
+  String get skipUnassigned;
+
+  /// No description provided for @backToAssign.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quay lại gán'**
+  String get backToAssign;
+
+  /// No description provided for @ocrTextSection.
+  ///
+  /// In vi, this message translates to:
+  /// **'Văn bản gốc (OCR)'**
+  String get ocrTextSection;
 }
 
 class _AppLocalizationsDelegate

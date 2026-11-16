@@ -6,6 +6,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../scan/domain/entities/custom_field.dart';
+import '../../../scan/domain/services/custom_field_labels.dart';
+import '../../../scan/presentation/widgets/custom_field_editor_sheet.dart';
 import '../../domain/entities/saved_card.dart';
 import '../cubit/saved_cards_cubit.dart';
 
@@ -37,6 +40,7 @@ class _CardEditPageState extends State<CardEditPage> {
 
   late final SavedCard? _card;
   late final Map<String, TextEditingController> _controllers;
+  late List<CustomField> _customFields;
   bool _saving = false;
 
   @override
@@ -46,6 +50,32 @@ class _CardEditPageState extends State<CardEditPage> {
     _controllers = {
       for (final k in _keys) k: TextEditingController(text: _valueOf(_card, k) ?? ''),
     };
+    _customFields = [...?_card?.customFields];
+  }
+
+  /// Thêm ([index] == null) hoặc sửa / xoá trường tuỳ chỉnh (chỉ ghi khi bấm Lưu).
+  Future<void> _editCustomField({int? index}) async {
+    final sources = [
+      _customFields,
+      for (final c in context.read<SavedCardsCubit>().state.cards)
+        if (c.id != widget.cardId) c.customFields,
+    ];
+    final result = await CustomFieldEditorSheet.show(
+      context,
+      initial: index == null ? null : _customFields[index],
+      suggestions: CustomFieldLabels.suggestions(sources),
+      existingLabels: [for (final s in sources) ...s.map((f) => f.label)],
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      if (index == null) {
+        if (result.field != null) _customFields.add(result.field!);
+      } else if (result.deleted) {
+        _customFields.removeAt(index);
+      } else if (result.field != null) {
+        _customFields[index] = result.field!;
+      }
+    });
   }
 
   static String? _valueOf(SavedCard? c, String key) => switch (key) {
@@ -94,6 +124,7 @@ class _CardEditPageState extends State<CardEditPage> {
           website: _v('website'),
           postalCode: _v('postalCode'),
           address: _v('address'),
+          customFields: SavedCard.cleanFields(_customFields),
         ));
     if (!mounted) return;
     setState(() => _saving = false);
@@ -214,6 +245,49 @@ class _CardEditPageState extends State<CardEditPage> {
                   ),
                   AppSpacing.gapH12,
                 ],
+
+                // Trường khác (tuỳ chỉnh): chạm để sửa / xoá
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.sm),
+                  child: Text(
+                    l10n?.otherFieldsSection ?? 'Trường khác',
+                    style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                for (var i = 0; i < _customFields.length; i++) ...[
+                  Material(
+                    key: ValueKey('edit-custom-$i'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppRadius.r12,
+                      side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.label_outline_rounded, size: 19),
+                      title: Text(
+                        _customFields[i].label,
+                        style: TextStyle(color: isDark ? AppColors.darkTextMuted : AppColors.textMuted, fontSize: 12),
+                      ),
+                      subtitle: Text(
+                        _customFields[i].value,
+                        style: TextStyle(color: textPrimary, fontSize: 14.5),
+                      ),
+                      trailing: const Icon(Icons.edit_outlined, size: 18),
+                      onTap: () => _editCustomField(index: i),
+                    ),
+                  ),
+                  AppSpacing.gapH8,
+                ],
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: const ValueKey('edit-add-custom-field'),
+                    onPressed: () => _editCustomField(),
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: Text(l10n?.addCustomField ?? 'Thêm trường'),
+                  ),
+                ),
                 AppSpacing.gapH12,
                 OutlinedButton.icon(
                   onPressed: _delete,

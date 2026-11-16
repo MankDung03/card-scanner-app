@@ -150,6 +150,9 @@ class CardListQuery {
         c.postalCode,
         c.note,
         c.metPlace,
+        for (final f in c.customFields) ...[f.label, f.value],
+        c.ocrTextFront,
+        c.ocrTextBack,
         ...c.tags,
       ].whereType<String>().join('\n'));
 

@@ -8,6 +8,7 @@ import '../../domain/entities/ocr_language_mode.dart';
 import '../../domain/repositories/ocr_repository.dart';
 import '../../domain/services/ocr_line_reconstructor.dart';
 import '../../domain/services/text_normalizer.dart';
+import '../../domain/services/vietnamese_unicode.dart';
 
 class MlKitOcrRepository implements OcrRepository {
   final Map<TextRecognitionScript, TextRecognizer> _recognizers = {};
@@ -89,7 +90,7 @@ class MlKitOcrRepository implements OcrRepository {
     // Thuật toán "bắt mạch" ngôn ngữ:
     // Kiểm tra số lượng chữ Hán Kanji thực sự và dấu tiếng Việt
     final bool isVietnamese = TextNormalizer.isVietnameseCard(
-      latinResult.text,
+      VietnameseUnicode.compose(latinResult.text),
       japaneseResult.text,
     );
 
@@ -233,7 +234,7 @@ class MlKitOcrRepository implements OcrRepository {
 
       domainBlocks.add(
         CardTextBlock(
-          text: block.text,
+          text: VietnameseUnicode.compose(block.text),
           boundingBox: block.boundingBox,
           cornerPoints: block.cornerPoints,
           lines: domainLines,
@@ -243,7 +244,7 @@ class MlKitOcrRepository implements OcrRepository {
     }
 
     final result = CardOcrResult(
-      fullText: text.text,
+      fullText: VietnameseUnicode.compose(text.text),
       imageWidth: imgW,
       imageHeight: imgH,
       blocks: domainBlocks,
@@ -256,14 +257,14 @@ class MlKitOcrRepository implements OcrRepository {
   CardTextLine _mapLine(TextLine line) {
     final domainElements = line.elements.map((e) {
       return CardTextElement(
-        text: e.text,
+        text: VietnameseUnicode.compose(e.text),
         boundingBox: e.boundingBox,
         cornerPoints: e.cornerPoints,
       );
     }).toList();
 
     return CardTextLine(
-      text: line.text,
+      text: VietnameseUnicode.compose(line.text),
       boundingBox: line.boundingBox,
       cornerPoints: line.cornerPoints,
       elements: domainElements,

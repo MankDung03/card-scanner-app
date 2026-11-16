@@ -40,7 +40,7 @@ class CardShareService {
   static Future<void> openContactCreator(SavedCard card) async {
     final (family, given) = _split(card.name);
     final (phoneticFamily, phoneticGiven) = _split(card.furigana);
-    final note = card.note?.trim();
+    final note = CardExport.combinedNote(card);
 
     await fc.FlutterContacts.native.showCreator(
       contact: fc.Contact(

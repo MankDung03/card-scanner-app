@@ -80,6 +80,8 @@ class CardInfoMerger {
       postalCode: values['postalCode'],
       reviewFlags: flags,
       alternatives: alternatives,
+      customFields: [...front.customFields, ...back.customFields],
+      note: front.note ?? back.note,
       unmappedLines: [
         ...front.unmappedLines.map((l) => l.copyWith(id: 'f_${l.id}')),
         ...back.unmappedLines.map((l) => l.copyWith(id: 'b_${l.id}')),

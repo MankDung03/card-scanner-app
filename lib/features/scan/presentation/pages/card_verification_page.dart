@@ -12,11 +12,15 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../cards/presentation/cubit/saved_cards_cubit.dart';
 import '../../domain/entities/business_card_info.dart';
 import '../../domain/entities/card_ocr_result.dart';
-import '../../domain/entities/ocr_model.dart';
 import '../../domain/services/ocr_line_field_matcher.dart';
 import '../cubit/scan_cubit.dart';
 import '../cubit/scan_state.dart';
+import '../../domain/entities/custom_field.dart';
+import '../../domain/services/custom_field_labels.dart';
+import '../../domain/services/ocr_line_order.dart';
 import '../widgets/assign_lines_bottom_sheet.dart';
+import '../widgets/custom_field_editor_sheet.dart';
+import '../widgets/unassigned_lines_dialog.dart';
 import '../widgets/field_edit_bottom_sheet.dart';
 import '../widgets/ocr_text_overlay.dart';
 import '../widgets/verification_field_tile.dart';
@@ -29,8 +33,7 @@ class CardVerificationPage extends StatefulWidget {
   State<CardVerificationPage> createState() => _CardVerificationPageState();
 }
 
-class _CardVerificationPageState extends State<CardVerificationPage>
-    with SingleTickerProviderStateMixin {
+class _CardVerificationPageState extends State<CardVerificationPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   /// Mặt đang xem trong tab "Văn bản gốc"
@@ -38,6 +41,9 @@ class _CardVerificationPageState extends State<CardVerificationPage>
 
   /// Các dòng OCR đang chọn trên ảnh (chỉ số trong `allLines` của mặt đang xem)
   final Set<int> _selectedLines = {};
+
+  /// Id các dòng chưa gán đang tick ở tab "Theo mục"
+  final Set<String> _selectedUnmapped = {};
 
   @override
   void initState() {
@@ -69,84 +75,109 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     );
   }
 
-  void _onAssignUnmappedLine(BuildContext context, OcrLine line) {
-    final l10n = AppLocalizations.of(context);
-    final fields = [
-      {'key': 'name', 'label': l10n?.fullName ?? 'Họ tên'},
-      {'key': 'jobTitle', 'label': l10n?.jobTitle ?? 'Chức vụ'},
-      {'key': 'company', 'label': l10n?.company ?? 'Công ty'},
-      {'key': 'department', 'label': l10n?.department ?? 'Phòng ban'},
-      {'key': 'phone', 'label': l10n?.phone ?? 'Điện thoại'},
-      {'key': 'mobile', 'label': l10n?.mobile ?? 'Di động'},
-      {'key': 'fax', 'label': l10n?.fax ?? 'FAX'},
-      {'key': 'email', 'label': l10n?.email ?? 'Email'},
-      {'key': 'website', 'label': l10n?.website ?? 'Website'},
-      {'key': 'address', 'label': l10n?.address ?? 'Địa chỉ'},
-    ];
+  // ───────────── Trường tuỳ chỉnh / ghi chú / dòng chưa gán ─────────────
 
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n?.assignLineTitle ?? 'Gán văn bản vào mục:',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '"${line.text}"',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0284C7),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Expanded(
-              child: ListView.builder(
-                itemCount: fields.length,
-                itemBuilder: (ctx, idx) {
-                  final item = fields[idx];
-                  return ListTile(
-                    dense: true,
-                    title: Text(item['label']!,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    trailing:
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 14),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      context.read<ScanCubit>().assignUnmappedLine(line, item['key']!);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+  /// Tên trường tuỳ chỉnh đã dùng (thẻ đang xác nhận + mọi thẻ đã lưu)
+  List<List<CustomField>> _labelSources(BusinessCardInfo info) => [
+        info.customFields,
+        for (final c in context.read<SavedCardsCubit>().state.cards) c.customFields,
+      ];
+
+  List<String> _existingLabels(BusinessCardInfo info) =>
+      [for (final fields in _labelSources(info)) ...fields.map((f) => f.label)];
+
+  List<String> _labelSuggestions(BusinessCardInfo info) => CustomFieldLabels.suggestions(_labelSources(info));
+
+  /// Mở sheet gán cho các dòng chưa gán có id thuộc [ids] (theo thứ tự đọc).
+  Future<void> _assignUnmapped(BuildContext context, Set<String> ids) async {
+    final cubit = context.read<ScanCubit>();
+    final previous = cubit.state.currentCardInfo;
+    if (previous == null || ids.isEmpty) return;
+    final lines = OcrLineOrder.sortUnmapped(previous.unmappedLines.where((l) => ids.contains(l.id)));
+    if (lines.isEmpty) return;
+
+    final result = await AssignLinesBottomSheet.show(
+      context,
+      lines: lines.map((l) => l.text).toList(),
+      cardInfo: previous,
+      labelSuggestions: _labelSuggestions(previous),
+      existingLabels: _existingLabels(previous),
     );
+    if (result == null || !mounted || !context.mounted) return;
+
+    cubit.updateCardInfo(applyAssignResult(previous, result, consumedIds: lines.map((l) => l.id)));
+    setState(() => _selectedUnmapped.removeAll(lines.map((l) => l.id)));
+    _showAssignedSnack(context, result, previous);
+  }
+
+  void _showAssignedSnack(BuildContext context, AssignLinesResult result, BusinessCardInfo previous) {
+    final l10n = AppLocalizations.of(context);
+    final cubit = context.read<ScanCubit>();
+    final target = result.fieldKey == AssignTarget.custom ? (result.label ?? '') : fieldLabel(l10n, result.fieldKey);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(l10n?.assignedToField(target) ?? 'Đã gán vào $target'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: l10n?.undo ?? 'Hoàn tác',
+          onPressed: () => cubit.updateCardInfo(previous),
+        ),
+      ));
+  }
+
+  /// Thêm ([index] == null) hoặc sửa / xoá trường tuỳ chỉnh.
+  Future<void> _editCustomField(BuildContext context, BusinessCardInfo info, {int? index}) async {
+    final cubit = context.read<ScanCubit>();
+    final result = await CustomFieldEditorSheet.show(
+      context,
+      initial: index == null ? null : info.customFields[index],
+      suggestions: _labelSuggestions(info),
+      existingLabels: _existingLabels(info),
+    );
+    if (result == null || !mounted) return;
+    final current = cubit.state.currentCardInfo ?? info;
+    if (index == null) {
+      if (result.field != null) {
+        cubit.updateCardInfo(current.addCustomField(result.field!.label, result.field!.value));
+      }
+    } else {
+      cubit.updateCardInfo(current.setCustomField(index, result.deleted ? null : result.field));
+    }
+  }
+
+  void _editNote(BuildContext context, BusinessCardInfo info) {
+    final l10n = AppLocalizations.of(context);
+    final cubit = context.read<ScanCubit>();
+    FieldEditBottomSheet.show(
+      context,
+      label: l10n?.noteLabel ?? 'Ghi chú',
+      initialValue: info.note,
+      multiline: true,
+      onSaved: (v) => cubit.updateCardInfo((cubit.state.currentCardInfo ?? info).copyWith(note: v.trim())),
+    );
+  }
+
+  /// Bấm Lưu: còn dòng chưa gán (sau khi lọc rác) → hỏi gọn; hết → lưu luôn.
+  Future<void> _onSavePressed(BuildContext context) async {
+    final info = context.read<ScanCubit>().state.currentCardInfo;
+    if (info == null) return;
+    final pending = OcrLineOrder.sortUnmapped(info.unmappedLines).where((l) => !OcrLineOrder.isJunk(l.text)).toList();
+    if (pending.isEmpty) return _onSaveCard(context);
+
+    final decision = await UnassignedLinesDialog.show(context, pending);
+    if (decision == null || !mounted || !context.mounted) return;
+    if (decision.skip) return _onSaveCard(context);
+
+    // Quay lại gán: các dòng đã tick được chọn sẵn và mở luôn sheet gán
+    setState(() {
+      _selectedUnmapped
+        ..clear()
+        ..addAll(decision.ids);
+    });
+    _tabController.animateTo(0);
+    await _assignUnmapped(context, decision.ids);
   }
 
   Future<void> _onSaveCard(BuildContext context) async {
@@ -155,11 +186,14 @@ class _CardVerificationPageState extends State<CardVerificationPage>
     final cardInfo = scanState.currentCardInfo;
     if (cardInfo == null) return;
 
-    // Mỗi mặt: ưu tiên ảnh đã crop theo 4 góc (dùng cho OCR), không có thì dùng ảnh gốc
+    // Mỗi mặt: ưu tiên ảnh đã crop theo 4 góc (dùng cho OCR), không có thì dùng ảnh gốc.
+    // Chữ OCR gốc của từng mặt được lưu kèm (kể cả các dòng không gán vào đâu) để tìm kiếm.
     final saved = await context.read<SavedCardsCubit>().saveFromScan(
           cardInfo,
           frontImagePath: scanState.processedImagePathFor(CardSide.front) ?? scanState.frontImagePath,
           backImagePath: scanState.processedImagePathFor(CardSide.back) ?? scanState.backImagePath,
+          ocrTextFront: scanState.ocrResultFor(CardSide.front)?.fullText,
+          ocrTextBack: scanState.ocrResultFor(CardSide.back)?.fullText,
         );
     if (!context.mounted) return;
 
@@ -241,37 +275,39 @@ class _CardVerificationPageState extends State<CardVerificationPage>
                 },
               ),
             ),
-
-            // 4. Nút lưu cố định ở đáy
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.surface,
-                border: Border(top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider)),
-              ),
-              child: SafeArea(
-                top: false,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: FilledButton.icon(
-                    onPressed: context.select((SavedCardsCubit c) => c.state.isSaving) ||
-                            context.select((ScanCubit c) => c.state.currentCardInfo == null)
-                        ? null
-                        : () => _onSaveCard(context),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: isDark ? AppColors.darkNavy : AppColors.navy,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
-                      textStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                    ),
-                    icon: const Icon(Icons.check_rounded, size: 20),
-                    label: Text(l10n?.saveCard ?? 'Lưu danh thiếp'),
+          ],
+        ),
+        // 4. Nút lưu cố định ở đáy — đặt ở bottomNavigationBar để snackbar (Đã gán… / Hoàn tác)
+        //    hiện PHÍA TRÊN thanh này thay vì che nút Lưu.
+        bottomNavigationBar: Builder(
+          builder: (context) => Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.surface,
+              border: Border(top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.divider)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: context.select((SavedCardsCubit c) => c.state.isSaving) ||
+                          context.select((ScanCubit c) => c.state.currentCardInfo == null)
+                      ? null
+                      : () => _onSavePressed(context),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: isDark ? AppColors.darkNavy : AppColors.navy,
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+                    textStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                   ),
+                  icon: const Icon(Icons.check_rounded, size: 20),
+                  label: Text(l10n?.saveCard ?? 'Lưu danh thiếp'),
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -371,55 +407,157 @@ class _CardVerificationPageState extends State<CardVerificationPage>
             ],
           ),
 
-          // Các dòng OCR chưa gán vào mục nào
+          // その他: trường tuỳ chỉnh (từ dòng chưa gán hoặc nhập tay)
+          AppSpacing.gapH12,
+          VerificationSection(
+            title: l10n?.otherFieldsSection ?? 'Trường khác',
+            children: [
+              for (var i = 0; i < cardInfo.customFields.length; i++)
+                VerificationFieldTile(
+                  key: ValueKey('custom-field-$i'),
+                  label: cardInfo.customFields[i].label,
+                  value: cardInfo.customFields[i].value,
+                  placeholder: empty,
+                  onTap: () => _editCustomField(context, cardInfo, index: i),
+                ),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  key: const ValueKey('add-custom-field'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: accent,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(l10n?.addCustomField ?? 'Thêm trường'),
+                  onPressed: () => _editCustomField(context, cardInfo),
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.gapH12,
+
+          // メモ
+          VerificationSection(
+            title: l10n?.noteLabel ?? 'Ghi chú',
+            children: [
+              VerificationFieldTile(
+                key: const ValueKey('note-field'),
+                label: l10n?.noteLabel ?? 'Ghi chú',
+                value: cardInfo.note,
+                placeholder: empty,
+                onTap: () => _editNote(context, cardInfo),
+              ),
+            ],
+          ),
+
+          // Các dòng OCR chưa gán vào mục nào: tick nhiều dòng rồi gán một lần
           if (cardInfo.unmappedLines.isNotEmpty) ...[
             AppSpacing.gapH12,
-            VerificationSection(
-              title: l10n?.unmappedLinesCount(cardInfo.unmappedLines.length) ??
-                  'Dòng chưa gán (${cardInfo.unmappedLines.length})',
-              children: [
-                for (final line in cardInfo.unmappedLines)
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBackground : AppColors.surfaceMuted,
-                      borderRadius: AppRadius.r8,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            line.text,
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        TextButton.icon(
-                          style: TextButton.styleFrom(
-                            foregroundColor: accent,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                          ),
-                          icon: const Icon(Icons.add_rounded, size: 16),
-                          label: Text(l10n?.assignTo ?? 'Gán vào...'),
-                          onPressed: () => _onAssignUnmappedLine(context, line),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+            _buildUnmappedSection(context, l10n, isDark, accent, cardInfo),
           ],
         ],
       ),
     );
   }
 
+  Widget _buildUnmappedSection(
+    BuildContext context,
+    AppLocalizations? l10n,
+    bool isDark,
+    Color accent,
+    BusinessCardInfo cardInfo,
+  ) {
+    final lines = OcrLineOrder.sortUnmapped(cardInfo.unmappedLines);
+    // Bỏ id của dòng đã gán (không còn trong danh sách)
+    _selectedUnmapped.retainAll(lines.map((l) => l.id));
+    final selected = _selectedUnmapped.length;
+
+    return VerificationSection(
+      title: l10n?.unmappedLinesCount(lines.length) ?? 'Dòng chưa gán (${lines.length})',
+      children: [
+        for (final line in lines)
+          Material(
+            key: ValueKey('unmapped-${line.id}'),
+            color: _selectedUnmapped.contains(line.id)
+                ? (isDark ? const Color(0xFF1E3A8A) : const Color(0xFFEFF6FF))
+                : (isDark ? AppColors.darkBackground : AppColors.surfaceMuted),
+            borderRadius: AppRadius.r8,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _toggleUnmapped(line.id),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 2, 12, 2),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _selectedUnmapped.contains(line.id),
+                      visualDensity: VisualDensity.compact,
+                      onChanged: (_) => _toggleUnmapped(line.id),
+                    ),
+                    Expanded(
+                      child: Text(
+                        line.text,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        // Thanh hành động: Wrap để chữ to / màn hẹp thì xuống dòng thay vì tràn
+        Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            if (selected > 0) ...[
+              Text(
+                l10n?.selectedLinesCount(selected) ?? 'Đã chọn $selected dòng',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5, color: accent),
+              ),
+              TextButton(
+                onPressed: () => setState(_selectedUnmapped.clear),
+                child: Text(l10n?.clearSelection ?? 'Bỏ chọn'),
+              ),
+            ],
+            FilledButton.icon(
+              key: const ValueKey('assign-unmapped'),
+              onPressed: selected == 0 ? null : () => _assignUnmapped(context, {..._selectedUnmapped}),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.blueCardStart,
+                foregroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.r10),
+              ),
+              icon: const Icon(Icons.input_rounded, size: 18),
+              label: Text(l10n?.assignTo ?? 'Gán vào...'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   // ───────────── Tab "Trên ảnh": chạm dòng chữ trên ảnh để gán vào trường ─────────────
 
+  /// Bắt đầu chọn dòng mới → ẩn snackbar "Đã gán / Hoàn tác" của lần trước để nó không che thanh hành động.
+  void _hideAssignSnack() => ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+
+  void _toggleUnmapped(String id) {
+    _hideAssignSnack();
+    setState(() {
+      if (!_selectedUnmapped.remove(id)) _selectedUnmapped.add(id);
+    });
+  }
+
   void _toggleLine(int index) {
+    _hideAssignSnack();
     setState(() {
       if (!_selectedLines.remove(index)) _selectedLines.add(index);
     });
@@ -433,46 +571,30 @@ class _CardVerificationPageState extends State<CardVerificationPage>
   }
 
   Future<void> _assignSelectedLines(BuildContext context, List<CardTextLine> lines) async {
-    final l10n = AppLocalizations.of(context);
     final cubit = context.read<ScanCubit>();
-    final messenger = ScaffoldMessenger.of(context);
     final previous = cubit.state.currentCardInfo;
     if (previous == null || _selectedLines.isEmpty) return;
 
-    // Ghép các dòng theo thứ tự đọc (trên → dưới, trái → phải)
-    final chosen = _selectedLines.map((i) => lines[i]).toList()
-      ..sort((a, b) {
-        final dy = a.boundingBox.top - b.boundingBox.top;
-        if (dy.abs() > a.boundingBox.height / 2) return dy.sign.toInt();
-        return a.boundingBox.left.compareTo(b.boundingBox.left);
-      });
+    // Ghép các dòng theo thứ tự đọc (hàng trên → dưới, trong hàng trái → phải; chữ dọc phải → trái)
+    final chosen = OcrLineOrder.sort(
+      _selectedLines.map((i) => lines[i]),
+      rect: (l) => l.boundingBox,
+      isVertical: (l) => l.boundingBox.height > l.boundingBox.width * 1.4,
+    );
     final texts = chosen.map((l) => l.text.trim()).where((t) => t.isNotEmpty).toList();
 
-    final result = await AssignLinesBottomSheet.show(context, text: texts.join(' '), cardInfo: previous);
-    if (result == null || !mounted) return;
+    final result = await AssignLinesBottomSheet.show(
+      context,
+      lines: texts,
+      cardInfo: previous,
+      labelSuggestions: _labelSuggestions(previous),
+      existingLabels: _existingLabels(previous),
+    );
+    if (result == null || !mounted || !context.mounted) return;
 
-    cubit.updateCardInfo(previous.assignText(
-      result.fieldKey,
-      result.text,
-      append: result.append,
-      consumedLineTexts: texts,
-    ));
+    cubit.updateCardInfo(applyAssignResult(previous, result, consumedTexts: texts));
     setState(_selectedLines.clear);
-
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(
-          l10n?.assignedToField(fieldLabel(l10n, result.fieldKey)) ??
-              'Đã gán vào ${fieldLabel(l10n, result.fieldKey)}',
-        ),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: l10n?.undo ?? 'Hoàn tác',
-          onPressed: () => cubit.updateCardInfo(previous),
-        ),
-      ));
+    _showAssignedSnack(context, result, previous);
   }
 
   Widget _buildOriginalTextTab(

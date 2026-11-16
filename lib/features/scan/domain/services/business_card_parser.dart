@@ -5,6 +5,7 @@ import '../entities/ocr_model.dart';
 import 'heuristic_field_scorer.dart';
 import 'regex_field_extractor.dart';
 import 'text_normalizer.dart';
+import 'vietnamese_unicode.dart';
 
 /// Orchestrator chịu trách nhiệm bóc tách dữ liệu danh thiếp từ kết quả OCR thô
 class BusinessCardParser {
@@ -28,7 +29,7 @@ class BusinessCardParser {
       final block = ocrResult.blocks[bIdx];
       for (int lIdx = 0; lIdx < block.lines.length; lIdx++) {
         final line = block.lines[lIdx];
-        final rawText = line.text.trim();
+        final rawText = VietnameseUnicode.compose(line.text).trim();
         if (rawText.isEmpty) continue;
 
         final normalized = TextNormalizer.normalize(rawText);

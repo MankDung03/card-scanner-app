@@ -12,9 +12,11 @@ class MemoryCardRepository implements CardRepository {
   Future<List<SavedCard>> getAll() async => [...cards]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
   @override
-  Future<SavedCard> saveFromScan(BusinessCardInfo info, {String? frontImagePath, String? backImagePath}) async {
+  Future<SavedCard> saveFromScan(BusinessCardInfo info,
+      {String? frontImagePath, String? backImagePath, String? ocrTextFront, String? ocrTextBack}) async {
     final now = DateTime.now();
-    final card = SavedCard.fromCardInfo(info, id: now.microsecondsSinceEpoch.toString(), now: now);
+    final card = SavedCard.fromCardInfo(info,
+        id: now.microsecondsSinceEpoch.toString(), now: now, ocrTextFront: ocrTextFront, ocrTextBack: ocrTextBack);
     cards.add(card);
     return card;
   }

@@ -174,6 +174,8 @@ class LocalCardRepository implements CardRepository {
     BusinessCardInfo info, {
     String? frontImagePath,
     String? backImagePath,
+    String? ocrTextFront,
+    String? ocrTextBack,
   }) async {
     final now = DateTime.now();
     final id = now.microsecondsSinceEpoch.toString();
@@ -183,6 +185,8 @@ class LocalCardRepository implements CardRepository {
       now: now,
       frontImagePath: await _copyImage(frontImagePath, '${id}_front'),
       backImagePath: await _copyImage(backImagePath, '${id}_back'),
+      ocrTextFront: ocrTextFront,
+      ocrTextBack: ocrTextBack,
     );
     final cards = [...await _load(), card];
     await _persist(cards);

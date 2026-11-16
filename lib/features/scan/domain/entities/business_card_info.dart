@@ -1,4 +1,5 @@
 import 'business_card_result.dart';
+import 'custom_field.dart';
 import 'ocr_model.dart';
 
 /// Entity đại diện cho các trường thông tin danh thiếp đã được bóc tách
@@ -26,6 +27,12 @@ class BusinessCardInfo {
   /// Danh sách các dòng văn bản OCR chưa được gán vào trường nào
   final List<OcrLine> unmappedLines;
 
+  /// Trường tuỳ chỉnh người dùng tạo từ dòng chưa gán (hoặc nhập tay)
+  final List<CustomField> customFields;
+
+  /// Ghi chú nhập ngay trên màn xác nhận (lưu vào ghi chú của danh thiếp)
+  final String? note;
+
   const BusinessCardInfo({
     this.name,
     this.furigana,
@@ -42,6 +49,8 @@ class BusinessCardInfo {
     this.reviewFlags = const {},
     this.alternatives = const {},
     this.unmappedLines = const [],
+    this.customFields = const [],
+    this.note,
   });
 
   /// Factory chuyển đổi từ BusinessCardResult sang BusinessCardInfo
@@ -171,6 +180,8 @@ class BusinessCardInfo {
     Map<String, bool>? reviewFlags,
     Map<String, List<String>>? alternatives,
     List<OcrLine>? unmappedLines,
+    List<CustomField>? customFields,
+    String? note,
   }) {
     return BusinessCardInfo(
       name: name ?? this.name,
@@ -188,6 +199,8 @@ class BusinessCardInfo {
       reviewFlags: reviewFlags ?? this.reviewFlags,
       alternatives: alternatives ?? this.alternatives,
       unmappedLines: unmappedLines ?? this.unmappedLines,
+      customFields: customFields ?? this.customFields,
+      note: note ?? this.note,
     );
   }
 
@@ -277,6 +290,7 @@ class BusinessCardInfo {
     String text, {
     bool append = false,
     Iterable<String> consumedLineTexts = const [],
+    Iterable<String> consumedLineIds = const [],
   }) {
     final value = text.trim();
     if (value.isEmpty || !fieldKeys.contains(fieldKey)) return this;
@@ -284,9 +298,65 @@ class BusinessCardInfo {
     final current = fieldValue(fieldKey)?.trim();
     final newValue = (append && current != null && current.isNotEmpty) ? '$current $value' : value;
 
-    final consumed = consumedLineTexts.map((t) => t.trim()).toSet();
-    return updateField(fieldKey, newValue).copyWith(
-      unmappedLines: unmappedLines.where((l) => !consumed.contains(l.text.trim())).toList(),
+    return updateField(fieldKey, newValue)
+        ._withoutLines(texts: consumedLineTexts, ids: consumedLineIds);
+  }
+
+  /// Thêm trường tuỳ chỉnh [label] = [value] (đã chuẩn hoá tên ở tầng gọi).
+  /// Đã có trường cùng tên → [append] nối thêm dòng mới, ngược lại thay giá trị.
+  BusinessCardInfo addCustomField(
+    String label,
+    String value, {
+    bool append = true,
+    Iterable<String> consumedLineTexts = const [],
+    Iterable<String> consumedLineIds = const [],
+  }) {
+    final l = label.trim();
+    final v = value.trim();
+    if (l.isEmpty || v.isEmpty) return this;
+    final fields = [...customFields];
+    final i = fields.indexWhere((f) => f.label == l);
+    if (i == -1) {
+      fields.add(CustomField(label: l, value: v));
+    } else {
+      fields[i] = fields[i].copyWith(value: append ? '${fields[i].value}\n$v' : v);
+    }
+    return copyWith(customFields: fields)._withoutLines(texts: consumedLineTexts, ids: consumedLineIds);
+  }
+
+  /// Sửa ([field] != null) hoặc xoá ([field] == null) trường tuỳ chỉnh thứ [index].
+  BusinessCardInfo setCustomField(int index, CustomField? field) {
+    if (index < 0 || index >= customFields.length) return this;
+    final fields = [...customFields];
+    if (field == null) {
+      fields.removeAt(index);
+    } else {
+      fields[index] = field;
+    }
+    return copyWith(customFields: fields);
+  }
+
+  /// Nối [text] vào ghi chú (xuống dòng) hoặc thay thế khi [append] = false.
+  BusinessCardInfo appendNote(
+    String text, {
+    bool append = true,
+    Iterable<String> consumedLineTexts = const [],
+    Iterable<String> consumedLineIds = const [],
+  }) {
+    final v = text.trim();
+    if (v.isEmpty) return this;
+    final current = note?.trim() ?? '';
+    final next = (append && current.isNotEmpty) ? '$current\n$v' : v;
+    return copyWith(note: next)._withoutLines(texts: consumedLineTexts, ids: consumedLineIds);
+  }
+
+  /// Bỏ khỏi danh sách chưa gán các dòng có id thuộc [ids] hoặc text thuộc [texts].
+  BusinessCardInfo _withoutLines({Iterable<String> texts = const [], Iterable<String> ids = const []}) {
+    final t = texts.map((e) => e.trim()).toSet();
+    final i = ids.toSet();
+    if (t.isEmpty && i.isEmpty) return this;
+    return copyWith(
+      unmappedLines: unmappedLines.where((l) => !i.contains(l.id) && !t.contains(l.text.trim())).toList(),
     );
   }
 }
