@@ -166,9 +166,10 @@ class _CenterLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Chưa chọn → xám giống 2 tab bên cạnh (trước đây dùng xám-xanh đậm nên trông như luôn đang chọn)
     final color = selected
         ? (isDark ? const Color(0xFF93B4E0) : AppColors.navy)
-        : (isDark ? AppColors.darkTextSecondary : AppColors.textTertiary);
+        : (isDark ? AppColors.darkTextMuted : AppColors.textMuted);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -180,7 +181,7 @@ class _CenterLabel extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: color, fontSize: 11, fontWeight: selected ? FontWeight.w700 : FontWeight.w600),
+            style: TextStyle(color: color, fontSize: 11, fontWeight: selected ? FontWeight.w700 : FontWeight.w500),
           ),
         ),
       ),

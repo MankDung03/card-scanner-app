@@ -351,5 +351,11 @@
   "skipUnassigned": "スキップ",
   "backToAssign": "戻って割り当て",
   "ocrTextSection": "読み取りテキスト（OCR）",
-  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}}
+  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}},
+  "cameraPermissionTitle": "カメラへのアクセスが必要です",
+  "cameraPermissionBody": "名刺を撮影するにはカメラの使用を許可してください。ライブラリから写真を選ぶこともできます。",
+  "cameraPermissionDeniedBody": "カメラの権限がオフになっています。アプリの設定で「権限」→「カメラ」をオンにしてください。",
+  "cameraUnavailableBody": "カメラが使用中か、問題が発生しました。もう一度試すか、ライブラリから写真を選んでください。",
+  "openAppSettings": "設定を開く",
+  "retryAction": "再試行"
 }

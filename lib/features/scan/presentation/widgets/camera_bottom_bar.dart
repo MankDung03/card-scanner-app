@@ -13,6 +13,9 @@ class CameraBottomBar extends StatelessWidget {
   final VoidCallback onCrop;
   final bool isProcessing;
 
+  /// false khi camera chưa sẵn sàng (chưa có quyền / lỗi): nút chụp mờ và không bấm được
+  final bool shutterEnabled;
+
   const CameraBottomBar({
     super.key,
     required this.galleryLabel,
@@ -22,6 +25,7 @@ class CameraBottomBar extends StatelessWidget {
     required this.onGallery,
     required this.onCrop,
     this.isProcessing = false,
+    this.shutterEnabled = true,
   });
 
   @override
@@ -42,7 +46,14 @@ class CameraBottomBar extends StatelessWidget {
                 child: _SideButton(icon: Icons.image_outlined, label: galleryLabel, onTap: onGallery),
               ),
             ),
-            _ShutterButton(label: shutterLabel, isProcessing: isProcessing, onTap: onShutter),
+            Opacity(
+              opacity: shutterEnabled || isProcessing ? 1 : 0.35,
+              child: _ShutterButton(
+                label: shutterLabel,
+                isProcessing: isProcessing,
+                onTap: shutterEnabled ? onShutter : null,
+              ),
+            ),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
@@ -59,8 +70,7 @@ class CameraBottomBar extends StatelessWidget {
 
 class _ShutterButton extends StatelessWidget {
   final bool isProcessing;
-  final VoidCallback onTap;
-
+  final VoidCallback? onTap;
   final String label;
 
   const _ShutterButton({required this.label, required this.isProcessing, required this.onTap});

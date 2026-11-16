@@ -15,6 +15,7 @@ import 'package:app_scanner_card/features/scan/domain/entities/business_card_inf
 import 'package:app_scanner_card/features/scan/domain/entities/custom_field.dart';
 import 'package:app_scanner_card/features/scan/domain/entities/ocr_model.dart';
 import 'package:app_scanner_card/features/scan/presentation/widgets/assign_lines_bottom_sheet.dart';
+import 'package:app_scanner_card/features/scan/presentation/widgets/camera_problem_panel.dart';
 import 'package:app_scanner_card/features/scan/presentation/widgets/custom_field_editor_sheet.dart';
 import 'package:app_scanner_card/features/scan/presentation/widgets/unassigned_lines_dialog.dart';
 import 'package:app_scanner_card/features/scan/presentation/cubit/scan_cubit.dart';
@@ -251,4 +252,25 @@ void main() {
       build: (c) => host(c, Center(child: UnassignedLinesDialog(lines: unmapped))),
     );
   });
+
+  for (final problem in CameraProblem.values) {
+    testWidgets('không tràn layout: thông báo camera (${problem.name})', (tester) async {
+      await expectNoLayoutOverflow(
+        tester,
+        build: (c) => host(
+          c,
+          // Giống màn camera: nằm giữa header và thanh nút, cuộn được
+          Padding(
+            padding: const EdgeInsets.only(top: 120, bottom: 150),
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: CameraProblemPanel(problem: problem, onPrimary: () {}, onGallery: () {}),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+  }
 }

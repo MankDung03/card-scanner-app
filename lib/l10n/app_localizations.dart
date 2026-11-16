@@ -1887,6 +1887,42 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Văn bản gốc (OCR)'**
   String get ocrTextSection;
+
+  /// No description provided for @cameraPermissionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cần quyền truy cập camera'**
+  String get cameraPermissionTitle;
+
+  /// No description provided for @cameraPermissionBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cho phép dùng camera để chụp danh thiếp. Bạn vẫn có thể chọn ảnh có sẵn từ Thư viện.'**
+  String get cameraPermissionBody;
+
+  /// No description provided for @cameraPermissionDeniedBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quyền camera đang bị tắt. Mở Cài đặt của ứng dụng, vào Quyền → Camera để bật lại.'**
+  String get cameraPermissionDeniedBody;
+
+  /// No description provided for @cameraUnavailableBody.
+  ///
+  /// In vi, this message translates to:
+  /// **'Camera đang bận hoặc gặp sự cố. Hãy thử lại, hoặc chọn ảnh từ Thư viện.'**
+  String get cameraUnavailableBody;
+
+  /// No description provided for @openAppSettings.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mở Cài đặt'**
+  String get openAppSettings;
+
+  /// No description provided for @retryAction.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thử lại'**
+  String get retryAction;
 }
 
 class _AppLocalizationsDelegate

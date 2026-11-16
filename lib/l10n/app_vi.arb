@@ -351,5 +351,11 @@
   "skipUnassigned": "Bỏ qua",
   "backToAssign": "Quay lại gán",
   "ocrTextSection": "Văn bản gốc (OCR)",
-  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}}
+  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}},
+  "cameraPermissionTitle": "Cần quyền truy cập camera",
+  "cameraPermissionBody": "Cho phép dùng camera để chụp danh thiếp. Bạn vẫn có thể chọn ảnh có sẵn từ Thư viện.",
+  "cameraPermissionDeniedBody": "Quyền camera đang bị tắt. Mở Cài đặt của ứng dụng, vào Quyền → Camera để bật lại.",
+  "cameraUnavailableBody": "Camera đang bận hoặc gặp sự cố. Hãy thử lại, hoặc chọn ảnh từ Thư viện.",
+  "openAppSettings": "Mở Cài đặt",
+  "retryAction": "Thử lại"
 }

@@ -968,4 +968,25 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get ocrTextSection => 'Văn bản gốc (OCR)';
+
+  @override
+  String get cameraPermissionTitle => 'Cần quyền truy cập camera';
+
+  @override
+  String get cameraPermissionBody =>
+      'Cho phép dùng camera để chụp danh thiếp. Bạn vẫn có thể chọn ảnh có sẵn từ Thư viện.';
+
+  @override
+  String get cameraPermissionDeniedBody =>
+      'Quyền camera đang bị tắt. Mở Cài đặt của ứng dụng, vào Quyền → Camera để bật lại.';
+
+  @override
+  String get cameraUnavailableBody =>
+      'Camera đang bận hoặc gặp sự cố. Hãy thử lại, hoặc chọn ảnh từ Thư viện.';
+
+  @override
+  String get openAppSettings => 'Mở Cài đặt';
+
+  @override
+  String get retryAction => 'Thử lại';
 }

@@ -955,4 +955,25 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ocrTextSection => '読み取りテキスト（OCR）';
+
+  @override
+  String get cameraPermissionTitle => 'カメラへのアクセスが必要です';
+
+  @override
+  String get cameraPermissionBody =>
+      '名刺を撮影するにはカメラの使用を許可してください。ライブラリから写真を選ぶこともできます。';
+
+  @override
+  String get cameraPermissionDeniedBody =>
+      'カメラの権限がオフになっています。アプリの設定で「権限」→「カメラ」をオンにしてください。';
+
+  @override
+  String get cameraUnavailableBody =>
+      'カメラが使用中か、問題が発生しました。もう一度試すか、ライブラリから写真を選んでください。';
+
+  @override
+  String get openAppSettings => '設定を開く';
+
+  @override
+  String get retryAction => '再試行';
 }

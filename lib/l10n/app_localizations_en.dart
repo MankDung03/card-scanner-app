@@ -977,4 +977,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ocrTextSection => 'Original text (OCR)';
+
+  @override
+  String get cameraPermissionTitle => 'Camera access needed';
+
+  @override
+  String get cameraPermissionBody =>
+      'Allow camera access to photograph business cards. You can still pick an existing photo from the Gallery.';
+
+  @override
+  String get cameraPermissionDeniedBody =>
+      'Camera access is turned off. Open the app settings and enable Permissions → Camera.';
+
+  @override
+  String get cameraUnavailableBody =>
+      'The camera is busy or ran into a problem. Try again, or pick a photo from the Gallery.';
+
+  @override
+  String get openAppSettings => 'Open Settings';
+
+  @override
+  String get retryAction => 'Try again';
 }

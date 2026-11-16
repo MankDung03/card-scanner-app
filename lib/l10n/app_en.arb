@@ -351,5 +351,11 @@
   "skipUnassigned": "Skip",
   "backToAssign": "Go back & assign",
   "ocrTextSection": "Original text (OCR)",
-  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}}
+  "@unassignedDialogTitle": {"placeholders":{"count":{"type":"int"}}},
+  "cameraPermissionTitle": "Camera access needed",
+  "cameraPermissionBody": "Allow camera access to photograph business cards. You can still pick an existing photo from the Gallery.",
+  "cameraPermissionDeniedBody": "Camera access is turned off. Open the app settings and enable Permissions → Camera.",
+  "cameraUnavailableBody": "The camera is busy or ran into a problem. Try again, or pick a photo from the Gallery.",
+  "openAppSettings": "Open Settings",
+  "retryAction": "Try again"
 }
