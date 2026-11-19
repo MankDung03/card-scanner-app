@@ -51,6 +51,7 @@ class RecentCardsPanel extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
+                  flex: 3,
                   child: Text(
                     title,
                     maxLines: 1,
@@ -58,21 +59,27 @@ class RecentCardsPanel extends StatelessWidget {
                     style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
-                // Flexible + FittedBox: "Xem tất cả (24)" chữ to thì thu nhỏ thay vì đẩy tràn tiêu đề
+                // Flexible + FittedBox: "Xem tất cả (24)" chữ to thì thu nhỏ thay vì đẩy tràn tiêu đề.
+                // Align phải: nút nằm sát mép phải, thẳng hàng với ngày / mũi tên của các dòng bên dưới
+                // (không có Align thì nút nằm giữa phần được chia).
                 if (viewAllLabel != null && onViewAll != null)
                   Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: TextButton(
-                        onPressed: onViewAll,
-                        style: TextButton.styleFrom(
-                          foregroundColor: link,
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          minimumSize: const Size(0, 32),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                    flex: 2,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: TextButton(
+                          onPressed: onViewAll,
+                          style: TextButton.styleFrom(
+                            foregroundColor: link,
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            minimumSize: const Size(0, 32),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                          ),
+                          child: Text(viewAllLabel!),
                         ),
-                        child: Text(viewAllLabel!),
                       ),
                     ),
                   ),
@@ -83,7 +90,8 @@ class RecentCardsPanel extends StatelessWidget {
             placeholder!
           else
             for (var i = 0; i < cards.length; i++) ...[
-              if (i > 0) Divider(height: 1, thickness: 1, indent: AppSpacing.s16, endIndent: AppSpacing.s16, color: divider),
+              if (i > 0)
+                Divider(height: 1, thickness: 1, indent: AppSpacing.s16, endIndent: AppSpacing.s16, color: divider),
               _RecentCardRow(card: cards[i], onTap: () => onCardTap(cards[i])),
             ],
           AppSpacing.gapH4,

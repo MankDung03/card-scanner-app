@@ -28,7 +28,8 @@ class CropBottomToolbar extends StatelessWidget {
       children: [
         _ToolButton(icon: Icons.rotate_right_rounded, label: rotateLabel, onTap: onRotate),
         AppSpacing.gapW8,
-        _ToolButton(icon: Icons.auto_fix_high_outlined, label: autoLabel, onTap: onAuto),
+        // Khung có mũi tên co giãn: "tự động cắt ảnh vừa khung danh thiếp"
+        _ToolButton(icon: Icons.fit_screen_rounded, label: autoLabel, onTap: onAuto),
         AppSpacing.gapW8,
         _ToolButton(icon: Icons.add_rounded, label: addBackLabel, onTap: onAddBack),
       ],

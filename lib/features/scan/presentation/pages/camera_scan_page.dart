@@ -152,13 +152,17 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
     }
   }
 
-  void _onCropPressed(BuildContext context) {
-    final state = context.read<ScanCubit>().state;
-    if (state.currentImagePath != null) {
-      context.push(AppRoutes.scanCrop);
-    } else {
-      _onShutterPressed(context);
-    }
+  /// Tự động chụp (khi thẻ nằm vừa khung, đủ nét): chưa có — tạm báo "sắp có".
+  /// Khi làm: thêm cờ bật/tắt (truyền `autoCaptureOn` cho CameraBottomBar) + phân tích khung hình preview.
+  void _onAutoCapturePressed(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(l10n?.autoCaptureComingSoon ?? 'Tự động chụp sẽ có trong bản cập nhật tới'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ));
   }
 
   @override
@@ -292,13 +296,13 @@ class _CameraScanPageState extends State<CameraScanPage> with WidgetsBindingObse
                 builder: (context, state) {
                   return CameraBottomBar(
                     galleryLabel: l10n?.gallery ?? 'Thư viện',
-                    cropLabel: l10n?.cropAction ?? 'Cắt ảnh',
+                    autoCaptureLabel: l10n?.autoCapture ?? 'Tự động chụp',
                     shutterLabel: l10n?.captureCardTitle ?? 'Chụp ảnh',
                     isProcessing: state.isProcessing,
                     shutterEnabled: _status == _CameraStatus.ready,
                     onShutter: () => _onShutterPressed(context),
                     onGallery: () => _onGalleryPressed(context),
-                    onCrop: () => _onCropPressed(context),
+                    onAutoCapture: () => _onAutoCapturePressed(context),
                   );
                 },
               ),

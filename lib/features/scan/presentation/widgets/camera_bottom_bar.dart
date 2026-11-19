@@ -3,14 +3,17 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 
-/// Thanh điều khiển dưới: [写真] — nút chụp — [トリミング].
+/// Thanh điều khiển dưới: [写真] — nút chụp — [自動撮影].
 class CameraBottomBar extends StatelessWidget {
   final String galleryLabel;
-  final String cropLabel;
+  final String autoCaptureLabel;
   final String shutterLabel;
   final VoidCallback onShutter;
   final VoidCallback onGallery;
-  final VoidCallback onCrop;
+  final VoidCallback onAutoCapture;
+
+  /// Tự động chụp đang bật (nút sáng màu)
+  final bool autoCaptureOn;
   final bool isProcessing;
 
   /// false khi camera chưa sẵn sàng (chưa có quyền / lỗi): nút chụp mờ và không bấm được
@@ -19,11 +22,12 @@ class CameraBottomBar extends StatelessWidget {
   const CameraBottomBar({
     super.key,
     required this.galleryLabel,
-    required this.cropLabel,
+    required this.autoCaptureLabel,
     required this.shutterLabel,
     required this.onShutter,
     required this.onGallery,
-    required this.onCrop,
+    required this.onAutoCapture,
+    this.autoCaptureOn = false,
     this.isProcessing = false,
     this.shutterEnabled = true,
   });
@@ -58,7 +62,12 @@ class CameraBottomBar extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerRight,
                 heightFactor: 1,
-                child: _SideButton(icon: Icons.crop_free_rounded, label: cropLabel, onTap: onCrop),
+                child: _SideButton(
+                  icon: Icons.motion_photos_auto_outlined,
+                  label: autoCaptureLabel,
+                  onTap: onAutoCapture,
+                  active: autoCaptureOn,
+                ),
               ),
             ),
           ],
@@ -113,11 +122,17 @@ class _SideButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _SideButton({required this.icon, required this.label, required this.onTap});
+  /// Đang bật (vd. tự động chụp): nền trắng, icon tối
+  final bool active;
+
+  const _SideButton({required this.icon, required this.label, required this.onTap, this.active = false});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      button: true,
+      toggled: active ? true : null,
+      child: InkWell(
       onTap: onTap,
       borderRadius: AppRadius.r12,
       child: Padding(
@@ -125,19 +140,28 @@ class _SideButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
               width: 48,
               height: 48,
-              decoration: const BoxDecoration(color: AppColors.scanControlBg, borderRadius: AppRadius.r12),
-              child: Icon(icon, color: Colors.white, size: 22),
+              decoration: BoxDecoration(
+                color: active ? Colors.white : AppColors.scanControlBg,
+                borderRadius: AppRadius.r12,
+              ),
+              child: Icon(icon, color: active ? AppColors.navy : Colors.white, size: 22),
             ),
             AppSpacing.gapH6,
+            // Nhãn dài ("Tự động chụp") / chữ to → xuống tối đa 2 dòng thay vì tràn ngang
             Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
             ),
           ],
         ),
+      ),
       ),
     );
   }

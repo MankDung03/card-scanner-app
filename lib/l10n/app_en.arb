@@ -123,8 +123,6 @@
   "exportFailed": "Export failed",
   "csvCreatedAt": "Added on",
   "tapToZoom": "Tap to zoom",
-  "cardsCount": "{count} cards",
-  "@cardsCount": {"placeholders":{"count":{"type":"int"}}},
   "savedComplete": "Saved",
   "viewDetails": "Details",
   "addTagAction": "Add tag",
@@ -151,7 +149,6 @@
       }
     }
   },
-  "offlineBadge": "Processed on-device · No network needed",
   "today": "Today",
   "featureComingSoon": "Feature will be enabled in next step",
   "settingsTitle": "Settings & Preferences",
@@ -187,7 +184,7 @@
   "ocrSuccess": "Text recognized successfully",
   "ocrBlocksCount": "{count} text blocks",
   "ocrLinesCount": "{count} lines",
-  "offlineBadge": "100% On-device · Offline",
+  "offlineBadge": "100% on-device · Works offline",
   "visualTab": "Visual",
   "rawTextTab": "Raw text",
   "blocksTab": "Blocks",
@@ -357,5 +354,7 @@
   "cameraPermissionDeniedBody": "Camera access is turned off. Open the app settings and enable Permissions → Camera.",
   "cameraUnavailableBody": "The camera is busy or ran into a problem. Try again, or pick a photo from the Gallery.",
   "openAppSettings": "Open Settings",
-  "retryAction": "Try again"
+  "retryAction": "Try again",
+  "autoCapture": "Auto capture",
+  "autoCaptureComingSoon": "Auto capture is coming in a future update"
 }

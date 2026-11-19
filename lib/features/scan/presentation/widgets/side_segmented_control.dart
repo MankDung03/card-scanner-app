@@ -30,27 +30,30 @@ class SideSegmentedControl extends StatelessWidget {
         color: onLightBackground ? AppColors.divider : AppColors.scanControlBg,
         borderRadius: AppRadius.r10,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        // Flexible: màn hẹp / chữ to thì 2 ô co lại (nhãn tự thu nhỏ) thay vì tràn
-        children: [
-          Flexible(
-            child: _Segment(
-              label: frontLabel,
-              isSelected: currentSide == CardSide.front,
-              onLight: onLightBackground,
-              onTap: () => onSideChanged(CardSide.front),
+      // IntrinsicWidth + Expanded: 2 ô rộng bằng nhau (= ô có nhãn dài hơn), cả thanh vẫn chỉ rộng vừa chữ.
+      // Màn hẹp / chữ to: thanh bị giới hạn bởi bề ngang → mỗi ô nhận một nửa, nhãn tự thu nhỏ thay vì tràn.
+      child: IntrinsicWidth(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: _Segment(
+                label: frontLabel,
+                isSelected: currentSide == CardSide.front,
+                onLight: onLightBackground,
+                onTap: () => onSideChanged(CardSide.front),
+              ),
             ),
-          ),
-          Flexible(
-            child: _Segment(
-              label: backLabel,
-              isSelected: currentSide == CardSide.back,
-              onLight: onLightBackground,
-              onTap: () => onSideChanged(CardSide.back),
+            Expanded(
+              child: _Segment(
+                label: backLabel,
+                isSelected: currentSide == CardSide.back,
+                onLight: onLightBackground,
+                onTap: () => onSideChanged(CardSide.back),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -77,22 +80,27 @@ class _Segment extends StatelessWidget {
           curve: Curves.easeInOut,
           constraints: const BoxConstraints(minWidth: 88, minHeight: 34),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: AppRadius.r8,
           ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              maxLines: 1,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : (onLight ? AppColors.textMuted : Colors.white.withValues(alpha: 0.8)),
+          // Align widthFactor 1: ô chỉ rộng vừa chữ (tối thiểu 88). Dùng `alignment:` của Container thì ô
+          // giãn hết phần Flexible → cả thanh chiếm hết chiều ngang màn hình.
+          child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? AppColors.textPrimary
+                      : (onLight ? AppColors.textMuted : Colors.white.withValues(alpha: 0.8)),
+                ),
               ),
             ),
           ),

@@ -123,8 +123,6 @@
   "exportFailed": "ファイルを出力できませんでした",
   "csvCreatedAt": "登録日",
   "tapToZoom": "タップで拡大",
-  "cardsCount": "{count}件",
-  "@cardsCount": {"placeholders":{"count":{"type":"int"}}},
   "savedComplete": "保存完了",
   "viewDetails": "詳細",
   "addTagAction": "タグを追加",
@@ -151,7 +149,6 @@
       }
     }
   },
-  "offlineBadge": "端末内で安全に処理・ネット不要",
   "today": "今日",
   "featureComingSoon": "次のステップで機能が有効化されます",
   "settingsTitle": "設定＆オプション",
@@ -187,7 +184,7 @@
   "ocrSuccess": "文字認識が完了しました",
   "ocrBlocksCount": "{count} テキストブロック",
   "ocrLinesCount": "{count} 行",
-  "offlineBadge": "データはこの端末内にのみ保存されます",
+  "offlineBadge": "100% 端末内で処理・オフライン対応",
   "visualTab": "視覚的",
   "rawTextTab": "テキスト",
   "blocksTab": "ブロック",
@@ -357,5 +354,7 @@
   "cameraPermissionDeniedBody": "カメラの権限がオフになっています。アプリの設定で「権限」→「カメラ」をオンにしてください。",
   "cameraUnavailableBody": "カメラが使用中か、問題が発生しました。もう一度試すか、ライブラリから写真を選んでください。",
   "openAppSettings": "設定を開く",
-  "retryAction": "再試行"
+  "retryAction": "再試行",
+  "autoCapture": "自動撮影",
+  "autoCaptureComingSoon": "自動撮影は今後のアップデートで追加予定です"
 }

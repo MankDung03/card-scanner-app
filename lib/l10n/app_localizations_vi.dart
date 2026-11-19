@@ -379,11 +379,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tapToZoom => 'Chạm để phóng to';
 
   @override
-  String cardsCount(int count) {
-    return '$count danh thiếp';
-  }
-
-  @override
   String get savedComplete => 'Đã lưu';
 
   @override
@@ -440,9 +435,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String viewAll(int count) {
     return 'Xem tất cả ($count)';
   }
-
-  @override
-  String get offlineBadge => '100% On-device · Offline';
 
   @override
   String get today => 'Hôm nay';
@@ -553,6 +545,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String ocrLinesCount(Object count) {
     return '$count dòng chữ';
   }
+
+  @override
+  String get offlineBadge => '100% xử lý trên máy · Không cần mạng';
 
   @override
   String get visualTab => 'Trực quan';
@@ -734,6 +729,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get scanCardAction => 'Quét thẻ mới';
+
+  @override
+  String cardsCount(int count) {
+    return '$count danh thiếp';
+  }
 
   @override
   String showingCardsCount(int filtered, int total) {
@@ -989,4 +989,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get retryAction => 'Thử lại';
+
+  @override
+  String get autoCapture => 'Tự động chụp';
+
+  @override
+  String get autoCaptureComingSoon =>
+      'Tự động chụp sẽ có trong bản cập nhật tới';
 }

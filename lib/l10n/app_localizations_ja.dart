@@ -371,11 +371,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tapToZoom => 'タップで拡大';
 
   @override
-  String cardsCount(int count) {
-    return '$count枚の名刺';
-  }
-
-  @override
   String get savedComplete => '保存完了';
 
   @override
@@ -432,9 +427,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String viewAll(int count) {
     return 'すべて見る（$count件）';
   }
-
-  @override
-  String get offlineBadge => 'データはこの端末内にのみ保存されます';
 
   @override
   String get today => '今日';
@@ -542,6 +534,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String ocrLinesCount(Object count) {
     return '$count 行';
   }
+
+  @override
+  String get offlineBadge => '100% 端末内で処理・オフライン対応';
 
   @override
   String get visualTab => '視覚的';
@@ -723,6 +718,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get scanCardAction => '新しい名刺をスキャン';
+
+  @override
+  String cardsCount(int count) {
+    return '$count枚の名刺';
+  }
 
   @override
   String showingCardsCount(int filtered, int total) {
@@ -976,4 +976,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get retryAction => '再試行';
+
+  @override
+  String get autoCapture => '自動撮影';
+
+  @override
+  String get autoCaptureComingSoon => '自動撮影は今後のアップデートで追加予定です';
 }

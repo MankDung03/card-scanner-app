@@ -123,8 +123,6 @@
   "exportFailed": "Không xuất được file",
   "csvCreatedAt": "Ngày thêm",
   "tapToZoom": "Chạm để phóng to",
-  "cardsCount": "{count} danh thiếp",
-  "@cardsCount": {"placeholders":{"count":{"type":"int"}}},
   "savedComplete": "Đã lưu",
   "viewDetails": "Chi tiết",
   "addTagAction": "Thêm tag",
@@ -151,7 +149,6 @@
       }
     }
   },
-  "offlineBadge": "Xử lý ngay trên máy · không cần mạng",
   "today": "Hôm nay",
   "featureComingSoon": "Chức năng sẽ được kích hoạt ở bước tiếp theo",
   "settingsTitle": "Cài đặt & Tùy chọn",
@@ -187,7 +184,7 @@
   "ocrSuccess": "Nhận dạng chữ thành công",
   "ocrBlocksCount": "{count} khối chữ",
   "ocrLinesCount": "{count} dòng chữ",
-  "offlineBadge": "100% On-device · Offline",
+  "offlineBadge": "100% xử lý trên máy · Không cần mạng",
   "visualTab": "Trực quan",
   "rawTextTab": "Văn bản",
   "blocksTab": "Khối chữ",
@@ -357,5 +354,7 @@
   "cameraPermissionDeniedBody": "Quyền camera đang bị tắt. Mở Cài đặt của ứng dụng, vào Quyền → Camera để bật lại.",
   "cameraUnavailableBody": "Camera đang bận hoặc gặp sự cố. Hãy thử lại, hoặc chọn ảnh từ Thư viện.",
   "openAppSettings": "Mở Cài đặt",
-  "retryAction": "Thử lại"
+  "retryAction": "Thử lại",
+  "autoCapture": "Tự động chụp",
+  "autoCaptureComingSoon": "Tự động chụp sẽ có trong bản cập nhật tới"
 }

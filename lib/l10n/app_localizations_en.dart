@@ -379,11 +379,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tapToZoom => 'Tap to zoom';
 
   @override
-  String cardsCount(int count) {
-    return '$count cards';
-  }
-
-  @override
   String get savedComplete => 'Saved';
 
   @override
@@ -440,9 +435,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String viewAll(int count) {
     return 'View all ($count)';
   }
-
-  @override
-  String get offlineBadge => '100% On-device · Offline';
 
   @override
   String get today => 'Today';
@@ -552,6 +544,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String ocrLinesCount(Object count) {
     return '$count lines';
   }
+
+  @override
+  String get offlineBadge => '100% on-device · Works offline';
 
   @override
   String get visualTab => 'Visual';
@@ -736,6 +731,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanCardAction => 'Scan new card';
+
+  @override
+  String cardsCount(int count) {
+    return '$count cards';
+  }
 
   @override
   String showingCardsCount(int filtered, int total) {
@@ -998,4 +998,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retryAction => 'Try again';
+
+  @override
+  String get autoCapture => 'Auto capture';
+
+  @override
+  String get autoCaptureComingSoon =>
+      'Auto capture is coming in a future update';
 }

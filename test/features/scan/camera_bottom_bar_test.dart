@@ -14,11 +14,11 @@ void main() {
           alignment: Alignment.bottomCenter,
           child: CameraBottomBar(
             galleryLabel: 'Thư viện',
-            cropLabel: 'Cắt ảnh',
+            autoCaptureLabel: 'Tự động chụp',
             shutterLabel: 'Chụp',
             onShutter: () {},
             onGallery: () {},
-            onCrop: () {},
+            onAutoCapture: () {},
           ),
         ),
       ),
@@ -27,7 +27,7 @@ void main() {
     final bar = tester.getRect(find.byType(CameraBottomBar));
     expect(bar.height, lessThan(150));
     expect(bar.bottom, 800);
-    for (final label in ['Thư viện', 'Cắt ảnh']) {
+    for (final label in ['Thư viện', 'Tự động chụp']) {
       expect(tester.getRect(find.text(label)).bottom, greaterThan(700));
     }
   });

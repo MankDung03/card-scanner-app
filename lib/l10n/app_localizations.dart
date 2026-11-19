@@ -784,12 +784,6 @@ abstract class AppLocalizations {
   /// **'Chạm để phóng to'**
   String get tapToZoom;
 
-  /// No description provided for @cardsCount.
-  ///
-  /// In vi, this message translates to:
-  /// **'{count} danh thiếp'**
-  String cardsCount(int count);
-
   /// No description provided for @savedComplete.
   ///
   /// In vi, this message translates to:
@@ -897,12 +891,6 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Xem tất cả ({count})'**
   String viewAll(int count);
-
-  /// No description provided for @offlineBadge.
-  ///
-  /// In vi, this message translates to:
-  /// **'100% On-device · Offline'**
-  String get offlineBadge;
 
   /// No description provided for @today.
   ///
@@ -1107,6 +1095,12 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'{count} dòng chữ'**
   String ocrLinesCount(Object count);
+
+  /// No description provided for @offlineBadge.
+  ///
+  /// In vi, this message translates to:
+  /// **'100% xử lý trên máy · Không cần mạng'**
+  String get offlineBadge;
 
   /// No description provided for @visualTab.
   ///
@@ -1461,6 +1455,12 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Quét thẻ mới'**
   String get scanCardAction;
+
+  /// No description provided for @cardsCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh thiếp'**
+  String cardsCount(int count);
 
   /// No description provided for @showingCardsCount.
   ///
@@ -1923,6 +1923,18 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Thử lại'**
   String get retryAction;
+
+  /// No description provided for @autoCapture.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động chụp'**
+  String get autoCapture;
+
+  /// No description provided for @autoCaptureComingSoon.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động chụp sẽ có trong bản cập nhật tới'**
+  String get autoCaptureComingSoon;
 }
 
 class _AppLocalizationsDelegate
